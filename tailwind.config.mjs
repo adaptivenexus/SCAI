@@ -8,8 +8,18 @@ export default {
   theme: {
     extend: {
       colors: {
+        primary: "var(--primary)",
+        secondary: "var(--secondary)",
         background: "var(--background)",
         foreground: "var(--foreground)",
+        "secondary-foreground": "var(--secondary-foreground)",
+        "accent-primary": "var(--accent-primary)",
+        "accent-secondary": "var(--accent-secondary)",
+      },
+      backgroundImage: {
+        "primary-gradient": "var(--primary-gradient)",
+        "primary-gradient-reverse": "var(--primary-gradient-reverse)",
+        "secondary-gradient": "var(--secondary-gradient)",
       },
     },
   },

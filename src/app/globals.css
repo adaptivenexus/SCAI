@@ -3,19 +3,156 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --primary: #005cdc;
+  --secondary: #003176;
+  --background: #fafdff;
+  --foreground: #062b5d;
+  --secondary-foreground: #556590;
+  --accent-primary: #cfe2fa;
+  --accent-secondary: #f3f1ff;
+  --primary-gradient: linear-gradient(
+    90deg,
+    var(--primary) 0%,
+    var(--secondary) 100%
+  );
+  --primary-gradient-reverse: linear-gradient(
+    90deg,
+    var(--secondary) 0%,
+    var(--primary) 100%
+  );
+  --secondary-gradient: linear-gradient(
+    90deg,
+    var(--accent-primary) 0%,
+    var(--accent-secondary) 100%
+  );
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+.dark {
+  --primary: #005cdc;
+  --secondary: #a1c8ff;
+  --background: #0b213f;
+  --foreground: #e8f2ff;
+  --secondary-foreground: #8094c8;
+  --accent-primary: #203045;
+  --accent-secondary: #24203c;
+  --primary-gradient: linear-gradient(
+    90deg,
+    var(--primary) 0%,
+    var(--secondary) 100%
+  );
+  --primary-gradient-reverse: linear-gradient(
+    90deg,
+    var(--secondary) 0%,
+    var(--primary) 100%
+  );
+  --secondary-gradient: linear-gradient(
+    90deg,
+    var(--accent-primary) 0%,
+    var(--accent-secondary) 100%
+  );
+}
+
+@layer base {
+  /* h1 {
+    @apply text-2xl;
+  }
+  h2 {
+    @apply text-xl;
+  } */
+}
+
+@layer components {
+  /* Typography */
+
+  .display-text {
+    @apply text-7xl leading-[80px] font-bold;
+  }
+
+  .heading-1 {
+    @apply text-[56px] leading-[64px] font-bold;
+  }
+
+  .heading-2 {
+    @apply text-5xl leading-[56px] font-semibold;
+  }
+
+  .heading-3 {
+    @apply text-[40px] leading-[48px] font-semibold;
+  }
+
+  .heading-4 {
+    @apply text-[32px] leading-[40px] font-semibold;
+  }
+
+  .heading-5 {
+    @apply text-[24px] leading-[32px] font-semibold;
+  }
+
+  .subtitle-text {
+    @apply text-[20px] leading-[28px];
+  }
+
+  .body-text {
+    @apply text-[16px] leading-[24px];
+  }
+
+  .label-text {
+    @apply text-[14px] leading-[22px];
+  }
+
+  /* Buttons */
+
+  .primary-btn {
+    @apply bg-primary py-2 px-4 rounded-lg text-background hover:opacity-80 duration-300;
+  }
+
+  .primary-outlined-btn {
+    @apply bg-transparent border-2 border-primary hover:opacity-80 py-2 px-4 rounded-lg text-primary;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .custom-switch-shadow {
+    -webkit-box-shadow: inset 0px 0px 8px 0px rgba(0, 0, 0, 0.25);
+    -moz-box-shadow: inset 0px 0px 8px 0px rgba(0, 0, 0, 0.25);
+    box-shadow: inset 0px 0px 8px 0px rgba(0, 0, 0, 0.25);
+  }
+
+  .mobile-navbar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 100vw;
+    background-color: white;
+    transition: all;
+    transition-duration: 500ms;
+    translate: 100%;
+    z-index: 0;
+  }
+
+  .mobNavIsOpen {
+    translate: 0%;
+  }
+
+  .tabNavSize {
+    width: 60vw;
+  }
+
+  .closeBtn {
+    position: absolute;
+    top: 2%;
+    left: 4%;
+    translate: (50%, -50%);
+  }
+
+  /* Nav Link Hover */
+
+  .underlineHover:hover span {
+    width: 50%;
+  }
+
+  .underlineOpen span {
+    width: 50%;
+  }
 }
