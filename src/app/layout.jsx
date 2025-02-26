@@ -17,9 +17,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className=" bg-background text-foreground">
       <body className={`${roboto.className} bg-[var(--primary-gradient)]`}>
-        <Header />
-        <main>{children}</main>
-        <Footer />
+        {children}
       </body>
     </html>
   );

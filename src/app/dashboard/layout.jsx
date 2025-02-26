@@ -1,0 +1,49 @@
+import { FaRegBell, FaSearch } from "react-icons/fa";
+import Image from "next/image";
+import Sidebar from "@/components/Dashboard/Sidebar";
+
+const DashboardLayout = ({ children }) => {
+  return (
+    <div className="flex">
+      <Sidebar />
+      <main className="flex-1">
+        <header className="py-4 px-6 bg-white shadow-md flex justify-between">
+          <div className="flex gap-3 items-center">
+            <Image
+              src={
+                "https://images.unsplash.com/photo-1633332755192-727a05c4013d?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8YXZhdGFyfGVufDB8fDB8fHww"
+              }
+              alt={"Profile"}
+              width={60}
+              height={60}
+              className="rounded-full"
+            />
+            <div className="space-y-2">
+              <p className="text-xl font-medium">John Doe</p>
+              <p className="text-sm text-primary">Welcome Back Admin</p>
+            </div>
+          </div>
+          <div className="flex flex-1 justify-end gap-6 items-center">
+            <div className="bg-white max-w-[400px] rounded-full w-full py-4 px-6 flex items-center border">
+              <input
+                type="text"
+                name="search"
+                id="search"
+                placeholder="Search Documents and Clients"
+                className="w-full outline-none"
+              />
+              <div className="">
+                <FaSearch size={30} />
+              </div>
+            </div>
+            <div className="text-primary">
+              <FaRegBell size={30} />
+            </div>
+          </div>
+        </header>
+        {children}
+      </main>
+    </div>
+  );
+};
+export default DashboardLayout;

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import PrimaryOutlineButton from "./CTAs/PrimaryOutlineButton";
 
 // icons import
 import { IoMenu } from "react-icons/io5";
@@ -96,9 +95,15 @@ const Header = () => {
         </nav>
       </div>
       <div className="flex items-center space-x-5 ">
-        <PrimaryOutlineButton className={"hidden md:block"}>
+        <Link
+          href="/auth/signup"
+          className={"hidden md:block primary-outlined-btn"}
+        >
           Get Started
-        </PrimaryOutlineButton>
+        </Link>
+        <Link href="/auth/login" className={"hidden md:block primary-btn"}>
+          Login
+        </Link>
         <button onClick={() => setIsNavOpen(!isNavOpen)} className="md:hidden">
           <IoMenu size={32} />
         </button>

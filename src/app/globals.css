@@ -27,31 +27,6 @@
   );
 }
 
-.dark {
-  --primary: #005cdc;
-  --secondary: #a1c8ff;
-  --background: #0b213f;
-  --foreground: #e8f2ff;
-  --secondary-foreground: #8094c8;
-  --accent-primary: #203045;
-  --accent-secondary: #24203c;
-  --primary-gradient: linear-gradient(
-    90deg,
-    var(--primary) 0%,
-    var(--secondary) 100%
-  );
-  --primary-gradient-reverse: linear-gradient(
-    90deg,
-    var(--secondary) 0%,
-    var(--primary) 100%
-  );
-  --secondary-gradient: linear-gradient(
-    90deg,
-    var(--accent-primary) 0%,
-    var(--accent-secondary) 100%
-  );
-}
-
 @layer base {
   /* h1 {
     @apply text-2xl;
