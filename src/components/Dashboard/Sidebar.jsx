@@ -5,15 +5,18 @@ import { FaFileAlt, FaRegUser, FaUsers } from "react-icons/fa";
 import { RiDashboardFill } from "react-icons/ri";
 import { IoIosCall } from "react-icons/io";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { TbFileUpload } from "react-icons/tb";
 import { IoDocuments } from "react-icons/io5";
 import { LuUserRoundPlus } from "react-icons/lu";
+import { GlobalContext } from "@/providers/GlobalProvider";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isUsersOpen, setIsUsersOpen] = useState(false);
   const [isDocumentsOpen, setIsDocumentsOpen] = useState(false);
+
+  const { setIsAddClientOpen } = useContext(GlobalContext);
 
   const sidebarVariants = {
     open: {
@@ -49,7 +52,7 @@ const Sidebar = () => {
             <li>
               <Link
                 href={"/dashboard/overview"}
-                className="p-2 rounded-lg bg-accent-secondary text-secondary flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200 w-full"
+                className="p-2 rounded-lg text-background flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200 w-full"
               >
                 <RiDashboardFill size={40} className="min-w-[40px]" />
                 <AnimatePresence mode="wait">
@@ -66,7 +69,7 @@ const Sidebar = () => {
                 </AnimatePresence>
               </Link>
             </li>
-            <li className="bg-accent-secondary rounded-xl flex flex-col gap-2">
+            <li className="rounded-xl flex flex-col gap-2">
               <button
                 type="button"
                 onClick={() => {
@@ -77,7 +80,7 @@ const Sidebar = () => {
                     setIsUsersOpen(!isUsersOpen);
                   }
                 }}
-                className="w-full p-2 rounded-xl bg-accent-secondary shadow-lg text-secondary flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200"
+                className="w-full p-2 rounded-xl text-background flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200"
               >
                 <FaRegUser size={40} className="min-w-[40px]" />
                 <AnimatePresence mode="wait">
@@ -95,7 +98,7 @@ const Sidebar = () => {
                 </AnimatePresence>
               </button>
               {isUsersOpen && (
-                <div>
+                <div className="text-background ml-12">
                   <ul>
                     <li className="flex items-center justify-center ">
                       <Link
@@ -119,8 +122,11 @@ const Sidebar = () => {
                       </Link>
                     </li>
                     <li className="flex items-center justify-center ">
-                      <Link
-                        href={"/dashboard/overview"}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsAddClientOpen(true);
+                        }}
                         className="p-2 flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200 w-full"
                       >
                         <LuUserRoundPlus size={40} className="min-w-[40px]" />
@@ -137,13 +143,13 @@ const Sidebar = () => {
                             </motion.span>
                           )}
                         </AnimatePresence>
-                      </Link>
+                      </button>
                     </li>
                   </ul>
                 </div>
               )}
             </li>
-            <li className="bg-accent-secondary rounded-xl flex flex-col gap-2">
+            <li className="rounded-xl flex flex-col gap-2">
               <button
                 type="button"
                 onClick={() => {
@@ -154,7 +160,7 @@ const Sidebar = () => {
                     setIsDocumentsOpen(!isDocumentsOpen);
                   }
                 }}
-                className="w-full p-2 rounded-xl bg-accent-secondary shadow-lg text-secondary flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200"
+                className="w-full p-2 rounded-xl text-background flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200"
               >
                 <FaFileAlt size={40} className="min-w-[40px]" />
                 <AnimatePresence mode="wait">
@@ -172,7 +178,7 @@ const Sidebar = () => {
                 </AnimatePresence>
               </button>
               {isDocumentsOpen && (
-                <div>
+                <div className="text-background ml-12">
                   <ul>
                     <li className="flex items-center justify-center ">
                       <Link
@@ -224,7 +230,7 @@ const Sidebar = () => {
             <li>
               <Link
                 href={"/dashboard/contacts"}
-                className="w-full p-2 rounded-lg bg-accent-secondary text-secondary flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200"
+                className="w-full p-2 rounded-lg text-background flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200"
               >
                 <IoIosCall size={40} className="min-w-[40px]" />
                 <AnimatePresence mode="wait">
