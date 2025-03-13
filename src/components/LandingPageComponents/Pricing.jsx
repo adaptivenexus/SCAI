@@ -1,6 +1,9 @@
-import { FaCheck } from "react-icons/fa";
+import { FaCheck, FaCheckCircle } from "react-icons/fa";
 import Heading from "../AccentComponents/Heading";
 import PrimaryButton from "../CTAs/PrimaryButton";
+import Link from "next/link";
+import { FaArrowRight } from "react-icons/fa6";
+import { IoIosCloseCircle, IoMdCloseCircle } from "react-icons/io";
 
 const Pricing = () => {
   return (
@@ -17,121 +20,457 @@ const Pricing = () => {
             </p>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 content-center">
-          {/* Starter */}
-          <div className="bg-accent-secondary rounded-lg shadow-md py-5 px-7 flex flex-col gap-6">
-            <div className="space-y-3">
-              <h5 className="heading-5">Starter</h5>
-              <p className="body-text text-secondary-foreground">
-                Perfect for small teams and startups
+        <div className="grid-cols-1 md:grid-cols-10 gap-5 grid ">
+          <div className="py-8 bg-secondary-gradient rounded-xl flex flex-col items-center justify-center space-y-2 md:col-span-3">
+            <h4 className="heading-4">Contact us!</h4>
+            <Link href={"/contact"} className="flex items-center gap-2">
+              Get started <FaArrowRight />
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-2 flex-1 md:col-span-7">
+            <div className="border border-accent-secondary rounded-xl flex flex-col items-center gap-5 p-4">
+              <p className="heading-5">Free</p>
+              <p className="heading-5">
+                $0/
+                <span className="text-secondary-foreground body-text">
+                  Month
+                </span>
               </p>
+              <button
+                type="button"
+                className="bg-accent-primary text-primary px-4 py-2 rounded-lg"
+              >
+                Choose Plan
+              </button>
             </div>
-            <p>
-              <span className="heading-3">$29</span>
-              <span className="body-text text-secondary-foreground">
-                /month
-              </span>
-            </p>
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <FaCheck className="text-primary" />
-                <p className="body-text">Up to 1,000 documents</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <FaCheck className="text-primary" />
-                <p className="body-text">Basic AI categorization</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <FaCheck className="text-primary" />
-                <p className="body-text">Standard OCR</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <FaCheck className="text-primary" />
-                <p className="body-text">Email support</p>
-              </div>
+            <div className="border border-accent-secondary rounded-xl flex flex-col items-center gap-5 p-4">
+              <p className="heading-5">Basic</p>
+              <p className="heading-5">
+                $19.99/
+                <span className="text-secondary-foreground body-text">
+                  Month
+                </span>
+              </p>
+              <button
+                type="button"
+                className="bg-accent-primary text-primary px-4 py-2 rounded-lg"
+              >
+                Choose Plan
+              </button>
             </div>
-            <div className="flex-1 flex items-end">
-              <PrimaryButton className={"w-full"}>Get Started</PrimaryButton>
+            <div className="border border-accent-secondary rounded-xl flex flex-col items-center gap-5 p-4">
+              <p className="heading-5">Standard</p>
+              <p className="heading-5">
+                $149.99/
+                <span className="text-secondary-foreground body-text">
+                  Month
+                </span>
+              </p>
+              <button
+                type="button"
+                className="bg-accent-primary text-primary px-4 py-2 rounded-lg"
+              >
+                Choose Plan
+              </button>
+            </div>
+            <div className="border border-accent-secondary rounded-xl flex flex-col items-center gap-5 p-4">
+              <p className="heading-5">Enterprise</p>
+              <p className="heading-5">Custom Pricing</p>
+              <button
+                type="button"
+                className="bg-accent-primary text-primary px-4 py-2 rounded-lg"
+              >
+                Choose Plan
+              </button>
             </div>
           </div>
-
-          {/* Professional */}
-          <div className="bg-accent-primary rounded-lg shadow-md py-5 px-7 space-y-6">
-            <div className="space-y-3">
-              <h5 className="heading-5">Professional</h5>
-              <p className="body-text text-secondary-foreground">
-                Ideal for growing businesses
-              </p>
-            </div>
-            <p>
-              <span className="heading-3">$99</span>
-              <span className="body-text text-secondary-foreground">
-                /month
-              </span>
-            </p>
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <FaCheck className="text-primary" />
-                <p className="body-text">Up to 10,000 documents</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <FaCheck className="text-primary" />
-                <p className="body-text">Advanced AI categorization</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <FaCheck className="text-primary" />
-                <p className="body-text">Premium OCR</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <FaCheck className="text-primary" />
-                <p className="body-text">Priority support</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <FaCheck className="text-primary" />
-                <p className="body-text">API access</p>
-              </div>
-            </div>
-            <div className="mt-auto">
-              <PrimaryButton className={"w-full"}>Get Started</PrimaryButton>
-            </div>
+        </div>
+        <div className="hidden md:grid grid-cols-10 gap-5 p-4 rounded-3xl bg-primary-gradient">
+          <div className="col-span-3 px-4">
+            <table className="w-full text-white h-full table-fixed">
+              <thead>
+                <tr>
+                  <th className="heading-5 border-b border-[#E1E1E1] py-3 text-center">
+                    Features
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="">
+                  <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
+                    Storage
+                  </td>
+                </tr>
+                <tr className="">
+                  <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
+                    Users per Client
+                  </td>
+                </tr>
+                <tr className="">
+                  <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
+                    Support
+                  </td>
+                </tr>
+                <tr className="">
+                  <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
+                    Smart Dashboards
+                  </td>
+                </tr>
+                <tr className="">
+                  <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
+                    Document Classification
+                  </td>
+                </tr>
+                <tr className="">
+                  <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
+                    Customization
+                  </td>
+                </tr>
+                <tr className="">
+                  <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
+                    Smart AI Document Tagging
+                  </td>
+                </tr>
+                <tr className="">
+                  <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
+                    API Access
+                  </td>
+                </tr>
+                <tr className="">
+                  <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
+                    Webhooks Access
+                  </td>
+                </tr>
+                <tr className="">
+                  <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
+                    Integration
+                  </td>
+                </tr>
+                <tr className="">
+                  <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
+                    Automation Expert Support
+                  </td>
+                </tr>
+                <tr className="">
+                  <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
+                    Custom Data Validation
+                  </td>
+                </tr>
+                <tr className="">
+                  <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
+                    Smart Search
+                  </td>
+                </tr>
+                <tr className="">
+                  <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
+                    SMART SCAN
+                  </td>
+                </tr>
+                <tr className="">
+                  <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
+                    Exceeds Page Limit Cost
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-
-          {/* Enterprise */}
-          <div className="bg-accent-secondary rounded-lg shadow-md py-5 px-7 space-y-6 md:col-span-2 lg:col-span-1">
-            <div className="space-y-3">
-              <h5 className="heading-5">Enterprise</h5>
-              <p className="body-text text-secondary-foreground">
-                For large organizations
-              </p>
-            </div>
-            <p>
-              <span className="heading-3">Custom</span>
-            </p>
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <FaCheck className="text-primary" />
-                <p className="body-text">Unlimited documents</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <FaCheck className="text-primary" />
-                <p className="body-text">Custom AI training</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <FaCheck className="text-primary" />
-                <p className="body-text">Enterprise OCR</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <FaCheck className="text-primary" />
-                <p className="body-text">24/7 dedicated support</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <FaCheck className="text-primary" />
-                <p className="body-text">Custom integration</p>
-              </div>
-            </div>
-            <div className="mt-auto">
-              <PrimaryButton className={"w-full"}>Get Started</PrimaryButton>
-            </div>
+          <div className="col-span-7 bg-white rounded-3xl">
+            <table className="w-full table-fixed">
+              <thead>
+                <tr>
+                  <th className="heading-5 border-b border-[#E1E1E1] py-3 text-center w-full">
+                    Free
+                  </th>
+                  <th className="heading-5 border-b border-[#E1E1E1] py-3 text-center w-full">
+                    Basic
+                  </th>
+                  <th className="heading-5 border-b border-[#E1E1E1] py-3 text-center w-full">
+                    Standard
+                  </th>
+                  <th className="heading-5 border-b border-[#E1E1E1] py-3 text-center w-full">
+                    Enterprise
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    1GB
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    5GB
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    10GB
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    50GB
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    1 user
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    Up to 5
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    Up to 10
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    Unlimited
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    FAQ
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    Email Support
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    Priority Support
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    24/7 Support
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    Preview
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-2xl">
+                      <FaCheckCircle className="mx-auto text-primary" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-2xl">
+                      <FaCheckCircle className="mx-auto text-primary" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-2xl">
+                      <FaCheckCircle className="mx-auto text-primary" />
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    Basic
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-2xl">
+                      <FaCheckCircle className="mx-auto text-primary" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-2xl">
+                      <FaCheckCircle className="mx-auto text-primary" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-2xl">
+                      <FaCheckCircle className="mx-auto text-primary" />
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-3xl">
+                      <IoIosCloseCircle className="mx-auto text-gray-500" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    Limited
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    Moderate
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    Extensive
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-3xl">
+                      <IoIosCloseCircle className="mx-auto text-gray-500" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-3xl">
+                      <IoIosCloseCircle className="mx-auto text-gray-500" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-2xl">
+                      <FaCheckCircle className="mx-auto text-primary" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-2xl">
+                      <FaCheckCircle className="mx-auto text-primary" />
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-3xl">
+                      <IoIosCloseCircle className="mx-auto text-gray-500" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-3xl">
+                      <IoIosCloseCircle className="mx-auto text-gray-500" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-2xl">
+                      <FaCheckCircle className="mx-auto text-primary" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-2xl">
+                      <FaCheckCircle className="mx-auto text-primary" />
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-3xl">
+                      <IoIosCloseCircle className="mx-auto text-gray-500" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-3xl">
+                      <IoIosCloseCircle className="mx-auto text-gray-500" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-2xl">
+                      <FaCheckCircle className="mx-auto text-primary" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-2xl">
+                      <FaCheckCircle className="mx-auto text-primary" />
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-3xl">
+                      <IoIosCloseCircle className="mx-auto text-gray-500" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-3xl">
+                      <IoIosCloseCircle className="mx-auto text-gray-500" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-2xl">
+                      <FaCheckCircle className="mx-auto text-primary" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-2xl">
+                      <FaCheckCircle className="mx-auto text-primary" />
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-3xl">
+                      <IoIosCloseCircle className="mx-auto text-gray-500" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-3xl">
+                      <IoIosCloseCircle className="mx-auto text-gray-500" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    2 Hours
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    5 Hours
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-3xl">
+                      <IoIosCloseCircle className="mx-auto text-gray-500" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-3xl">
+                      <IoIosCloseCircle className="mx-auto text-gray-500" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-2xl">
+                      <FaCheckCircle className="mx-auto text-primary" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-2xl">
+                      <FaCheckCircle className="mx-auto text-primary" />
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-3xl">
+                      <IoIosCloseCircle className="mx-auto text-gray-500" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-3xl">
+                      <IoIosCloseCircle className="mx-auto text-gray-500" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-2xl">
+                      <FaCheckCircle className="mx-auto text-primary" />
+                    </div>
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    <div className="text-2xl">
+                      <FaCheckCircle className="mx-auto text-primary" />
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    25 Pages
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    100 Pages
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    1000 Pages
+                  </td>
+                  <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                    Unlimited
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-3 text-center subtitle-text w-full">
+                    ......
+                  </td>
+                  <td className="py-3 text-center subtitle-text w-full">
+                    25¢ / Page
+                  </td>
+                  <td className="py-3 text-center subtitle-text w-full">
+                    20¢ / Page
+                  </td>
+                  <td className="py-3 text-center subtitle-text w-full">
+                    Custom Pricing
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

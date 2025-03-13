@@ -3,7 +3,7 @@ import { MdDateRange } from "react-icons/md";
 const AddNewClient = ({ setIsAddClientOpen }) => {
   return (
     <div className="flex fixed top-0 inset-0 bg-black bg-opacity-50 !m-0 items-center justify-center">
-      <div className="bg-white rounded-lg p-4 space-y-4 w-2/5 relative">
+      <div className="bg-white rounded-lg p-10 space-y-4 w-2/5 relative">
         <h5 className="heading-5 font-bold">Add New Client</h5>
         <form className="space-y-4">
           <div className="flex flex-col flex-1 gap-1">

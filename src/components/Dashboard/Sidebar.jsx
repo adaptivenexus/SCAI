@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { FaFileAlt, FaRegUser, FaUsers } from "react-icons/fa";
 import { RiDashboardFill } from "react-icons/ri";
-import { IoIosCall } from "react-icons/io";
+import { IoIosCall, IoMdSettings } from "react-icons/io";
 import { motion, AnimatePresence } from "framer-motion";
 import { useContext, useState } from "react";
 import { TbFileUpload } from "react-icons/tb";
@@ -16,7 +16,8 @@ const Sidebar = () => {
   const [isUsersOpen, setIsUsersOpen] = useState(false);
   const [isDocumentsOpen, setIsDocumentsOpen] = useState(false);
 
-  const { setIsAddClientOpen } = useContext(GlobalContext);
+  const { setIsAddClientOpen, setIsAddDocumentOpen } =
+    useContext(GlobalContext);
 
   const sidebarVariants = {
     open: {
@@ -181,8 +182,9 @@ const Sidebar = () => {
                 <div className="text-background ml-12">
                   <ul>
                     <li className="flex items-center justify-center ">
-                      <Link
-                        href={"/dashboard/overview"}
+                      <button
+                        type="button"
+                        onClick={() => setIsAddDocumentOpen(true)}
                         className="p-2 flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200 w-full"
                       >
                         <TbFileUpload size={40} className="min-w-[40px]" />
@@ -199,7 +201,7 @@ const Sidebar = () => {
                             </motion.span>
                           )}
                         </AnimatePresence>
-                      </Link>
+                      </button>
                     </li>
                     <li className="flex items-center justify-center ">
                       <Link
@@ -243,6 +245,27 @@ const Sidebar = () => {
                       className="overflow-hidden text-ellipsis whitespace-nowrap"
                     >
                       Contact us
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={"/dashboard/contacts"}
+                className="w-full p-2 rounded-lg text-background flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200"
+              >
+                <IoMdSettings size={40} className="min-w-[40px]" />
+                <AnimatePresence mode="wait">
+                  {isOpen && (
+                    <motion.span
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden text-ellipsis whitespace-nowrap"
+                    >
+                      Settings
                     </motion.span>
                   )}
                 </AnimatePresence>
