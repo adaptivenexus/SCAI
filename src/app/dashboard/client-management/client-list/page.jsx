@@ -1,31 +1,47 @@
 "use client";
 
-import Image from "next/image";
-import { useState, useMemo } from "react";
-import { FiSearch, FiDownload, FiMoreVertical } from "react-icons/fi";
+import UserRow from "@/components/Dashboard/clientManagementComponents/UserRow";
+import AddOrManageClient from "@/components/Dashboard/common/AddOrManageClient";
+import { dummyClientData } from "@/utils/dummyData";
+import { useState, useMemo, useEffect } from "react";
+import { FiSearch, FiDownload } from "react-icons/fi";
 
 const ClientListPage = () => {
-  const [clients, setClients] = useState([
-    {
-      id: 1,
-      name: "Jack Reid",
-      email: "jack@email.com",
-      phone: "+91 3265269872",
-      documents: 5,
-      creationDate: "23 Jan 2025",
-      status: "Verified",
-    },
-    // Adding more mock data with deterministic values
-    ...Array.from({ length: 100 }, (_, i) => ({
-      id: i + 2,
-      name: `Client ${i + 2}`,
-      email: `client${i + 2}@email.com`,
-      phone: "+91 3265269872",
-      documents: ((i + 2) % 10) + 1, // This will generate numbers 1-10 deterministically
-      creationDate: "23 Jan 2025",
-      status: (i + 2) % 2 === 0 ? "Verified" : "Verify Now",
-    })),
-  ]);
+  // const [clients, setClients] = useState([
+  //   {
+  //     id: 1,
+  //     name: "Jack Reid",
+  //     email: "jack@email.com",
+  //     phone: "+91 3265269872",
+  //     documents: 5,
+  //     creationDate: "23 Jan 2025",
+  //     status: "Verified",
+  //   },
+  //   // Adding more mock data with deterministic values
+  //   ...Array.from({ length: 100 }, (_, i) => ({
+  //     id: i + 2,
+  //     name: `Client ${i + 2}`,
+  //     email: `client${i + 2}@email.com`,
+  //     phone: "+91 3265269872",
+  //     documents: ((i + 2) % 10) + 1, // This will generate numbers 1-10 deterministically
+  //     creationDate: "23 Jan 2025",
+  //     status: (i + 2) % 2 === 0 ? "Verified" : "Verify Now",
+  //   })),
+  // ]);
+  const [isEditClientOpen, setIsEditClientOpen] = useState(false);
+  const [editClient, setEditClient] = useState(null);
+  const [clients, setClients] = useState([]);
+  const fetchClients = async () => {
+    try {
+      const data = dummyClientData;
+      setClients(data);
+    } catch (error) {
+      console.error("Error fetching clients:", error);
+    }
+  };
+  useEffect(() => {
+    fetchClients();
+  }, []);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: "id", direction: "asc" });
@@ -68,10 +84,12 @@ const ClientListPage = () => {
 
   const filteredClients = sortedClients.filter((client) => {
     const matchesSearch =
-      client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      client.email.toLowerCase().includes(searchQuery.toLowerCase());
+      `${client.FIRST_NAME} ${client.LAST_NAME}`
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      client.EMAIL.toLowerCase().includes(searchQuery.toLowerCase());
     if (filterStatus === "All") return matchesSearch;
-    return client.status === filterStatus && matchesSearch;
+    return client.STATUS === filterStatus && matchesSearch;
   });
 
   // Calculate total pages
@@ -146,7 +164,7 @@ const ClientListPage = () => {
           >
             <option value="All">All Status</option>
             <option value="Verified">Verified</option>
-            <option value="Verify Now">Verify Now</option>
+            <option value="Not Verified">Not Verified</option>
           </select>
         </div>
 
@@ -167,10 +185,10 @@ const ClientListPage = () => {
               </th>
               <th
                 className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
-                onClick={() => handleSort("name")}
+                onClick={() => handleSort("FIRST_NAME")}
               >
                 Client Name
-                {sortConfig.key === "name" && (
+                {sortConfig.key === "FIRST_NAME" && (
                   <span className="ml-1">
                     {sortConfig.direction === "asc" ? "↑" : "↓"}
                   </span>
@@ -184,17 +202,25 @@ const ClientListPage = () => {
               </th>
               <th
                 className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
-                onClick={() => handleSort("documents")}
+                onClick={() => handleSort("DOCUMENTS")}
               >
                 Documents
-                {sortConfig.key === "documents" && (
+                {sortConfig.key === "DOCUMENTS" && (
                   <span className="ml-1">
                     {sortConfig.direction === "asc" ? "↑" : "↓"}
                   </span>
                 )}
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
+              <th
+                className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
+                onClick={() => handleSort("CREATED_AT")}
+              >
                 Creation date
+                {sortConfig.key === "CREATED_AT" && (
+                  <span className="ml-1">
+                    {sortConfig.direction === "asc" ? "↑" : "↓"}
+                  </span>
+                )}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                 Status
@@ -206,55 +232,12 @@ const ClientListPage = () => {
           </thead>
           <tbody className="divide-y divide-gray-200">
             {currentItems.map((client) => (
-              <tr key={client.id}>
-                <td className="px-6 py-4">
-                  <input type="checkbox" className="rounded" />
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <Image
-                      src={
-                        "https://images.unsplash.com/photo-1633332755192-727a05c4013d?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8YXZhdGFyfGVufDB8fDB8fHww"
-                      }
-                      alt={"Profile"}
-                      width={30}
-                      height={30}
-                      className="rounded-full"
-                    />
-                    <span className="text-sm font-medium text-gray-900">
-                      {client.name}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-sm text-foreground">
-                  {client.email}
-                </td>
-                <td className="px-6 py-4 text-sm text-foreground">
-                  {client.phone}
-                </td>
-                <td className="px-6 py-4 text-sm text-foreground">
-                  {client.documents}
-                </td>
-                <td className="px-6 py-4 text-sm text-foreground">
-                  {client.creationDate}
-                </td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`px-2 py-1 text-xs rounded-full ${
-                      client.status === "Verified"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-orange-100 text-orange-800"
-                    }`}
-                  >
-                    {client.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <button className="text-gray-400 hover:text-gray-600">
-                    <FiMoreVertical />
-                  </button>
-                </td>
-              </tr>
+              <UserRow
+                key={client.id}
+                client={client}
+                setEditClient={setEditClient}
+                setIsEditClientOpen={setIsEditClientOpen}
+              />
             ))}
           </tbody>
         </table>
@@ -315,6 +298,14 @@ const ClientListPage = () => {
           </div>
         </div>
       </div>
+      {isEditClientOpen && (
+        <AddOrManageClient
+          oldClient={editClient}
+          isNew={false}
+          setIsAddClientOpen={setIsEditClientOpen}
+          setEditClient={setEditClient}
+        />
+      )}
     </div>
   );
 };

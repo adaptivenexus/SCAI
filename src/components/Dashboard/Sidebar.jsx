@@ -231,7 +231,7 @@ const Sidebar = () => {
 
             <li>
               <Link
-                href={"/dashboard/contacts"}
+                href={"/support"}
                 className="w-full p-2 rounded-lg text-background flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200"
               >
                 <IoIosCall size={40} className="min-w-[40px]" />

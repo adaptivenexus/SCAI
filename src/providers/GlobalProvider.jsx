@@ -1,7 +1,7 @@
 "use client";
 
-import AddNewClient from "@/components/Dashboard/common/AddNewClient";
 import AddNewDocument from "@/components/Dashboard/common/AddNewDocument";
+import AddOrManageClient from "@/components/Dashboard/common/AddOrManageClient";
 import { createContext, useState } from "react";
 
 export const GlobalContext = createContext(null);
@@ -15,7 +15,10 @@ const GlobalDashboardProvider = ({ children }) => {
     >
       {children}
       {isAddClientOpen && (
-        <AddNewClient setIsAddClientOpen={setIsAddClientOpen} />
+        <AddOrManageClient
+          setIsAddClientOpen={setIsAddClientOpen}
+          isNew={true}
+        />
       )}
       {isAddDocumentOpen && (
         <AddNewDocument setIsAddDocumentOpen={setIsAddDocumentOpen} />
