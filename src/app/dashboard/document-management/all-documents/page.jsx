@@ -1,8 +1,9 @@
 "use client";
 
-import Image from "next/image";
+import ManageDocument from "@/components/Dashboard/common/ManageDocument";
+import DocumentRow from "@/components/Dashboard/documentManagement/DocumentRow";
 import { useState, useMemo } from "react";
-import { FiSearch, FiDownload, FiMoreVertical } from "react-icons/fi";
+import { FiSearch, FiDownload } from "react-icons/fi";
 
 const AllDocumentPage = () => {
   const [documents, setDocuments] = useState([
@@ -14,8 +15,9 @@ const AllDocumentPage = () => {
       },
       documentName: "Invoice_001.pdf",
       category: "Finance",
-      processDate: "25 Sep 2025",
-      documentDate: "23 Jan 2025",
+      url: "https://pub-3ee73871842b4afda30068064ade7460.r2.dev/temp.pdf",
+      processDate: "2025-09-25",
+      documentDate: "2025-01-23",
       status: "Verified",
     },
     {
@@ -26,8 +28,9 @@ const AllDocumentPage = () => {
       },
       documentName: "Contract.docx",
       category: "Legal",
-      processDate: "25 Sep 2025",
-      documentDate: "23 Jan 2025",
+      url: "https://pub-3ee73871842b4afda30068064ade7460.r2.dev/temp.docx",
+      processDate: "2025-09-25",
+      documentDate: "2025-01-23",
       status: "Verified",
     },
     // Add more mock documents
@@ -39,11 +42,14 @@ const AllDocumentPage = () => {
       },
       documentName: `Report_${i + 1}.xlsx`,
       category: "Reports",
-      processDate: "25 Sep 2025",
-      documentDate: "23 Jan 2025",
+      url: "https://pub-3ee73871842b4afda30068064ade7460.r2.dev/temp.pdf",
+      processDate: "2025-09-25",
+      documentDate: "2025-01-23",
       status: i < 3 ? "Verified" : "Verify Now",
     })),
   ]);
+  const [isManageDocumentOpen, setIsManageDocumentOpen] = useState(false);
+  const [editDocument, setEditDocument] = useState(null);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
@@ -202,55 +208,12 @@ const AllDocumentPage = () => {
           </thead>
           <tbody className="divide-y divide-gray-200">
             {currentItems.map((doc) => (
-              <tr key={doc.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4">
-                  <input type="checkbox" className="rounded" />
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <Image
-                      src={
-                        "https://images.unsplash.com/photo-1633332755192-727a05c4013d?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8YXZhdGFyfGVufDB8fDB8fHww"
-                      }
-                      alt={"Profile"}
-                      width={30}
-                      height={30}
-                      className="rounded-full"
-                    />
-                    <span className="text-sm font-medium">
-                      {doc.associatedTo.name}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-sm text-foreground">
-                  {doc.documentName}
-                </td>
-                <td className="px-6 py-4 text-sm text-foreground">
-                  {doc.category}
-                </td>
-                <td className="px-6 py-4 text-sm text-foreground">
-                  {doc.processDate}
-                </td>
-                <td className="px-6 py-4 text-sm text-foreground">
-                  {doc.documentDate}
-                </td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`px-2 py-1 text-xs rounded-full ${
-                      doc.status === "Verified"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-orange-100 text-orange-800"
-                    }`}
-                  >
-                    {doc.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <button className="text-gray-400 hover:text-gray-600">
-                    <FiMoreVertical />
-                  </button>
-                </td>
-              </tr>
+              <DocumentRow
+                key={doc.id}
+                doc={doc}
+                setIsManageDocumentOpen={setIsManageDocumentOpen}
+                setEditDocument={setEditDocument}
+              />
             ))}
           </tbody>
         </table>
@@ -306,11 +269,21 @@ const AllDocumentPage = () => {
           </div>
           <div className="text-sm text-foreground">
             Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-            {Math.min(currentPage * itemsPerPage, filteredAndSortedItems.length)}{" "}
+            {Math.min(
+              currentPage * itemsPerPage,
+              filteredAndSortedItems.length
+            )}{" "}
             of {filteredAndSortedItems.length} entries
           </div>
         </div>
       </div>
+      {isManageDocumentOpen && (
+        <ManageDocument
+          setIsManageDocumentOpen={setIsManageDocumentOpen}
+          editDocument={editDocument}
+          setEditDocument={setEditDocument}
+        />
+      )}
     </div>
   );
 };

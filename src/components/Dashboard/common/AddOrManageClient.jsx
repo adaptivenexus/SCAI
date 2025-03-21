@@ -27,6 +27,7 @@ const AddOrManageClient = ({
     DOCUMENTS: 0,
     CREATED_AT: "",
     STATUS: "",
+    BUSINESS_TYPE: "",
   });
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -102,57 +103,6 @@ const AddOrManageClient = ({
           </div>
           <div className="flex gap-2">
             <div className="flex flex-col flex-1 gap-1">
-              <label htmlFor="emailAddress">
-                Email Address <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="emailAddress"
-                id="emailAddress"
-                className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
-                placeholder="Enter Your Email"
-                value={client.EMAIL}
-                onChange={(e) =>
-                  setClient({ ...client, EMAIL: e.target.value })
-                }
-              />
-            </div>
-            <div className="flex flex-col flex-1 gap-1">
-              <label htmlFor="licenseNumber">License Number</label>
-              <input
-                type="text"
-                name="licenseNumber"
-                id="licenseNumber"
-                className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
-                placeholder="Enter Your License Number"
-                value={client.LICENSE_NUMBER}
-                onChange={(e) =>
-                  setClient({ ...client, LICENSE_NUMBER: e.target.value })
-                }
-              />
-            </div>
-            <div className="flex flex-col flex-1 gap-1">
-              <label htmlFor="securityNumber">
-                Social Security Number (SSN) / TIN
-              </label>
-              <input
-                type="text"
-                name="securityNumber"
-                id="securityNumber"
-                className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
-                placeholder="Enter SSN / TIN number"
-                value={client.SOCIAL_SECURITY_NUMBER}
-                onChange={(e) =>
-                  setClient({
-                    ...client,
-                    SOCIAL_SECURITY_NUMBER: e.target.value,
-                  })
-                }
-              />
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <div className="flex flex-col flex-1 gap-1">
               <label htmlFor="mobileNumber">
                 Mobile Number <span className="text-red-500">*</span>
               </label>
@@ -168,24 +118,6 @@ const AddOrManageClient = ({
                 }
               />
             </div>
-            <div className="flex flex-col flex-1 gap-1">
-              <label htmlFor="workContactNumber">Work Contact Number</label>
-              <input
-                type="text"
-                name="workContactNumber"
-                id="workContactNumber"
-                placeholder="Enter Work Contact number"
-                className="border rounded-lg p-3  placeholder:text-secondary placeholder:font-medium w-full outline-none"
-                value={client.WORK_CONTACT_NUMBER}
-                onChange={(e) =>
-                  setClient({
-                    ...client,
-                    WORK_CONTACT_NUMBER: e.target.value,
-                  })
-                }
-              />
-            </div>
-
             <div className="flex flex-col flex-1 gap-1">
               <label htmlFor="telephoneNumber">Telephone Number</label>
               <input
@@ -203,8 +135,23 @@ const AddOrManageClient = ({
                 }
               />
             </div>
+            <div className="flex flex-col flex-1 gap-1">
+              <label htmlFor="emailAddress">
+                Email Address <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="emailAddress"
+                id="emailAddress"
+                className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
+                placeholder="Enter Your Email"
+                value={client.EMAIL}
+                onChange={(e) =>
+                  setClient({ ...client, EMAIL: e.target.value })
+                }
+              />
+            </div>
           </div>
-
           <div className="flex gap-2">
             <div className="flex flex-col flex-1 gap-1">
               <label htmlFor="DOB">Date of Birth</label>
@@ -240,7 +187,57 @@ const AddOrManageClient = ({
                 }
               />
             </div>
+            <div className="flex flex-col flex-1 gap-1">
+              <label htmlFor="licenseNumber">License Number</label>
+              <input
+                type="text"
+                name="licenseNumber"
+                id="licenseNumber"
+                className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
+                placeholder="Enter Your License Number"
+                value={client.LICENSE_NUMBER}
+                onChange={(e) =>
+                  setClient({ ...client, LICENSE_NUMBER: e.target.value })
+                }
+              />
+            </div>
+          </div>
 
+          <div className="flex gap-2">
+            <div className="flex flex-col flex-1 gap-1">
+              <label htmlFor="securityNumber">
+                Social Security Number (SSN) / TIN
+              </label>
+              <input
+                type="text"
+                name="securityNumber"
+                id="securityNumber"
+                className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
+                placeholder="Enter SSN / TIN number"
+                value={client.SOCIAL_SECURITY_NUMBER}
+                onChange={(e) =>
+                  setClient({
+                    ...client,
+                    SOCIAL_SECURITY_NUMBER: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="flex flex-col flex-1 gap-1">
+              <label htmlFor="status">Status</label>
+              <select
+                name="status"
+                id="status"
+                className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
+                value={client.STATUS}
+                onChange={(e) =>
+                  setClient({ ...client, STATUS: e.target.value })
+                }
+              >
+                <option value="Verified">Verified</option>
+                <option value="Not Verified">Not Verified</option>
+              </select>
+            </div>
             <div className="flex flex-col flex-1 gap-1">
               <label htmlFor="businessName">Business Name</label>
               <input
@@ -259,27 +256,29 @@ const AddOrManageClient = ({
               />
             </div>
           </div>
-
+          <div className="flex flex-col flex-1 gap-1">
+            <label htmlFor="businessType">Business Type</label>
+            <select
+              name="businessType"
+              id="businessType"
+              className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
+              value={client.BUSINESS_TYPE}
+              onChange={(e) =>
+                setClient({
+                  ...client,
+                  BUSINESS_TYPE: e.target.value,
+                })
+              }
+            >
+              <option value="">Select Business Type</option>
+              <option value="Sole Proprietorship">Sole Proprietorship</option>
+              <option value="Partnership Firm">Partnership Firm</option>
+              <option value="Private Limited">Private Limited</option>
+              <option value="LLC">LLC</option>
+              <option value="LLP">LLP</option>
+            </select>
+          </div>
           <div className="flex gap-2">
-            <div className="flex flex-col flex-1 gap-1">
-              <label htmlFor="address">
-                Address <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                name="address"
-                id="address"
-                rows={3}
-                className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
-                placeholder="Enter your address"
-                value={client.ADDRESS}
-                onChange={(e) =>
-                  setClient({
-                    ...client,
-                    ADDRESS: e.target.value,
-                  })
-                }
-              ></textarea>
-            </div>
             <div className="flex flex-col flex-1 gap-1">
               <label htmlFor="businessAddress">Business Address</label>
               <textarea
