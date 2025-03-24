@@ -1,8 +1,9 @@
 "use client";
 
 import ManageDocument from "@/components/Dashboard/common/ManageDocument";
+import DocumentPreview from "@/components/Dashboard/documentManagement/DocumentPreview";
 import DocumentRow from "@/components/Dashboard/documentManagement/DocumentRow";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { FiSearch, FiDownload } from "react-icons/fi";
 
 const AllDocumentPage = () => {
@@ -50,10 +51,42 @@ const AllDocumentPage = () => {
   ]);
   const [isManageDocumentOpen, setIsManageDocumentOpen] = useState(false);
   const [editDocument, setEditDocument] = useState(null);
+  const [selectedDocuments, setSelectedDocuments] = useState(new Set());
 
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [currentPage, setCurrentPage] = useState(1);
+  const [isDocumentPreviewOpen, setIsDocumentPreviewOpen] = useState(false);
+  const [previewDocument, setPreviewDocument] = useState(null);
+  const [processDateFilter, setProcessDateFilter] = useState("");
+  const [documentDateFilter, setDocumentDateFilter] = useState("");
+  const [showProcessDatePicker, setShowProcessDatePicker] = useState(false);
+  const [showDocumentDatePicker, setShowDocumentDatePicker] = useState(false);
+  const processDateRef = useRef(null);
+  const documentDateRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        processDateRef.current &&
+        !processDateRef.current.contains(event.target)
+      ) {
+        setShowProcessDatePicker(false);
+      }
+      if (
+        documentDateRef.current &&
+        !documentDateRef.current.contains(event.target)
+      ) {
+        setShowDocumentDatePicker(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const itemsPerPage = 10;
 
   const handleSort = (key) => {
@@ -65,6 +98,26 @@ const AllDocumentPage = () => {
         return { key, direction: "desc" };
       }
       return { key, direction: "asc" };
+    });
+  };
+
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedDocuments(new Set(currentItems.map((doc) => doc.id)));
+    } else {
+      setSelectedDocuments(new Set());
+    }
+  };
+
+  const handleSelectDocument = (docId) => {
+    setSelectedDocuments((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(docId)) {
+        newSet.delete(docId);
+      } else {
+        newSet.add(docId);
+      }
+      return newSet;
     });
   };
 
@@ -91,8 +144,12 @@ const AllDocumentPage = () => {
   // Filter and paginate
   const filteredAndSortedItems = sortedDocuments.filter(
     (doc) =>
-      doc.associatedTo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doc.documentName.toLowerCase().includes(searchQuery.toLowerCase())
+      (doc.associatedTo.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+        doc.documentName.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (!processDateFilter || doc.processDate === processDateFilter) &&
+      (!documentDateFilter || doc.documentDate === documentDateFilter)
   );
 
   const totalPages = Math.ceil(filteredAndSortedItems.length / itemsPerPage);
@@ -143,7 +200,7 @@ const AllDocumentPage = () => {
           <div className="relative">
             <input
               type="text"
-              placeholder="Search Client"
+              placeholder="Search by client name or document name"
               className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-blue-500"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -165,7 +222,15 @@ const AllDocumentPage = () => {
           <thead className="bg-accent-primary">
             <tr>
               <th className="px-6 py-3 text-left">
-                <input type="checkbox" className="rounded" />
+                <input
+                  type="checkbox"
+                  className="rounded"
+                  checked={
+                    currentItems.length > 0 &&
+                    currentItems.every((doc) => selectedDocuments.has(doc.id))
+                  }
+                  onChange={handleSelectAll}
+                />
               </th>
               <th
                 className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
@@ -182,7 +247,7 @@ const AllDocumentPage = () => {
                 className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
                 onClick={() => handleSort("documentName")}
               >
-                Document Name
+                Document
                 {sortConfig.key === "documentName" && (
                   <span className="ml-1">
                     {sortConfig.direction === "asc" ? "↑" : "↓"}
@@ -193,10 +258,94 @@ const AllDocumentPage = () => {
                 Category
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                Process Date
+                <div className="relative" ref={processDateRef}>
+                  <div
+                    className="flex items-center gap-2 cursor-pointer"
+                    onClick={() =>
+                      setShowProcessDatePicker(!showProcessDatePicker)
+                    }
+                  >
+                    <span>Process Date</span>
+                    <svg
+                      className={`w-4 h-4 transition-transform ${
+                        showProcessDatePicker ? "rotate-180" : ""
+                      }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                  {showProcessDatePicker && (
+                    <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
+                      <input
+                        type="date"
+                        className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
+                        value={processDateFilter}
+                        onChange={(e) => setProcessDateFilter(e.target.value)}
+                      />
+                      {processDateFilter && (
+                        <button
+                          onClick={() => setProcessDateFilter("")}
+                          className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                Document Date
+                <div className="relative" ref={documentDateRef}>
+                  <div
+                    className="flex items-center gap-2 cursor-pointer"
+                    onClick={() =>
+                      setShowDocumentDatePicker(!showDocumentDatePicker)
+                    }
+                  >
+                    <span>Document Date</span>
+                    <svg
+                      className={`w-4 h-4 transition-transform ${
+                        showDocumentDatePicker ? "rotate-180" : ""
+                      }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                  {showDocumentDatePicker && (
+                    <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
+                      <input
+                        type="date"
+                        className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
+                        value={documentDateFilter}
+                        onChange={(e) => setDocumentDateFilter(e.target.value)}
+                      />
+                      {documentDateFilter && (
+                        <button
+                          onClick={() => setDocumentDateFilter("")}
+                          className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                 Status
@@ -213,6 +362,10 @@ const AllDocumentPage = () => {
                 doc={doc}
                 setIsManageDocumentOpen={setIsManageDocumentOpen}
                 setEditDocument={setEditDocument}
+                isSelected={selectedDocuments.has(doc.id)}
+                onSelect={handleSelectDocument}
+                setIsDocumentPreviewOpen={setIsDocumentPreviewOpen}
+                setPreviewDocument={setPreviewDocument}
               />
             ))}
           </tbody>
@@ -282,6 +435,13 @@ const AllDocumentPage = () => {
           setIsManageDocumentOpen={setIsManageDocumentOpen}
           editDocument={editDocument}
           setEditDocument={setEditDocument}
+        />
+      )}
+      {isDocumentPreviewOpen && (
+        <DocumentPreview
+          document={previewDocument}
+          setIsDocumentPreviewOpen={setIsDocumentPreviewOpen}
+          setPreviewDocument={setPreviewDocument}
         />
       )}
     </div>

@@ -191,7 +191,7 @@ const DocumentViewer = ({ document, onFileSelect, onDelete }) => {
   return (
     <div
       className={`${
-        isFullView ? "fixed inset-0 !m-0 z-50 bg-white p-4" : "h-64"
+        isFullView ? "fixed inset-0 !m-0 z-50 bg-white p-4" : "h-full"
       }`}
       onClick={(e) => e.stopPropagation()}
     >

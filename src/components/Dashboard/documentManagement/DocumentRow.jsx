@@ -1,15 +1,46 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { FiMoreVertical } from "react-icons/fi";
 import { formatDate } from "@/utils";
 
-const DocumentRow = ({ doc, setIsManageDocumentOpen, setEditDocument }) => {
+const DocumentRow = ({
+  doc,
+  setIsManageDocumentOpen,
+  setEditDocument,
+  isSelected,
+  onSelect,
+  setIsDocumentPreviewOpen,
+  setPreviewDocument,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
+
   return (
     <tr className="hover:bg-gray-50">
       <td className="px-6 py-4">
-        <input type="checkbox" className="rounded" />
+        <input
+          type="checkbox"
+          className="rounded"
+          checked={isSelected}
+          onChange={() => onSelect(doc.id)}
+        />
       </td>
       <td className="px-6 py-4">
         <div className="flex items-center gap-3">
@@ -25,7 +56,18 @@ const DocumentRow = ({ doc, setIsManageDocumentOpen, setEditDocument }) => {
           <span className="text-sm font-medium">{doc.associatedTo.name}</span>
         </div>
       </td>
-      <td className="px-6 py-4 text-sm text-foreground">{doc.documentName}</td>
+      <td className="px-6 py-4 text-sm text-foreground">
+        <button
+          onClick={() => {
+            setIsDocumentPreviewOpen(true);
+            setPreviewDocument(doc.url);
+          }}
+          type="button"
+          className="text-primary underline"
+        >
+          {doc.documentName}
+        </button>
+      </td>
       <td className="px-6 py-4 text-sm text-foreground">{doc.category}</td>
       <td className="px-6 py-4 text-sm text-foreground">
         {formatDate(doc.processDate)}
@@ -53,7 +95,10 @@ const DocumentRow = ({ doc, setIsManageDocumentOpen, setEditDocument }) => {
           <FiMoreVertical />
         </button>
         {isOpen && (
-          <div className="absolute bg-white rounded-lg shadow-lg z-10 overflow-hidden">
+          <div
+            ref={dropdownRef}
+            className="absolute bg-white rounded-lg shadow-lg z-10 overflow-hidden"
+          >
             <button
               type="button"
               className="block subtitle-text px-3 py-1 text-foreground hover:opacity-80 hover:bg-black/10 w-full text-start"
@@ -64,6 +109,12 @@ const DocumentRow = ({ doc, setIsManageDocumentOpen, setEditDocument }) => {
               }}
             >
               Edit
+            </button>
+            <button
+              type="button"
+              className="block subtitle-text px-3 py-1 text-foreground hover:opacity-80 hover:bg-black/10 w-full text-start"
+            >
+              Share
             </button>
             <button
               type="button"
