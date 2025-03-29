@@ -6,7 +6,7 @@ import GlobalDashboardProvider from "@/providers/GlobalProvider";
 import Link from "next/link";
 import { IoMdSettings } from "react-icons/io";
 import { PiUserCircleFill } from "react-icons/pi";
-import { MdLogout } from "react-icons/md";
+import { MdDataUsage, MdLogout, MdOutlinePayment } from "react-icons/md";
 import { useState, useEffect, useRef } from "react";
 
 const DashboardLayout = ({ children }) => {
@@ -76,6 +76,28 @@ const DashboardLayout = ({ children }) => {
                             <IoMdSettings size={24} />
                           </div>
                           Settings
+                        </Link>
+                      </li>
+                      <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
+                        <Link
+                          href={"/dashboard/user/billing"}
+                          className="flex items-center gap-2"
+                        >
+                          <div>
+                            <MdOutlinePayment size={24} />
+                          </div>
+                          Billing
+                        </Link>
+                      </li>
+                      <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
+                        <Link
+                          href={"/dashboard/user/usage"}
+                          className="flex items-center gap-2"
+                        >
+                          <div>
+                            <MdDataUsage size={24} />
+                          </div>
+                          Usage
                         </Link>
                       </li>
                       <li className="subtitle-text text-red-500 py-2 px-1 hover:bg-slate-100">

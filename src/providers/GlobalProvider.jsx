@@ -9,6 +9,7 @@ export const GlobalContext = createContext(null);
 const GlobalDashboardProvider = ({ children }) => {
   const [isAddClientOpen, setIsAddClientOpen] = useState(false);
   const [isAddDocumentOpen, setIsAddDocumentOpen] = useState(false);
+
   return (
     <GlobalContext.Provider
       value={{ setIsAddClientOpen, setIsAddDocumentOpen }}

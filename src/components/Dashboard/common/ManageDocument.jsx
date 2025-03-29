@@ -35,12 +35,12 @@ const ManageDocument = ({
                     id="clientName"
                     className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
                     placeholder="Enter client name"
-                    value={editDocument.associatedTo.name}
+                    value={editDocument.client.name}
                     onChange={(e) =>
                       setEditDocument({
                         ...editDocument,
-                        associatedTo: {
-                          ...editDocument.associatedTo,
+                        client: {
+                          ...editDocument.client,
                           name: e.target.value,
                         },
                       })
@@ -82,11 +82,11 @@ const ManageDocument = ({
                   id="documentName"
                   className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
                   placeholder="Enter document name"
-                  value={editDocument.documentName}
+                  value={editDocument.name}
                   onChange={(e) =>
                     setEditDocument({
                       ...editDocument,
-                      documentName: e.target.value,
+                      name: e.target.value,
                     })
                   }
                 />

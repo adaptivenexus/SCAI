@@ -256,27 +256,29 @@ const AddOrManageClient = ({
               />
             </div>
           </div>
-          <div className="flex flex-col flex-1 gap-1">
-            <label htmlFor="businessType">Business Type</label>
-            <select
-              name="businessType"
-              id="businessType"
-              className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
-              value={client.BUSINESS_TYPE}
-              onChange={(e) =>
-                setClient({
-                  ...client,
-                  BUSINESS_TYPE: e.target.value,
-                })
-              }
-            >
-              <option value="">Select Business Type</option>
-              <option value="Sole Proprietorship">Sole Proprietorship</option>
-              <option value="Partnership Firm">Partnership Firm</option>
-              <option value="Private Limited">Private Limited</option>
-              <option value="LLC">LLC</option>
-              <option value="LLP">LLP</option>
-            </select>
+          <div className="grid grid-cols-3 gap-2">
+            <div className="flex flex-col flex-1 gap-1">
+              <label htmlFor="businessType">Business Type</label>
+              <select
+                name="businessType"
+                id="businessType"
+                className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
+                value={client.BUSINESS_TYPE}
+                onChange={(e) =>
+                  setClient({
+                    ...client,
+                    BUSINESS_TYPE: e.target.value,
+                  })
+                }
+              >
+                <option value="">Select Business Type</option>
+                <option value="Sole Proprietorship">Sole Proprietorship</option>
+                <option value="Partnership Firm">Partnership Firm</option>
+                <option value="Private Limited">Private Limited</option>
+                <option value="LLC">LLC</option>
+                <option value="LLP">LLP</option>
+              </select>
+            </div>
           </div>
           <div className="flex gap-2">
             <div className="flex flex-col flex-1 gap-1">

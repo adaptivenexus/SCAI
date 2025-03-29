@@ -10,12 +10,23 @@ import { IoIosEyeOff } from "react-icons/io";
 import { FaArrowLeft, FaFacebook } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
-import ForgotPassword from "@/components/Auth/ForgotPassword";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
   };
 
@@ -49,6 +60,9 @@ const Login = () => {
                     name="email"
                     placeholder="xyz@example.com"
                     className="w-full bg-transparent outline-none"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
                   />
                 </fieldset>
                 <fieldset className="border border-[#79747E]  pb-2 px-4 rounded-md flex items-center justify-between">
@@ -59,6 +73,9 @@ const Login = () => {
                     name="password"
                     placeholder="********"
                     className="w-full bg-transparent outline-none"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
                   />
                   <button
                     onClick={() => setShowPassword(!showPassword)}

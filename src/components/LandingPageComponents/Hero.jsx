@@ -3,10 +3,12 @@
 import Image from "next/image";
 import { FaCirclePlay } from "react-icons/fa6";
 import VideoModel from "./VideoModel";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Hero = () => {
   const [showVideo, setShowVideo] = useState(false);
+
+
 
   return (
     <section

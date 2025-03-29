@@ -53,7 +53,7 @@ const DocumentRow = ({
             height={30}
             className="rounded-full"
           />
-          <span className="text-sm font-medium">{doc.associatedTo.name}</span>
+          <span className="text-sm font-medium">{doc.client.name}</span>
         </div>
       </td>
       <td className="px-6 py-4 text-sm text-foreground">
@@ -65,12 +65,12 @@ const DocumentRow = ({
           type="button"
           className="text-primary underline"
         >
-          {doc.documentName}
+          {doc.name}
         </button>
       </td>
       <td className="px-6 py-4 text-sm text-foreground">{doc.category}</td>
       <td className="px-6 py-4 text-sm text-foreground">
-        {formatDate(doc.processDate)}
+        {formatDate(doc.processedDate)}
       </td>
       <td className="px-6 py-4 text-sm text-foreground">
         {formatDate(doc.documentDate)}

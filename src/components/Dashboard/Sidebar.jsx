@@ -182,9 +182,8 @@ const Sidebar = () => {
                 <div className="text-background ml-12">
                   <ul>
                     <li className="flex items-center justify-center ">
-                      <button
-                        type="button"
-                        onClick={() => setIsAddDocumentOpen(true)}
+                      <Link
+                        href="/dashboard/document-management/add-documents"
                         className="p-2 flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200 w-full"
                       >
                         <TbFileUpload size={40} className="min-w-[40px]" />
@@ -201,7 +200,28 @@ const Sidebar = () => {
                             </motion.span>
                           )}
                         </AnimatePresence>
-                      </button>
+                      </Link>
+                    </li>
+                    <li className="flex items-center justify-center ">
+                      <Link
+                        href="/dashboard/document-management/manual-document-upload"
+                        className="p-2 flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200 w-full"
+                      >
+                        <TbFileUpload size={40} className="min-w-[40px]" />
+                        <AnimatePresence mode="wait">
+                          {isOpen && (
+                            <motion.span
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0, x: -20 }}
+                              transition={{ duration: 0.2 }}
+                              className="overflow-hidden text-ellipsis whitespace-nowrap"
+                            >
+                              Manual Upload Document
+                            </motion.span>
+                          )}
+                        </AnimatePresence>
+                      </Link>
                     </li>
                     <li className="flex items-center justify-center ">
                       <Link

@@ -10,13 +10,62 @@ import { FaArrowLeft, FaFacebook } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
 import Image from "next/image";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [aggrement, setAggrement] = useState(false);
 
-  const handleSubmit = (e) => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    password2: "",
+    agency_name: "",
+    phone_number: "",
+  });
+
+  const router = useRouter();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    // TODO: Add API call to create user
+    if (!aggrement) {
+      toast.error("Please agree to the terms and conditions");
+      return;
+    }
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency/register/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      if (!response.ok) {
+        toast.error("Failed to create user");
+        return;
+      }
+      toast.success("User created successfully");
+      router.push("/auth/login");
+    } catch (error) {
+      console.error(error);
+    }
+
+    // Redirect to login page
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
   };
 
   return (
@@ -44,26 +93,17 @@ const SignUp = () => {
                 <div className="flex gap-4">
                   <fieldset className="border border-[#79747E]  pb-2 px-4 rounded-md flex-1">
                     <legend className="px-1">
-                      First Name<span className="text-red-500">*</span>
+                      Agency Name<span className="text-red-500">*</span>
                     </legend>
                     <input
                       type="text"
-                      id="firstName"
-                      name="firstName"
-                      placeholder="John"
+                      id="agency_name"
+                      name="agency_name"
+                      placeholder="e.g. Ledger Works"
                       className="w-full bg-transparent outline-none"
-                    />
-                  </fieldset>
-                  <fieldset className="border border-[#79747E]  pb-2 px-4 rounded-md flex-1">
-                    <legend className="px-1">
-                      Last Name<span className="text-red-500">*</span>
-                    </legend>
-                    <input
-                      type="text"
-                      id="lastName"
-                      name="lastName"
-                      placeholder="Doe"
-                      className="w-full bg-transparent outline-none"
+                      required
+                      value={formData.agency_name}
+                      onChange={handleChange}
                     />
                   </fieldset>
                 </div>
@@ -76,8 +116,11 @@ const SignUp = () => {
                       type="email"
                       id="email"
                       name="email"
-                      placeholder="xyz@example.com"
+                      placeholder="e.g. xyz@example.com"
                       className="w-full bg-transparent outline-none"
+                      required
+                      value={formData.email}
+                      onChange={handleChange}
                     />
                   </fieldset>
                   <fieldset className="border border-[#79747E]  pb-2 px-4 rounded-md flex-1">
@@ -86,14 +129,17 @@ const SignUp = () => {
                     </legend>
                     <input
                       type="text"
-                      id="phoneNumber"
-                      name="phoneNumber"
-                      placeholder="+1 (123) 456-7890"
+                      id="phone_number"
+                      name="phone_number"
+                      placeholder="e.g. +1 (123) 456-7890"
                       className="w-full bg-transparent outline-none"
+                      required
+                      value={formData.phone_number}
+                      onChange={handleChange}
                     />
                   </fieldset>
                 </div>
-                <div className="flex gap-4">
+                {/* <div className="flex gap-4">
                   <fieldset className="border border-[#79747E]  pb-2 px-4 rounded-md flex-1">
                     <legend className="px-1">
                       Country<span className="text-red-500">*</span>
@@ -104,7 +150,7 @@ const SignUp = () => {
                       name="country"
                       placeholder="India"
                       className="w-full bg-transparent outline-none"
-                    />
+                      />
                   </fieldset>
                   <fieldset className="border border-[#79747E]  pb-2 px-4 rounded-md flex-1">
                     <legend className="px-1">
@@ -118,7 +164,7 @@ const SignUp = () => {
                       className="w-full bg-transparent outline-none"
                     />
                   </fieldset>
-                </div>
+                </div> */}
                 <fieldset className="border border-[#79747E]  pb-2 px-4 rounded-md flex items-center justify-between">
                   <legend className="px-1">
                     Password<span className="text-red-500">*</span>
@@ -129,6 +175,9 @@ const SignUp = () => {
                     name="password"
                     placeholder="********"
                     className="w-full bg-transparent outline-none"
+                    required
+                    value={formData.password}
+                    onChange={handleChange}
                   />
                   <button
                     onClick={() => setShowPassword(!showPassword)}
@@ -147,10 +196,13 @@ const SignUp = () => {
                   </legend>
                   <input
                     type={showConfirmPassword ? "text" : "password"}
-                    id="confirmPassword"
-                    name="confirmPassword"
+                    id="password2"
+                    name="password2"
                     placeholder="********"
                     className="w-full bg-transparent outline-none"
+                    required
+                    value={formData.password2}
+                    onChange={handleChange}
                   />
                   <button
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -170,6 +222,9 @@ const SignUp = () => {
                   name="terms"
                   id="terms"
                   className="w-6 h-6 accent-primary"
+                  checked={aggrement}
+                  onChange={() => setAggrement(!aggrement)}
+                  required
                 />
                 <p>
                   I agree to all the{" "}

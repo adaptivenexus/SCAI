@@ -10,41 +10,41 @@ const AllDocumentPage = () => {
   const [documents, setDocuments] = useState([
     {
       id: 1,
-      associatedTo: {
+      client: {
         name: "Jack Reid",
         avatar: "/path/to/avatar.jpg",
       },
-      documentName: "Invoice_001.pdf",
+      name: "Invoice_001.pdf",
       category: "Finance",
       url: "https://pub-3ee73871842b4afda30068064ade7460.r2.dev/temp.pdf",
-      processDate: "2025-09-25",
+      processedDate: "2025-09-25",
       documentDate: "2025-01-23",
       status: "Verified",
     },
     {
       id: 2,
-      associatedTo: {
+      client: {
         name: "Jack Reid",
         avatar: "/path/to/avatar.jpg",
       },
-      documentName: "Contract.docx",
+      name: "Contract.docx",
       category: "Legal",
       url: "https://pub-3ee73871842b4afda30068064ade7460.r2.dev/temp.docx",
-      processDate: "2025-09-25",
+      processedDate: "2025-09-25",
       documentDate: "2025-01-23",
       status: "Verified",
     },
     // Add more mock documents
     ...Array.from({ length: 40 }, (_, i) => ({
       id: i + 3,
-      associatedTo: {
+      client: {
         name: "Jack Reid",
         avatar: "/path/to/avatar.jpg",
       },
-      documentName: `Report_${i + 1}.xlsx`,
+      name: `Report_${i + 1}.xlsx`,
       category: "Reports",
       url: "https://pub-3ee73871842b4afda30068064ade7460.r2.dev/temp.pdf",
-      processDate: "2025-09-25",
+      processedDate: "2025-09-25",
       documentDate: "2025-01-23",
       status: i < 3 ? "Verified" : "Verify Now",
     })),
@@ -64,6 +64,10 @@ const AllDocumentPage = () => {
   const [showDocumentDatePicker, setShowDocumentDatePicker] = useState(false);
   const processDateRef = useRef(null);
   const documentDateRef = useRef(null);
+
+  useEffect(() => {
+    console.log(selectedDocuments);
+  }, [selectedDocuments]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -127,11 +131,11 @@ const AllDocumentPage = () => {
 
     return [...documents].sort((a, b) => {
       const aValue =
-        sortConfig.key === "associatedTo"
+        sortConfig.key === "client"
           ? a[sortConfig.key].name
           : a[sortConfig.key];
       const bValue =
-        sortConfig.key === "associatedTo"
+        sortConfig.key === "client"
           ? b[sortConfig.key].name
           : b[sortConfig.key];
 
@@ -144,11 +148,9 @@ const AllDocumentPage = () => {
   // Filter and paginate
   const filteredAndSortedItems = sortedDocuments.filter(
     (doc) =>
-      (doc.associatedTo.name
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-        doc.documentName.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      (!processDateFilter || doc.processDate === processDateFilter) &&
+      (doc.client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        doc.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (!processDateFilter || doc.processedDate === processDateFilter) &&
       (!documentDateFilter || doc.documentDate === documentDateFilter)
   );
 
