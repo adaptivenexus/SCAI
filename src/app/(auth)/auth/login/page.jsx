@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 // icons
 import { IoIosEye } from "react-icons/io";
@@ -12,11 +14,20 @@ import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
 
 const Login = () => {
+  const router = useRouter();
+  const { login, user, loading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
+  // Redirect to dashboard if already logged in
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace("/dashboard/overview");
+    }
+  }, [user, loading, router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,7 +39,22 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    try {
+      await login(formData.email, formData.password);
+    } catch (error) {
+      // Error handling is done in the login function
+      console.error("Login error:", error);
+    }
   };
+
+  // Don't render the login form if we're redirecting
+  if (loading || user) {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <section className="h-screen w-screen flex items-center justify-center">
