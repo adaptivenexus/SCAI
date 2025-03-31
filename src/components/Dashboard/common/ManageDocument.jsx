@@ -148,6 +148,7 @@ const ManageDocument = ({
               </div>
             </div>
             <div className="flex-1 h-[70vh]">
+              <h2 className="text-lg text-center font-medium mb-4">Preview</h2>
               <DocumentViewer document={editDocument.url} />
             </div>
           </div>

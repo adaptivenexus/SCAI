@@ -24,7 +24,6 @@ const AddOrManageClient = ({
   });
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SWAGGER_URL}/client/`,
@@ -38,7 +37,7 @@ const AddOrManageClient = ({
         }
       );
       if (!response.ok) {
-        console.log(response);
+        console.log(await response.json());
         return;
       }
       toast.success("Client added successfully");

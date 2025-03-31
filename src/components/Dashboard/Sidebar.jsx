@@ -217,7 +217,7 @@ const Sidebar = () => {
                               transition={{ duration: 0.2 }}
                               className="overflow-hidden text-ellipsis whitespace-nowrap"
                             >
-                              Manual Upload Document
+                              Add Document
                             </motion.span>
                           )}
                         </AnimatePresence>
