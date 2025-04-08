@@ -24,7 +24,7 @@ export const storeTokens = (accessToken, refreshToken, userData) => {
   localStorage.setItem(USER_DATA_KEY, JSON.stringify(userData));
 
   // Store access token in cookie for server-side auth
-  document.cookie = `sessionid=${accessToken}; path=${
+  document.cookie = `${ACCESS_TOKEN_KEY}=${accessToken}; path=${
     COOKIE_OPTIONS.path
   }; max-age=${COOKIE_OPTIONS.maxAge}${
     COOKIE_OPTIONS.secure ? "; secure" : ""

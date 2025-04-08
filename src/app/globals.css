@@ -84,6 +84,10 @@
   .primary-outlined-btn {
     @apply bg-transparent border-2 border-primary hover:opacity-80 py-2 px-4 rounded-lg text-primary;
   }
+
+  .secondary-btn {
+    @apply bg-accent-primary py-2 px-4 rounded-lg text-primary hover:opacity-80 duration-300;
+  }
 }
 
 @layer utilities {

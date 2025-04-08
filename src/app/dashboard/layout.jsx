@@ -8,8 +8,11 @@ import { IoMdSettings } from "react-icons/io";
 import { PiUserCircleFill } from "react-icons/pi";
 import { MdDataUsage, MdLogout, MdOutlinePayment } from "react-icons/md";
 import { useState, useEffect, useRef } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 const DashboardLayout = ({ children }) => {
+  const { user, logout } = useAuth();
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -46,7 +49,9 @@ const DashboardLayout = ({ children }) => {
                   className="rounded-full"
                 />
                 <div className="space-y-2">
-                  <p className="text-xl text-start font-medium">John Doe</p>
+                  <p className="text-xl text-start font-medium">
+                    {user?.agency_name}
+                  </p>
                   <p className="text-sm text-start text-primary">
                     Welcome Back Admin
                   </p>
@@ -101,15 +106,15 @@ const DashboardLayout = ({ children }) => {
                         </Link>
                       </li>
                       <li className="subtitle-text text-red-500 py-2 px-1 hover:bg-slate-100">
-                        <Link
-                          href={"/auth/login"}
+                        <button
+                          onClick={() => logout()}
                           className="flex items-center gap-2"
                         >
                           <div>
                             <MdLogout size={24} />
                           </div>
                           Logout
-                        </Link>
+                        </button>
                       </li>
                     </ul>
                   </div>

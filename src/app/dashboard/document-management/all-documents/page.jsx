@@ -8,46 +8,46 @@ import { FiSearch, FiDownload } from "react-icons/fi";
 
 const AllDocumentPage = () => {
   const [documents, setDocuments] = useState([
-    {
-      id: 1,
-      client: {
-        name: "Jack Reid",
-        avatar: "/path/to/avatar.jpg",
-      },
-      name: "Invoice_001.pdf",
-      category: "Finance",
-      url: "https://pub-3ee73871842b4afda30068064ade7460.r2.dev/temp.pdf",
-      processedDate: "2025-09-25",
-      documentDate: "2025-01-23",
-      status: "Verified",
-    },
-    {
-      id: 2,
-      client: {
-        name: "Jack Reid",
-        avatar: "/path/to/avatar.jpg",
-      },
-      name: "Contract.docx",
-      category: "Legal",
-      url: "https://pub-3ee73871842b4afda30068064ade7460.r2.dev/temp.docx",
-      processedDate: "2025-09-25",
-      documentDate: "2025-01-23",
-      status: "Verified",
-    },
-    // Add more mock documents
-    ...Array.from({ length: 40 }, (_, i) => ({
-      id: i + 3,
-      client: {
-        name: "Jack Reid",
-        avatar: "/path/to/avatar.jpg",
-      },
-      name: `Report_${i + 1}.xlsx`,
-      category: "Reports",
-      url: "https://pub-3ee73871842b4afda30068064ade7460.r2.dev/temp.pdf",
-      processedDate: "2025-09-25",
-      documentDate: "2025-01-23",
-      status: i < 3 ? "Verified" : "Verify Now",
-    })),
+    // {
+    //   id: 1,
+    //   client: {
+    //     name: "Jack Reid",
+    //     avatar: "/path/to/avatar.jpg",
+    //   },
+    //   name: "Invoice_001.pdf",
+    //   category: "Finance",
+    //   url: "https://pub-3ee73871842b4afda30068064ade7460.r2.dev/temp.pdf",
+    //   processedDate: "2025-09-25",
+    //   documentDate: "2025-01-23",
+    //   status: "Verified",
+    // },
+    // {
+    //   id: 2,
+    //   client: {
+    //     name: "Jack Reid",
+    //     avatar: "/path/to/avatar.jpg",
+    //   },
+    //   name: "Contract.docx",
+    //   category: "Legal",
+    //   url: "https://pub-3ee73871842b4afda30068064ade7460.r2.dev/temp.docx",
+    //   processedDate: "2025-09-25",
+    //   documentDate: "2025-01-23",
+    //   status: "Verified",
+    // },
+    // // Add more mock documents
+    // ...Array.from({ length: 40 }, (_, i) => ({
+    //   id: i + 3,
+    //   client: {
+    //     name: "Jack Reid",
+    //     avatar: "/path/to/avatar.jpg",
+    //   },
+    //   name: `Report_${i + 1}.xlsx`,
+    //   category: "Reports",
+    //   url: "https://pub-3ee73871842b4afda30068064ade7460.r2.dev/temp.pdf",
+    //   processedDate: "2025-09-25",
+    //   documentDate: "2025-01-23",
+    //   status: i < 3 ? "Verified" : "Verify Now",
+    // })),
   ]);
   const [isManageDocumentOpen, setIsManageDocumentOpen] = useState(false);
   const [editDocument, setEditDocument] = useState(null);
@@ -56,8 +56,6 @@ const AllDocumentPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [currentPage, setCurrentPage] = useState(1);
-  const [isDocumentPreviewOpen, setIsDocumentPreviewOpen] = useState(false);
-  const [previewDocument, setPreviewDocument] = useState(null);
   const [processDateFilter, setProcessDateFilter] = useState("");
   const [documentDateFilter, setDocumentDateFilter] = useState("");
   const [showProcessDatePicker, setShowProcessDatePicker] = useState(false);
@@ -68,6 +66,28 @@ const AllDocumentPage = () => {
   useEffect(() => {
     console.log(selectedDocuments);
   }, [selectedDocuments]);
+
+  const fetchDocuments = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+      const data = await response.json();
+      console.log(data);
+      setDocuments(data);
+    } catch (error) {
+      console.error("Error fetching documents:", error);
+    }
+  };
+  useEffect(() => {
+    fetchDocuments();
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -148,8 +168,8 @@ const AllDocumentPage = () => {
   // Filter and paginate
   const filteredAndSortedItems = sortedDocuments.filter(
     (doc) =>
-      (doc.client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        doc.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (doc.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        doc.file.toLowerCase().includes(searchQuery.toLowerCase())) &&
       (!processDateFilter || doc.processedDate === processDateFilter) &&
       (!documentDateFilter || doc.documentDate === documentDateFilter)
   );
@@ -366,8 +386,6 @@ const AllDocumentPage = () => {
                 setEditDocument={setEditDocument}
                 isSelected={selectedDocuments.has(doc.id)}
                 onSelect={handleSelectDocument}
-                setIsDocumentPreviewOpen={setIsDocumentPreviewOpen}
-                setPreviewDocument={setPreviewDocument}
               />
             ))}
           </tbody>
@@ -437,13 +455,6 @@ const AllDocumentPage = () => {
           setIsManageDocumentOpen={setIsManageDocumentOpen}
           editDocument={editDocument}
           setEditDocument={setEditDocument}
-        />
-      )}
-      {isDocumentPreviewOpen && (
-        <DocumentPreview
-          document={previewDocument}
-          setIsDocumentPreviewOpen={setIsDocumentPreviewOpen}
-          setPreviewDocument={setPreviewDocument}
         />
       )}
     </div>

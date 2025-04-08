@@ -25,13 +25,14 @@ const AddOrManageClient = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log(client);
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SWAGGER_URL}/client/`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `${token}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(client),
         }
@@ -235,7 +236,9 @@ const AddOrManageClient = ({
                 onChange={handleChange}
               >
                 <option value="Verified">Verified</option>
-                <option value="Not Verified">Not Verified</option>
+                <option value="Pending">Pending</option>
+                <option value="Rejected">Rejected</option>
+                <option value="Inactive">Inactive</option>
               </select>
             </div>
             <div className="flex flex-col flex-1 gap-1">
@@ -262,11 +265,11 @@ const AddOrManageClient = ({
                 onChange={handleChange}
               >
                 <option value="">Select Business Type</option>
-                <option value="Sole Proprietorship">Sole Proprietorship</option>
-                <option value="Partnership Firm">Partnership Firm</option>
-                <option value="Private Limited">Private Limited</option>
-                <option value="LLC">LLC</option>
-                <option value="LLP">LLP</option>
+                <option value="Retail">Retail</option>
+                <option value="Wholesale">Wholesale</option>
+                <option value="Manufacturing">Manufacturing</option>
+                <option value="Service">Service</option>
+                <option value="Other">Other</option>
               </select>
             </div>
           </div>

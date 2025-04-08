@@ -2,7 +2,8 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { FiMoreVertical } from "react-icons/fi";
-import { formatDate } from "@/utils";
+import { extractFilenameFromUrl, formatDate } from "@/utils";
+import DocumentPreview from "./DocumentPreview";
 
 const DocumentRow = ({
   doc,
@@ -10,11 +11,10 @@ const DocumentRow = ({
   setEditDocument,
   isSelected,
   onSelect,
-  setIsDocumentPreviewOpen,
-  setPreviewDocument,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -53,24 +53,32 @@ const DocumentRow = ({
             height={30}
             className="rounded-full"
           />
-          <span className="text-sm font-medium">{doc.client.name}</span>
+          <span className="text-sm font-medium">{doc.client}</span>
         </div>
       </td>
       <td className="px-6 py-4 text-sm text-foreground">
-        <button
-          onClick={() => {
-            setIsDocumentPreviewOpen(true);
-            setPreviewDocument(doc.url);
-          }}
-          type="button"
-          className="text-primary underline"
-        >
-          {doc.name}
-        </button>
+        <div>
+          <button
+            onClick={() => {
+              setIsPreviewOpen(true);
+            }}
+            type="button"
+            className="text-primary underline"
+          >
+            {extractFilenameFromUrl(doc.file)}
+          </button>
+          {isPreviewOpen && (
+            <DocumentPreview
+              document={doc.file}
+              setIsDocumentPreviewOpen={setIsPreviewOpen}
+              fileName={extractFilenameFromUrl(doc.file)}
+            />
+          )}
+        </div>
       </td>
-      <td className="px-6 py-4 text-sm text-foreground">{doc.category}</td>
+      <td className="px-6 py-4 text-sm text-foreground">{doc.category.name}</td>
       <td className="px-6 py-4 text-sm text-foreground">
-        {formatDate(doc.processedDate)}
+        {formatDate(doc.uploaded_at)}
       </td>
       <td className="px-6 py-4 text-sm text-foreground">
         {formatDate(doc.documentDate)}

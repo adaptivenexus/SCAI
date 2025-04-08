@@ -33,7 +33,21 @@ const ClientListPage = () => {
   const [clients, setClients] = useState([]);
   const fetchClients = async () => {
     try {
-      const data = dummyClientData;
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/client/`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+      if (!res.ok) {
+        console.log(res);
+        return;
+      }
+      const data = await res.json();
       setClients(data);
     } catch (error) {
       console.error("Error fetching clients:", error);
@@ -84,12 +98,12 @@ const ClientListPage = () => {
 
   const filteredClients = sortedClients.filter((client) => {
     const matchesSearch =
-      `${client.FIRST_NAME} ${client.LAST_NAME}`
+      `${client.business_name}`
         .toLowerCase()
         .includes(searchQuery.toLowerCase()) ||
-      client.EMAIL.toLowerCase().includes(searchQuery.toLowerCase());
+      client.email.toLowerCase().includes(searchQuery.toLowerCase());
     if (filterStatus === "All") return matchesSearch;
-    return client.STATUS === filterStatus && matchesSearch;
+    return client.status === filterStatus && matchesSearch;
   });
 
   // Calculate total pages

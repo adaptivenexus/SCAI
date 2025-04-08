@@ -4,13 +4,20 @@ import Link from "next/link";
 
 // icons import
 import { IoMenu } from "react-icons/io5";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MobileNav from "./MobileNav";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 const Header = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const pathname = usePathname();
+  const { isAuthenticated } = useAuth();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
     <header className="px-4 md:px-10 py-4 bg-secondary-gradient flex justify-between sticky top-0 z-20">
@@ -95,18 +102,40 @@ const Header = () => {
         </nav>
       </div>
       <div className="flex items-center space-x-5 ">
-        <Link
-          href="/auth/signup"
-          className={"hidden md:block primary-outlined-btn"}
-        >
-          Get Started
-        </Link>
-        <Link href="/auth/login" className={"hidden md:block primary-btn"}>
-          Login
-        </Link>
-        <button onClick={() => setIsNavOpen(!isNavOpen)} className="md:hidden">
-          <IoMenu size={32} />
-        </button>
+        {isMounted && isAuthenticated ? (
+          <div className="flex items-center space-x-5">
+            <Link
+              href="/dashboard/overview"
+              className={"hidden md:block primary-btn"}
+            >
+              Dashboard
+            </Link>
+            <button
+              onClick={() => setIsNavOpen(!isNavOpen)}
+              className="md:hidden"
+            >
+              <IoMenu size={32} />
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center space-x-5">
+            <Link
+              href="/auth/signup"
+              className={"hidden md:block primary-outlined-btn"}
+            >
+              Get Started
+            </Link>
+            <Link href="/auth/login" className={"hidden md:block primary-btn"}>
+              Login
+            </Link>
+            <button
+              onClick={() => setIsNavOpen(!isNavOpen)}
+              className="md:hidden"
+            >
+              <IoMenu size={32} />
+            </button>
+          </div>
+        )}
       </div>
       {isNavOpen && (
         <div

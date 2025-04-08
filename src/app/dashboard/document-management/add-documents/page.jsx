@@ -1,14 +1,24 @@
+"use client";
+
 import FileUploader from "@/components/Dashboard/OverviewComponents/DragAndDropFile";
 import { FaCheckCircle } from "react-icons/fa";
 import { GoKebabHorizontal, GoSearch } from "react-icons/go";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { IoCloseCircle } from "react-icons/io5";
+import { useState } from "react";
+import AddNewDocumentModal from "@/components/Dashboard/common/AddDocumentModal";
 
 const AddDocument = () => {
+  const [files, setFiles] = useState([]);
+  const handleFiles = async () => {
+    for (const file of files) {
+      return <AddNewDocumentModal file={file} />;
+    }
+  };
   return (
     <div className="p-6 flex flex-col gap-6">
       <div className="bg-white p-8 shadow-md rounded-xl">
-        <FileUploader />
+        <FileUploader setFiles={setFiles} />
       </div>
       <div className="bg-white p-8 shadow-md rounded-xl flex flex-col items-end gap-5">
         <div className="flex items-center justify-between w-full">
@@ -102,6 +112,7 @@ const AddDocument = () => {
           </tbody>
         </table>
       </div>
+      {handleFiles()}
     </div>
   );
 };

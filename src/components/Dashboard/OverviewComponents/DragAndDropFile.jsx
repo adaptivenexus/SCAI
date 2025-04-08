@@ -1,15 +1,19 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { FiUploadCloud } from "react-icons/fi";
 
-export default function FileUploader() {
-  const [files, setFiles] = useState([]);
-
+export default function FileUploader({ setFiles }) {
   // Handle file drop
   const onDrop = useCallback((acceptedFiles) => {
-    setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
+    setFiles(
+      acceptedFiles.map((file) =>
+        Object.assign(file, {
+          preview: URL.createObjectURL(file),
+        })
+      )
+    );
   }, []);
 
   // Remove file

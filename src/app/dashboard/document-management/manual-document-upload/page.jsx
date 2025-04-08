@@ -1,14 +1,64 @@
+"use client";
+import { GoSearch } from "react-icons/go";
+import { useState } from "react";
 import FileUploader from "@/components/Dashboard/OverviewComponents/DragAndDropFile";
-import { FaCheckCircle } from "react-icons/fa";
-import { GoKebabHorizontal, GoSearch } from "react-icons/go";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { IoCloseCircle } from "react-icons/io5";
+import ManualDocumentUploadFilesRow from "@/components/Dashboard/documentManagement/ManualDocumentUploadFilesRow";
 
 const ManualDocumentUpload = () => {
+  const [files, setFiles] = useState([]);
+  const [uploadedFilesIndex, setUploadedFilesIndex] = useState([]);
+
   return (
     <div className="p-6 flex flex-col gap-6">
       <div className="bg-white p-8 shadow-md rounded-xl">
-        <FileUploader />
+        {/* <form onSubmit={handleSubmit}>
+          <div className="relative">
+            <label htmlFor="client_id">Client</label>
+            <input
+              type="number"
+              name="client_id"
+              id="client_id"
+              className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none w-full"
+              placeholder="Client"
+              value={formData.client_id == undefined ? 0 : formData.client_id}
+              onChange={(e) =>
+                setFormData({ ...formData, client_id: e.target.value })
+              }
+            />
+          </div>
+          <div className="relative">
+            <label htmlFor="category_id">Category</label>
+            <input
+              type="number"
+              name="category_id"
+              id="category_id"
+              className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none w-full"
+              placeholder="Category"
+              value={
+                formData.category_id == undefined ? 0 : formData.category_id
+              }
+              onChange={(e) =>
+                setFormData({ ...formData, category_id: e.target.value })
+              }
+            />
+          </div>
+          <div className="relative">
+            <label htmlFor="file">Document</label>
+            <input
+              type="file"
+              name="file"
+              id="file"
+              className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none w-full"
+              placeholder="Document"
+              onChange={(e) => setFiles(e.target.files)}
+              required
+            />
+          </div>
+          <button type="submit" className="primary-btn">
+            Submit
+          </button>
+        </form> */}
+        <FileUploader setFiles={setFiles} />
       </div>
 
       <div className="bg-white p-8 shadow-md rounded-xl space-y-4">
@@ -33,51 +83,27 @@ const ManualDocumentUpload = () => {
           <thead>
             <tr>
               <th className="text-start border-b py-3"></th>
-              <th className="text-start border-b py-3">File</th>
+              <th className="text-start border-b py-3">Status</th>
               <th className="text-start border-b py-3">Name</th>
               <th className="text-start border-b py-3">Size</th>
               <th className="text-start border-b py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td className="border-b py-3"></td>
-              <td className="border-b py-3 flex items-center gap-2 ">
-                <div>
-                  <FaCheckCircle className="text-green-500" size={24} />
-                </div>
-                <span>12/2/2024</span>
-              </td>
-              <td className="border-b py-3">invoice.pdf</td>
-              <td className="border-b py-3">2.5 MB</td>
-              <td className="border-b py-3">
-                <button type="button" className="block ">
-                  <GoKebabHorizontal className="rotate-90" size={24} />
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td className="border-b py-3"></td>
-              <td className="border-b py-3 flex items-center gap-2 ">
-                <div className="group">
-                  <AiOutlineLoading3Quarters
-                    className="animate-spin block group-hover:hidden"
-                    size={24}
+            {files &&
+              files.map((file, index) => {
+                return (
+                  <ManualDocumentUploadFilesRow
+                    key={index}
+                    file={file}
+                    index={index}
+                    files={files}
+                    setFiles={setFiles}
+                    setUploadedFilesIndex={setUploadedFilesIndex}
+                    uploadedFilesIndex={uploadedFilesIndex}
                   />
-                  <button className="group-hover:block hidden">
-                    <IoCloseCircle size={24} className="text-red-500" />
-                  </button>
-                </div>
-                <span>12/2/2024</span>
-              </td>
-              <td className="border-b py-3">invoice.pdf</td>
-              <td className="border-b py-3">2.5 MB</td>
-              <td className="border-b py-3">
-                <button type="button" className="block ">
-                  <GoKebabHorizontal className="rotate-90" size={24} />
-                </button>
-              </td>
-            </tr>
+                );
+              })}
           </tbody>
         </table>
       </div>
@@ -85,3 +111,26 @@ const ManualDocumentUpload = () => {
   );
 };
 export default ManualDocumentUpload;
+
+// <tr>
+// <td className="border-b py-3"></td>
+// <td className="border-b py-3 flex items-center gap-2 ">
+//   <div className="group">
+//     <AiOutlineLoading3Quarters
+//       className="animate-spin block group-hover:hidden"
+//       size={24}
+//     />
+//     <button className="group-hover:block hidden">
+//       <IoCloseCircle size={24} className="text-red-500" />
+//     </button>
+//   </div>
+//   <span>12/2/2024</span>
+// </td>
+// <td className="border-b py-3">invoice.pdf</td>
+// <td className="border-b py-3">2.5 MB</td>
+// <td className="border-b py-3">
+//   <button type="button" className="block ">
+//     <GoKebabHorizontal className="rotate-90" size={24} />
+//   </button>
+// </td>
+// </tr>

@@ -7,7 +7,7 @@ export function middleware(request) {
   const { pathname } = request.nextUrl;
 
   // Check for auth token
-  const token = request.cookies.get("sessionid");
+  const token = request.cookies.get("accessToken");
 
   // If accessing dashboard without token, redirect to login
   if (pathname.startsWith("/dashboard")) {

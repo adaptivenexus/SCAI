@@ -7,6 +7,7 @@ const DocumentPreview = ({
   document,
   setIsDocumentPreviewOpen,
   setPreviewDocument,
+  fileName,
 }) => {
   const getFileType = (filename) => {
     if (!filename) return "unknown";
@@ -32,7 +33,7 @@ const DocumentPreview = ({
   const renderDocument = () => {
     const url = document;
 
-    const type = getFileType(url);
+    const type = getFileType(fileName);
     const supportedTypes = ["doc", "docx", "xls", "xlsx", "ppt", "pptx"];
 
     if (supportedTypes.includes(type)) {
@@ -73,7 +74,6 @@ const DocumentPreview = ({
     <div
       onClick={() => {
         setIsDocumentPreviewOpen(false);
-        setPreviewDocument(null);
       }}
       className={`${"fixed inset-0 !m-0 z-50 bg-black/50 p-20"}`}
     >
@@ -84,7 +84,6 @@ const DocumentPreview = ({
         <button
           onClick={() => {
             setIsDocumentPreviewOpen(false);
-            setPreviewDocument(null);
           }}
           type="button"
           className="absolute bg-white rounded-full p-2 top-4 right-4 text-gray-500 hover:text-gray-700"
