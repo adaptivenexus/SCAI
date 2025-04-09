@@ -4,6 +4,7 @@ import Image from "next/image";
 import { FiMoreVertical } from "react-icons/fi";
 import { extractFilenameFromUrl, formatDate } from "@/utils";
 import DocumentPreview from "./DocumentPreview";
+import { toast } from "react-toastify";
 
 const DocumentRow = ({
   doc,
@@ -11,10 +12,35 @@ const DocumentRow = ({
   setEditDocument,
   isSelected,
   onSelect,
+  fetchDocuments,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+  const handleDelete = async () => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${doc.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+      if (res.ok) {
+        toast.success("Document deleted successfully");
+        fetchDocuments();
+      } else {
+        toast.error("Something went wrong");
+      }
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      toast.error("Something went wrong");
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -126,6 +152,7 @@ const DocumentRow = ({
             </button>
             <button
               type="button"
+              onClick={handleDelete}
               className="block subtitle-text px-3 py-1 text-red-500 hover:opacity-80 hover:bg-black/10 w-full text-start"
             >
               Delete

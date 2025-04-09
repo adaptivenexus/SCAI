@@ -1,6 +1,9 @@
 "use client";
 
+import { useContext, useEffect, useState } from "react";
 import DocumentViewer from "../documentManagement/DocumentViewer";
+import { GlobalContext } from "@/providers/GlobalProvider";
+import { IoIosCloseCircle } from "react-icons/io";
 
 const AddNewDocumentModal = ({
   file,
@@ -9,12 +12,61 @@ const AddNewDocumentModal = ({
   formData,
   setFormData,
 }) => {
-  const handleOnChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const { clients } = useContext(GlobalContext);
+  const [searchInputClients, setSearchInputClients] = useState("");
+  const [listClients, setListClients] = useState(clients);
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    if (searchInputClients.length > 2) {
+      const filteredClients = clients.filter(
+        (client) =>
+          client.business_name
+            .toLowerCase()
+            .includes(searchInputClients.toLowerCase()) ||
+          client.email.toLowerCase().includes(searchInputClients.toLowerCase())
+      );
+      setListClients(filteredClients);
+    } else {
+      setListClients([]);
+    }
+  }, [searchInputClients]);
+
+  useEffect(() => {
+    console.log(formData);
+  }, [formData]);
+
+  const fetchCategory = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/categories/`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data);
+      } else {
+        setCategories([
+          {
+            id: 1,
+            name: "Invoice",
+          },
+        ]);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
   };
+
+  useEffect(() => {
+    fetchCategory();
+  }, []);
 
   return (
     <div
@@ -37,51 +89,95 @@ const AddNewDocumentModal = ({
                   <label htmlFor="client_id">
                     Client Name <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="number"
-                    name="client_id"
-                    id="client_id"
-                    className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
-                    placeholder="Enter client name"
-                    onChange={handleOnChange}
-                    value={
-                      formData.client_id === undefined ? 0 : formData.client_id
-                    }
-                  />
+                  <div className="w-full relative">
+                    <div className="border rounded-lg p-3 w-full flex items-center">
+                      <input
+                        type="text"
+                        name="client_id"
+                        id="client_id"
+                        className=" placeholder:text-secondary placeholder:font-medium outline-none w-full bg-transparent"
+                        placeholder="Search and select client"
+                        required
+                        onChange={(e) => {
+                          setSearchInputClients(e.target.value);
+                        }}
+                        autoComplete="off"
+                        disabled={formData.client ? true : false}
+                        value={
+                          formData.client
+                            ? formData.client.business_name
+                            : searchInputClients
+                        }
+                      />
+                      {formData.client && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSearchInputClients("");
+                            setFormData({
+                              ...formData,
+                              client: undefined,
+                            });
+                          }}
+                          className="text-red-500"
+                        >
+                          <IoIosCloseCircle size={24} />
+                        </button>
+                      )}
+                    </div>
+                    <div className="absolute w-full rounded-xl bg-white shadow-lg flex flex-col">
+                      {listClients.map((client) => (
+                        <button
+                          type="button"
+                          key={client.id}
+                          className="py-2 px-4 border-b w-full cursor-pointer hover:bg-blue-50 text-start"
+                          onClick={() => {
+                            setFormData({
+                              ...formData,
+                              client: client,
+                            });
+                            setSearchInputClients("");
+                          }}
+                        >
+                          <p className="body-text font-semibold">
+                            {client.business_name}
+                          </p>
+                          <p className="label-text text-primary">
+                            {client.email}
+                          </p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
                 <div className="flex flex-col flex-1 gap-1">
                   <label htmlFor="category_id">
                     Category <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="number"
-                    name="category_id"
-                    id="category_id"
-                    className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
-                    placeholder="Enter Category"
-                    onChange={handleOnChange}
-                    value={
-                      formData.category_id === undefined
-                        ? 0
-                        : formData.category_id
-                    }
-                  />
-                  {/* <select
+
+                  <select
                     name="category"
                     id="category"
                     className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
                     value={
-                      formData.category === undefined ? "" : formData.category
+                      formData.category_id === undefined
+                        ? ""
+                        : formData.category_id.toString()
                     }
-                    onChange={handleOnChange}
+                    onChange={(e) => {
+                      setFormData({
+                        ...formData,
+                        category_id: parseInt(e.target.value),
+                      });
+                    }}
                   >
                     <option value="">Select Category</option>
-                    <option value="1">Personal</option>
-                    <option value="Business">Business</option>
-                    <option value="Finance">Finance</option>
-                    <option value="Legal">Legal</option>
-                    <option value="Other">Other</option>
-                  </select> */}
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
               {/* <div className="flex flex-col flex-1 gap-1">
@@ -134,7 +230,13 @@ const AddNewDocumentModal = ({
             </button>
             <button
               type="button"
-              onClick={() => setIsAddDocumentOpen(false)}
+              onClick={() => {
+                setIsAddDocumentOpen(false);
+                setFormData({
+                  client: undefined,
+                  category_id: undefined,
+                });
+              }}
               className="primary-btn bg-slate-500 px-6 text-lg"
             >
               Cancel

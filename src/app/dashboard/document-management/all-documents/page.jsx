@@ -386,6 +386,7 @@ const AllDocumentPage = () => {
                 setEditDocument={setEditDocument}
                 isSelected={selectedDocuments.has(doc.id)}
                 onSelect={handleSelectDocument}
+                fetchDocuments={fetchDocuments}
               />
             ))}
           </tbody>

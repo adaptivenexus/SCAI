@@ -2,11 +2,14 @@
 
 import UserRow from "@/components/Dashboard/clientManagementComponents/UserRow";
 import AddOrManageClient from "@/components/Dashboard/common/AddOrManageClient";
+import { GlobalContext } from "@/providers/GlobalProvider";
 import { dummyClientData } from "@/utils/dummyData";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useContext } from "react";
 import { FiSearch, FiDownload } from "react-icons/fi";
 
 const ClientListPage = () => {
+  const { clients } = useContext(GlobalContext);
+
   // const [clients, setClients] = useState([
   //   {
   //     id: 1,
@@ -30,32 +33,6 @@ const ClientListPage = () => {
   // ]);
   const [isEditClientOpen, setIsEditClientOpen] = useState(false);
   const [editClient, setEditClient] = useState(null);
-  const [clients, setClients] = useState([]);
-  const fetchClients = async () => {
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/client/`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
-      );
-      if (!res.ok) {
-        console.log(res);
-        return;
-      }
-      const data = await res.json();
-      setClients(data);
-    } catch (error) {
-      console.error("Error fetching clients:", error);
-    }
-  };
-  useEffect(() => {
-    fetchClients();
-  }, []);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: "id", direction: "asc" });

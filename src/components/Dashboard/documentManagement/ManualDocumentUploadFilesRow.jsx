@@ -16,7 +16,7 @@ const ManualDocumentUploadFilesRow = ({
   uploadedFilesIndex,
 }) => {
   const [formData, setFormData] = useState({
-    client_id: undefined,
+    client: undefined,
     category_id: undefined,
   });
   const [isOpenModal, setIsOpenModal] = useState(false);
@@ -24,7 +24,7 @@ const ManualDocumentUploadFilesRow = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formDataNew = new FormData();
-    formDataNew.append("client_id", parseInt(formData.client_id));
+    formDataNew.append("client_id", parseInt(formData.client.id));
     formDataNew.append("category_id", parseInt(formData.category_id));
     formDataNew.append("file", file);
     console.log(formDataNew);
@@ -84,7 +84,7 @@ const ManualDocumentUploadFilesRow = ({
       <td className="border-b py-3">{(file.size / 1024).toFixed(2)} KB</td>
       <td className="border-b py-3">
         <div>
-            {/* <button type="button" className="block ">
+          {/* <button type="button" className="block ">
                     <GoKebabHorizontal className="rotate-90" size={24} />
                 </button> 
             */}

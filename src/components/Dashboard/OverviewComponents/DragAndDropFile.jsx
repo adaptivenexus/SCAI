@@ -23,10 +23,13 @@ export default function FileUploader({ setFiles }) {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {
-      "image/*": [".png", ".jpg", ".jpeg", ".gif"],
-      "application/pdf": [".pdf"],
-    },
+    // accept: {
+    //   "image/*": [".png", ".jpg", ".jpeg", ".gif"],
+    //   "application/pdf": [".pdf"],
+    //   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
+    //     ".xlsx",
+    //   ],
+    // },
     multiple: true,
   });
 
