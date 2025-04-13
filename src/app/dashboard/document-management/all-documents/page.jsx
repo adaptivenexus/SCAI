@@ -63,10 +63,6 @@ const AllDocumentPage = () => {
   const processDateRef = useRef(null);
   const documentDateRef = useRef(null);
 
-  useEffect(() => {
-    console.log(selectedDocuments);
-  }, [selectedDocuments]);
-
   const fetchDocuments = async () => {
     try {
       const response = await fetch(
@@ -78,8 +74,11 @@ const AllDocumentPage = () => {
           },
         }
       );
+      if (!response.ok) {
+        setDocuments([]);
+        return;
+      }
       const data = await response.json();
-      console.log(data);
       setDocuments(data);
     } catch (error) {
       console.error("Error fetching documents:", error);

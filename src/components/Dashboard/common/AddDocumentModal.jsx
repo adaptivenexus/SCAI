@@ -2,7 +2,7 @@
 
 import { useContext, useEffect, useState } from "react";
 import DocumentViewer from "../documentManagement/DocumentViewer";
-import { GlobalContext } from "@/providers/GlobalProvider";
+import { GlobalContext } from "@/context/GlobalProvider";
 import { IoIosCloseCircle } from "react-icons/io";
 
 const AddNewDocumentModal = ({
@@ -50,7 +50,7 @@ const AddNewDocumentModal = ({
       );
       if (response.ok) {
         const data = await response.json();
-        setCategories(data);
+        setCategories(data.results);
       } else {
         setCategories([
           {

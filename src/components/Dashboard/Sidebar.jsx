@@ -9,7 +9,7 @@ import { useContext, useState } from "react";
 import { TbFileUpload } from "react-icons/tb";
 import { IoDocuments } from "react-icons/io5";
 import { LuUserRoundPlus } from "react-icons/lu";
-import { GlobalContext } from "@/providers/GlobalProvider";
+import { GlobalContext } from "@/context/GlobalProvider";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);

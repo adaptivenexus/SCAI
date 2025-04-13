@@ -8,6 +8,7 @@ import {
   clearTokens,
   isAuthenticated,
 } from "@/utils/auth";
+import { toast } from "react-toastify";
 
 const AuthContext = createContext();
 
@@ -37,7 +38,8 @@ export const AuthProvider = ({ children }) => {
       );
 
       if (!response.ok) {
-        throw new Error("Login failed");
+        toast.error("Invalid email or password");
+        return;
       }
 
       const { tokens, agency } = await response.json();
@@ -49,7 +51,7 @@ export const AuthProvider = ({ children }) => {
       // Get redirect path from URL or default to dashboard
       const params = new URLSearchParams(window.location.search);
       const redirectPath = params.get("redirect") || "/dashboard/overview";
-      
+
       // Redirect to the intended destination
       router.push(redirectPath);
       return true;

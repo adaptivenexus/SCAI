@@ -2,35 +2,13 @@
 
 import UserRow from "@/components/Dashboard/clientManagementComponents/UserRow";
 import AddOrManageClient from "@/components/Dashboard/common/AddOrManageClient";
-import { GlobalContext } from "@/providers/GlobalProvider";
-import { dummyClientData } from "@/utils/dummyData";
-import { useState, useMemo, useEffect, useContext } from "react";
+import { GlobalContext } from "@/context/GlobalProvider";
+import { useState, useMemo, useContext } from "react";
 import { FiSearch, FiDownload } from "react-icons/fi";
 
 const ClientListPage = () => {
   const { clients } = useContext(GlobalContext);
 
-  // const [clients, setClients] = useState([
-  //   {
-  //     id: 1,
-  //     name: "Jack Reid",
-  //     email: "jack@email.com",
-  //     phone: "+91 3265269872",
-  //     documents: 5,
-  //     creationDate: "23 Jan 2025",
-  //     status: "Verified",
-  //   },
-  //   // Adding more mock data with deterministic values
-  //   ...Array.from({ length: 100 }, (_, i) => ({
-  //     id: i + 2,
-  //     name: `Client ${i + 2}`,
-  //     email: `client${i + 2}@email.com`,
-  //     phone: "+91 3265269872",
-  //     documents: ((i + 2) % 10) + 1, // This will generate numbers 1-10 deterministically
-  //     creationDate: "23 Jan 2025",
-  //     status: (i + 2) % 2 === 0 ? "Verified" : "Verify Now",
-  //   })),
-  // ]);
   const [isEditClientOpen, setIsEditClientOpen] = useState(false);
   const [editClient, setEditClient] = useState(null);
 

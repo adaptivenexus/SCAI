@@ -1,10 +1,9 @@
-import Image from "next/image";
 import { FaDownload } from "react-icons/fa";
 import { RiVisaLine } from "react-icons/ri";
 
 const BillingPage = () => {
   return (
-    <div className="p-10 flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
       <h4 className="heading-4">Billing & Subscription</h4>
       <div className="flex gap-5 w-full">
         <div className="flex-1 bg-white p-6 shadow-md rounded-xl flex justify-between  ">

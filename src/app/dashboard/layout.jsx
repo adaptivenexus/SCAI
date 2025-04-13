@@ -2,7 +2,7 @@
 import { FaRegBell, FaSearch } from "react-icons/fa";
 import Image from "next/image";
 import Sidebar from "@/components/Dashboard/Sidebar";
-import GlobalDashboardProvider from "@/providers/GlobalProvider";
+import GlobalDashboardProvider from "@/context/GlobalProvider";
 import Link from "next/link";
 import { IoMdSettings } from "react-icons/io";
 import { PiUserCircleFill } from "react-icons/pi";
@@ -63,7 +63,7 @@ const DashboardLayout = ({ children }) => {
                     <ul>
                       <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
                         <Link
-                          href={"/dashboard/settings"}
+                          href={"/dashboard/settings/account-details"}
                           className="flex items-center gap-2"
                         >
                           <div>
@@ -74,18 +74,7 @@ const DashboardLayout = ({ children }) => {
                       </li>
                       <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
                         <Link
-                          href={"/dashboard/settings"}
-                          className="flex items-center gap-2"
-                        >
-                          <div>
-                            <IoMdSettings size={24} />
-                          </div>
-                          Settings
-                        </Link>
-                      </li>
-                      <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
-                        <Link
-                          href={"/dashboard/user/billing"}
+                          href={"/dashboard/settings/billing"}
                           className="flex items-center gap-2"
                         >
                           <div>
@@ -96,13 +85,24 @@ const DashboardLayout = ({ children }) => {
                       </li>
                       <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
                         <Link
-                          href={"/dashboard/user/usage"}
+                          href={"/dashboard/user/my-usage"}
                           className="flex items-center gap-2"
                         >
                           <div>
                             <MdDataUsage size={24} />
                           </div>
-                          Usage
+                          My Usage
+                        </Link>
+                      </li>
+                      <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
+                        <Link
+                          href={"/dashboard/user/team-usage"}
+                          className="flex items-center gap-2"
+                        >
+                          <div>
+                            <MdDataUsage size={24} />
+                          </div>
+                          Team Usage
                         </Link>
                       </li>
                       <li className="subtitle-text text-red-500 py-2 px-1 hover:bg-slate-100">
