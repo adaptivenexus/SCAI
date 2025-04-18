@@ -1,8 +1,11 @@
 "use client";
 
 import FileUploader from "@/components/Dashboard/OverviewComponents/DragAndDropFile";
+import { GlobalContext } from "@/context/GlobalProvider";
+import { extractFilenameFromUrl, formatDate } from "@/utils";
 import Image from "next/image";
-import { useState } from "react";
+import Link from "next/link";
+import { useContext, useState } from "react";
 import { FaFileAlt, FaUserFriends } from "react-icons/fa";
 import { GrDocumentPerformance } from "react-icons/gr";
 import { MdHistory } from "react-icons/md";
@@ -36,6 +39,8 @@ const jultodec = [
 const DashboardPage = () => {
   const [data, setData] = useState(jantojune);
 
+  const { clients, documents } = useContext(GlobalContext);
+
   return (
     <div className="p-8 w-full flex flex-col gap-6">
       <div className="grid grid-cols-4 gap-4">
@@ -45,7 +50,9 @@ const DashboardPage = () => {
             <p className="text-xl font-semibold text-secondary-foreground">
               Total Clients
             </p>
-            <p className="text-2xl font-semibold text-foreground">10,000</p>
+            <p className="text-2xl font-semibold text-foreground">
+              {clients.length}
+            </p>
           </div>
           <div className="ml-auto">
             <FaUserFriends size={50} color="#F17373" />
@@ -57,7 +64,9 @@ const DashboardPage = () => {
             <p className="text-xl font-semibold text-secondary-foreground">
               Uploaded Documents
             </p>
-            <p className="text-2xl font-semibold text-foreground">5,000</p>
+            <p className="text-2xl font-semibold text-foreground">
+              {documents.length}
+            </p>
           </div>
           <div className="ml-auto">
             <FaFileAlt size={50} color="#4FBA84" />
@@ -154,7 +163,15 @@ const DashboardPage = () => {
       </div>
 
       <div className="p-6 bg-white shadow-md rounded-xl space-y-4 ">
-        <h2 className="text-2xl font-semibold">Recent Documents</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-semibold">Recent Documents</h2>
+          <Link
+            href={"/dashboard/document-management/all-documents"}
+            className="primary-btn "
+          >
+            View All
+          </Link>
+        </div>
         <table className="w-full">
           <thead>
             <tr>
@@ -164,89 +181,37 @@ const DashboardPage = () => {
               </th>
               <th className="text-start border-b py-4 text-xl">Category</th>
               <th className="text-start border-b py-4 text-xl">Process Date</th>
-              <th className="text-start border-b py-4 text-xl">
-                Document Date
-              </th>
+
               <th className="text-start border-b py-4 text-xl">Status</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td className="flex gap-3 items-center border-b py-2">
-                <Image
-                  src={
-                    "https://images.unsplash.com/photo-1633332755192-727a05c4013d?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8YXZhdGFyfGVufDB8fDB8fHww"
-                  }
-                  alt="profile"
-                  width={40}
-                  height={40}
-                  className="aspect-square object-cover object-top rounded-full"
-                />
-                <p>John Doe</p>
-              </td>
-              <td className="border-b py-2">Invoice of Electronic Items</td>
-              <td className="border-b py-2">Invoice</td>
-              <td className="border-b py-2">23 Jan 2025</td>
-              <td className="border-b py-2">23 Jan 2025</td>
-              <td className="border-b py-2 text-green-500">Verified</td>
-            </tr>
-            <tr>
-              <td className="flex gap-3 items-center border-b py-2">
-                <Image
-                  src={
-                    "https://images.unsplash.com/photo-1633332755192-727a05c4013d?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8YXZhdGFyfGVufDB8fDB8fHww"
-                  }
-                  alt="profile"
-                  width={40}
-                  height={40}
-                  className="aspect-square object-cover object-top rounded-full"
-                />
-                <p>John Doe</p>
-              </td>
-              <td className="border-b py-2">Invoice of Electronic Items</td>
-              <td className="border-b py-2">Invoice</td>
-              <td className="border-b py-2">23 Jan 2025</td>
-              <td className="border-b py-2">23 Jan 2025</td>
-              <td className="border-b py-2 text-green-500">Verified</td>
-            </tr>
-            <tr>
-              <td className="flex gap-3 items-center border-b py-2">
-                <Image
-                  src={
-                    "https://images.unsplash.com/photo-1633332755192-727a05c4013d?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8YXZhdGFyfGVufDB8fDB8fHww"
-                  }
-                  alt="profile"
-                  width={40}
-                  height={40}
-                  className="aspect-square object-cover object-top rounded-full"
-                />
-                <p>John Doe</p>
-              </td>
-              <td className="border-b py-2">Invoice of Electronic Items</td>
-              <td className="border-b py-2">Invoice</td>
-              <td className="border-b py-2">23 Jan 2025</td>
-              <td className="border-b py-2">23 Jan 2025</td>
-              <td className="border-b py-2 text-red-500">Verify Now</td>
-            </tr>
-            <tr>
-              <td className="flex gap-3 items-center border-b py-2">
-                <Image
-                  src={
-                    "https://images.unsplash.com/photo-1633332755192-727a05c4013d?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8YXZhdGFyfGVufDB8fDB8fHww"
-                  }
-                  alt="profile"
-                  width={40}
-                  height={40}
-                  className="aspect-square object-cover object-top rounded-full"
-                />
-                <p>John Doe</p>
-              </td>
-              <td className="border-b py-2">Invoice of Electronic Items</td>
-              <td className="border-b py-2">Invoice</td>
-              <td className="border-b py-2">23 Jan 2025</td>
-              <td className="border-b py-2">23 Jan 2025</td>
-              <td className="border-b py-2 text-green-500">Verified</td>
-            </tr>
+            {documents.slice(0, 4).map((doc) => {
+              return (
+                <tr key={doc.id}>
+                  <td className="flex gap-3 items-center border-b py-2">
+                    <Image
+                      src={
+                        "https://images.unsplash.com/photo-1633332755192-727a05c4013d?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8YXZhdGFyfGVufDB8fDB8fHww"
+                      }
+                      alt="profile"
+                      width={40}
+                      height={40}
+                      className="aspect-square object-cover object-top rounded-full"
+                    />
+                    <p>{doc.client}</p>
+                  </td>
+                  <td className="border-b py-2">
+                    {extractFilenameFromUrl(doc.file)}
+                  </td>
+                  <td className="border-b py-2">{doc.category.name}</td>
+                  <td className="border-b py-2">
+                    {formatDate(doc.uploaded_at)}
+                  </td>
+                  <td className="border-b py-2 text-green-500">Verified</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

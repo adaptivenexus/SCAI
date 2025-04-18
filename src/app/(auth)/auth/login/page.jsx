@@ -12,6 +12,7 @@ import { IoIosEyeOff } from "react-icons/io";
 import { FaArrowLeft, FaFacebook } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
+import { isAuthenticated } from "@/utils/auth";
 
 const Login = () => {
   const router = useRouter();

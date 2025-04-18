@@ -67,12 +67,42 @@ export const AuthProvider = ({ children }) => {
     router.push("/auth/login");
   };
 
+  const refreshTokenFn = async () => {
+    const { refreshToken } = getStoredTokens();
+    if (!refreshToken) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency/token/refresh/`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refresh: refreshToken }),
+        }
+      );
+
+      if (!response.ok) {
+        logout();
+        return;
+      }
+
+      const { access, refresh } = await response.json();
+      storeTokens(access, refresh);
+    } catch (error) {
+      console.error("Token refresh error:", error);
+      logout();
+    }
+  };
+
   const value = {
     user,
     loading,
     login,
     logout,
     isAuthenticated: isAuthenticated(),
+    refreshTokenFn,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

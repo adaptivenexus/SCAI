@@ -1,54 +1,14 @@
 "use client";
 
 import ManageDocument from "@/components/Dashboard/common/ManageDocument";
-import DocumentPreview from "@/components/Dashboard/documentManagement/DocumentPreview";
 import DocumentRow from "@/components/Dashboard/documentManagement/DocumentRow";
-import { useState, useMemo, useRef, useEffect } from "react";
+import { GlobalContext } from "@/context/GlobalProvider";
+import Link from "next/link";
+import { useState, useMemo, useRef, useEffect, useContext } from "react";
 import { FiSearch, FiDownload } from "react-icons/fi";
 
 const AllDocumentPage = () => {
-  const [documents, setDocuments] = useState([
-    // {
-    //   id: 1,
-    //   client: {
-    //     name: "Jack Reid",
-    //     avatar: "/path/to/avatar.jpg",
-    //   },
-    //   name: "Invoice_001.pdf",
-    //   category: "Finance",
-    //   url: "https://pub-3ee73871842b4afda30068064ade7460.r2.dev/temp.pdf",
-    //   processedDate: "2025-09-25",
-    //   documentDate: "2025-01-23",
-    //   status: "Verified",
-    // },
-    // {
-    //   id: 2,
-    //   client: {
-    //     name: "Jack Reid",
-    //     avatar: "/path/to/avatar.jpg",
-    //   },
-    //   name: "Contract.docx",
-    //   category: "Legal",
-    //   url: "https://pub-3ee73871842b4afda30068064ade7460.r2.dev/temp.docx",
-    //   processedDate: "2025-09-25",
-    //   documentDate: "2025-01-23",
-    //   status: "Verified",
-    // },
-    // // Add more mock documents
-    // ...Array.from({ length: 40 }, (_, i) => ({
-    //   id: i + 3,
-    //   client: {
-    //     name: "Jack Reid",
-    //     avatar: "/path/to/avatar.jpg",
-    //   },
-    //   name: `Report_${i + 1}.xlsx`,
-    //   category: "Reports",
-    //   url: "https://pub-3ee73871842b4afda30068064ade7460.r2.dev/temp.pdf",
-    //   processedDate: "2025-09-25",
-    //   documentDate: "2025-01-23",
-    //   status: i < 3 ? "Verified" : "Verify Now",
-    // })),
-  ]);
+  const { documents, fetchDocuments } = useContext(GlobalContext);
   const [isManageDocumentOpen, setIsManageDocumentOpen] = useState(false);
   const [editDocument, setEditDocument] = useState(null);
   const [selectedDocuments, setSelectedDocuments] = useState(new Set());
@@ -62,31 +22,6 @@ const AllDocumentPage = () => {
   const [showDocumentDatePicker, setShowDocumentDatePicker] = useState(false);
   const processDateRef = useRef(null);
   const documentDateRef = useRef(null);
-
-  const fetchDocuments = async () => {
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
-      );
-      if (!response.ok) {
-        setDocuments([]);
-        return;
-      }
-      const data = await response.json();
-      setDocuments(data);
-    } catch (error) {
-      console.error("Error fetching documents:", error);
-    }
-  };
-  useEffect(() => {
-    fetchDocuments();
-  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -212,7 +147,13 @@ const AllDocumentPage = () => {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">All Documents</h1>
+        <h2 className="heading-5">All Documents</h2>
+        <Link
+          className="primary-btn"
+          href={"/dashboard/document-management/add-documents"}
+        >
+          Add Document
+        </Link>
       </div>
 
       <div className="flex justify-between items-center mb-6 gap-4">

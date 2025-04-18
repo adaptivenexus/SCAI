@@ -1,7 +1,8 @@
 "use client";
 
+import { GlobalContext } from "@/context/GlobalProvider";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 const AddOrManageClient = ({
@@ -11,6 +12,9 @@ const AddOrManageClient = ({
   setEditClient,
 }) => {
   const token = localStorage.getItem("accessToken");
+
+  const { fetchClients } = useContext(GlobalContext);
+
   const [client, setClient] = useState({
     business_name: "",
     business_type: "",
@@ -24,27 +28,53 @@ const AddOrManageClient = ({
   });
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      console.log(client);
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/client/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(client),
+    if (isNew) {
+      try {
+        console.log(client);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_SWAGGER_URL}/client/`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(client),
+          }
+        );
+        if (!response.ok) {
+          console.log(await response.json());
+          return;
         }
-      );
-      if (!response.ok) {
-        console.log(await response.json());
-        return;
+        toast.success("Client added successfully");
+        fetchClients();
+        setIsAddClientOpen(false);
+      } catch (error) {
+        console.error("Error adding client:", error);
       }
-      toast.success("Client added successfully");
-      setIsAddClientOpen(false);
-    } catch (error) {
-      console.error("Error adding client:", error);
+    } else {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_SWAGGER_URL}/client/${oldClient.id}/`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(client),
+          }
+        );
+        if (!response.ok) {
+          console.log(await response.json());
+          return;
+        }
+        toast.success("Client updated successfully");
+        fetchClients();
+        setIsAddClientOpen(false);
+      } catch (error) {
+        console.error("Error updating client:", error);
+      }
     }
   };
 

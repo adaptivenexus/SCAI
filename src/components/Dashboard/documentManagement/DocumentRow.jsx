@@ -18,6 +18,14 @@ const DocumentRow = ({
   const dropdownRef = useRef(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
+  const getFileType = (filename) => {
+    if (!filename) return "unknown";
+    const ext = filename.split(".").pop().toLowerCase();
+    return ext;
+  };
+
+  const type = getFileType(extractFilenameFromUrl(doc.file));
+
   const handleDelete = async () => {
     try {
       const res = await fetch(
@@ -84,20 +92,30 @@ const DocumentRow = ({
       </td>
       <td className="px-6 py-4 text-sm text-foreground">
         <div>
-          <button
-            onClick={() => {
-              setIsPreviewOpen(true);
-            }}
-            type="button"
-            className="text-primary underline"
-          >
-            {extractFilenameFromUrl(doc.file)}
-          </button>
+          {type == "pdf" ? (
+            <button
+              onClick={() => {
+                setIsPreviewOpen(true);
+              }}
+              type="button"
+              className="text-primary underline"
+            >
+              {extractFilenameFromUrl(doc.file)}
+            </button>
+          ) : (
+            <a
+              href={doc.file}
+              target="_blank"
+              className="text-primary underline"
+            >
+              {extractFilenameFromUrl(doc.file)}
+            </a>
+          )}
           {isPreviewOpen && (
             <DocumentPreview
               document={doc.file}
               setIsDocumentPreviewOpen={setIsPreviewOpen}
-              fileName={extractFilenameFromUrl(doc.file)}
+              type={type}
             />
           )}
         </div>
@@ -117,7 +135,7 @@ const DocumentRow = ({
               : "bg-orange-100 text-orange-800"
           }`}
         >
-          {doc.status}
+          Not Verified
         </span>
       </td>
       <td className="px-6 py-4 relative">

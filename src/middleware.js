@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getStoredTokens } from "./utils/auth";
 
 // Add any public routes that don't require authentication
 const publicRoutes = ["/auth/login", "/auth/signup"];
@@ -7,7 +8,8 @@ export function middleware(request) {
   const { pathname } = request.nextUrl;
 
   // Check for auth token
-  const token = request.cookies.get("accessToken");
+  const token =
+    request.cookies.get("accessToken") || request.cookies.get("refreshToken");
 
   // If accessing dashboard without token, redirect to login
   if (pathname.startsWith("/dashboard")) {
@@ -16,6 +18,7 @@ export function middleware(request) {
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);
     }
+
     return NextResponse.next();
   }
 
