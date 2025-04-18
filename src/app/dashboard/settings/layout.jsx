@@ -75,6 +75,15 @@ const SettingsLayout = ({ children }) => {
             >
               Notification Settings
             </Link>
+            <Link
+              href={"/dashboard/settings/role-mangement"}
+              className={`subtitle-text hover:bg-slate-100 rounded-lg px-2 py-2 ${
+                pathname === "/dashboard/settings/role-mangement" &&
+                "bg-slate-100"
+              }`}
+            >
+               Role Mangement
+            </Link>
           </div>
         </div>
         <div className="w-full">{children}</div>
