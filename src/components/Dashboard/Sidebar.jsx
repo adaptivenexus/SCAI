@@ -202,7 +202,7 @@ const Sidebar = () => {
                         </AnimatePresence>
                       </Link>
                     </li>
-                    <li className="flex items-center justify-center ">
+                    {/* <li className="flex items-center justify-center ">
                       <Link
                         href="/dashboard/document-management/manual-document-upload"
                         className="p-2 flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200 w-full"
@@ -222,7 +222,7 @@ const Sidebar = () => {
                           )}
                         </AnimatePresence>
                       </Link>
-                    </li>
+                    </li> */}
                     <li className="flex items-center justify-center ">
                       <Link
                         href={"/dashboard/document-management/all-documents"}

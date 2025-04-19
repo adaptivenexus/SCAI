@@ -4,17 +4,21 @@ import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { FiUploadCloud } from "react-icons/fi";
 
-export default function FileUploader({ setFiles }) {
+export default function FileUploader({ setFiles, files }) {
   // Handle file drop
-  const onDrop = useCallback((acceptedFiles) => {
-    setFiles(
-      acceptedFiles.map((file) =>
-        Object.assign(file, {
-          preview: URL.createObjectURL(file),
-        })
-      )
-    );
-  }, []);
+  const onDrop = useCallback(
+    (acceptedFiles) => {
+      setFiles((prevFiles) => [
+        ...prevFiles,
+        ...acceptedFiles.map((file) =>
+          Object.assign(file, {
+            preview: URL.createObjectURL(file),
+          })
+        ),
+      ]);
+    },
+    [setFiles]
+  );
 
   // Remove file
   const removeFile = (name) => {

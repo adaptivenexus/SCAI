@@ -11,54 +11,7 @@ const ManualDocumentUpload = () => {
   return (
     <div className="p-6 flex flex-col gap-6">
       <div className="bg-white p-8 shadow-md rounded-xl">
-        {/* <form onSubmit={handleSubmit}>
-          <div className="relative">
-            <label htmlFor="client_id">Client</label>
-            <input
-              type="number"
-              name="client_id"
-              id="client_id"
-              className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none w-full"
-              placeholder="Client"
-              value={formData.client_id == undefined ? 0 : formData.client_id}
-              onChange={(e) =>
-                setFormData({ ...formData, client_id: e.target.value })
-              }
-            />
-          </div>
-          <div className="relative">
-            <label htmlFor="category_id">Category</label>
-            <input
-              type="number"
-              name="category_id"
-              id="category_id"
-              className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none w-full"
-              placeholder="Category"
-              value={
-                formData.category_id == undefined ? 0 : formData.category_id
-              }
-              onChange={(e) =>
-                setFormData({ ...formData, category_id: e.target.value })
-              }
-            />
-          </div>
-          <div className="relative">
-            <label htmlFor="file">Document</label>
-            <input
-              type="file"
-              name="file"
-              id="file"
-              className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none w-full"
-              placeholder="Document"
-              onChange={(e) => setFiles(e.target.files)}
-              required
-            />
-          </div>
-          <button type="submit" className="primary-btn">
-            Submit
-          </button>
-        </form> */}
-        <FileUploader setFiles={setFiles} />
+        <FileUploader setFiles={setFiles} files={files} />
       </div>
 
       <div className="bg-white p-8 shadow-md rounded-xl space-y-4">

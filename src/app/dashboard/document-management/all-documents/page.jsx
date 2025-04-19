@@ -264,51 +264,7 @@ const AllDocumentPage = () => {
                   )}
                 </div>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                <div className="relative" ref={documentDateRef}>
-                  <div
-                    className="flex items-center gap-2 cursor-pointer"
-                    onClick={() =>
-                      setShowDocumentDatePicker(!showDocumentDatePicker)
-                    }
-                  >
-                    <span>Document Date</span>
-                    <svg
-                      className={`w-4 h-4 transition-transform ${
-                        showDocumentDatePicker ? "rotate-180" : ""
-                      }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </div>
-                  {showDocumentDatePicker && (
-                    <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
-                      <input
-                        type="date"
-                        className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
-                        value={documentDateFilter}
-                        onChange={(e) => setDocumentDateFilter(e.target.value)}
-                      />
-                      {documentDateFilter && (
-                        <button
-                          onClick={() => setDocumentDateFilter("")}
-                          className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
-                        >
-                          Clear
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </th>
+
               <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                 Status
               </th>

@@ -5,6 +5,8 @@ import { FiMoreVertical } from "react-icons/fi";
 import { extractFilenameFromUrl, formatDate } from "@/utils";
 import DocumentPreview from "./DocumentPreview";
 import { toast } from "react-toastify";
+import { authFetch } from "@/utils/auth";
+import { useAuth } from "@/context/AuthContext";
 
 const DocumentRow = ({
   doc,
@@ -17,6 +19,8 @@ const DocumentRow = ({
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [parsedData, setParsedData] = useState({});
+  const { refreshTokenFn } = useAuth();
 
   const getFileType = (filename) => {
     if (!filename) return "unknown";
@@ -49,6 +53,36 @@ const DocumentRow = ({
       toast.error("Something went wrong");
     }
   };
+
+  const fetchParsedData = async () => {
+    try {
+      const response = await authFetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${doc.id}/parsed-data/`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        },
+        refreshTokenFn
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setParsedData(data);
+      } else {
+        console.log("Error fetching parsed data:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching document data:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (doc) {
+      fetchParsedData();
+    }
+  }, [doc]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -120,23 +154,32 @@ const DocumentRow = ({
           )}
         </div>
       </td>
-      <td className="px-6 py-4 text-sm text-foreground">{doc.category.name}</td>
+      <td className="px-6 py-4 text-sm text-foreground">
+        {doc?.category?.name}
+      </td>
       <td className="px-6 py-4 text-sm text-foreground">
         {formatDate(doc.uploaded_at)}
       </td>
-      <td className="px-6 py-4 text-sm text-foreground">
-        {formatDate(doc.documentDate)}
-      </td>
+
       <td className="px-6 py-4">
-        <span
-          className={`px-2 py-1 text-xs rounded-full ${
-            doc.status === "Verified"
-              ? "bg-green-100 text-green-800"
-              : "bg-orange-100 text-orange-800"
-          }`}
-        >
-          Not Verified
-        </span>
+        {doc.status === "Verified" ? (
+          <span
+            className={`px-2 py-1 text-xs rounded-full bg-green-100 text-green-800`}
+          >
+            {doc?.status}
+          </span>
+        ) : (
+          <button
+            type="button"
+            className="px-2 py-1 text-xs rounded-full  bg-orange-100 text-orange-800"
+            onClick={() => {
+              setEditDocument(doc);
+              setIsManageDocumentOpen(true);
+            }}
+          >
+            Verify Now
+          </button>
+        )}
       </td>
       <td className="px-6 py-4 relative">
         <button

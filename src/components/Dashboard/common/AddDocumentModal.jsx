@@ -52,12 +52,7 @@ const AddNewDocumentModal = ({
         const data = await response.json();
         setCategories(data.results);
       } else {
-        setCategories([
-          {
-            id: 1,
-            name: "Invoice",
-          },
-        ]);
+        setCategories([]);
       }
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -150,7 +145,7 @@ const AddNewDocumentModal = ({
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-col flex-1 gap-1">
+                {/* <div className="flex flex-col flex-1 gap-1">
                   <label htmlFor="category_id">
                     Category <span className="text-red-500">*</span>
                   </label>
@@ -178,7 +173,7 @@ const AddNewDocumentModal = ({
                       </option>
                     ))}
                   </select>
-                </div>
+                </div> */}
               </div>
               {/* <div className="flex flex-col flex-1 gap-1">
                 <label htmlFor="documentName">
