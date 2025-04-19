@@ -134,9 +134,11 @@ const DashboardLayout = ({ children }) => {
                   <FaSearch size={30} />
                 </div>
               </div>
-              <div className="text-primary">
-                <FaRegBell size={30} />
-              </div>
+              <Link href={"/dashboard/notification-page"}>
+                <div className="text-primary">
+                  <FaRegBell size={30} />
+                </div>
+              </Link>
             </div>
           </header>
           {children}

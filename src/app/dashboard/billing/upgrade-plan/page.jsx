@@ -8,8 +8,10 @@ import { FaArrowRight, FaCheck, FaCheckCircle } from "react-icons/fa";
 import Heading from "@/components/AccentComponents/Heading";
 import PrimaryButton from "@/components/CTAs/PrimaryButton";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const UpgradePlanPage = () => {
+  const router = useRouter();
   return (
     <div className="p-10 flex flex-col gap-6">
       <div className="flex justify-between items-center">
@@ -24,6 +26,7 @@ const UpgradePlanPage = () => {
           <h4 className="heading-4">Upgrade Plan</h4>
         </div>
       </div>
+      
       {/* Cards */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

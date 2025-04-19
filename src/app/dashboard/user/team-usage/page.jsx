@@ -23,9 +23,11 @@ const TeamUsagePage = () => {
           </button>
           <h4 className="heading-4">Team Details & Usage</h4>
         </div>
-        <button type="button" className="primary-btn">
-          Upgrade Plan
-        </button>
+        <Link href={"/dashboard/billing/upgrade-plan"}>
+          <button type="button" className="primary-btn">
+            Upgrade Plan
+          </button>
+        </Link>
       </div>
 
       {/* Add your usage statistics and management options here */}
@@ -169,9 +171,11 @@ const TeamUsagePage = () => {
         <div className="flex justify-between items-center">
           <h5 className="heading-5">Team Usage</h5>
           <div className="flex gap-3 items-center">
-            <button type="button" className="primary-btn">
-              Manage
-            </button>
+            <Link href={"/dashboard/settings/role-mangement"}>
+              <button type="button" className="primary-btn">
+                Manage
+              </button>
+            </Link>
             <label
               htmlFor="search"
               className="flex items-center gap-2 border p-2 rounded-lg bg-slate-50 min-w-[400px]"

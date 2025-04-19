@@ -55,15 +55,15 @@ const NotificationSettingsPage = () => {
   const ActivityNotifications = [
     {
       key: "newComment",
-      title: "New Comment",
+      title: "Team Activity Alerts",
       description:
-        "Get notified when someone comments on a document you own or follow.",
+        "Be notified about team activities.",
     },
     {
       key: "newFollower",
-      title: "New Follower",
+      title: "Team Invites",
       description:
-        "Get notified when someone starts following a document you own.",
+        "Get notified when someone invites you to a workspace or project.",
     },
   ];
 

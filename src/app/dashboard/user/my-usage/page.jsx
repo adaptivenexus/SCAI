@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { IoMdArrowRoundBack } from "react-icons/io";
 
 const MyUsagePage = () => {
+
+
   const router = useRouter();
   return (
     <div className="p-10 flex flex-col gap-6">
@@ -18,11 +20,13 @@ const MyUsagePage = () => {
           </button>
           <h4 className="heading-4">My Details & Usage</h4>
         </div>
-        <button type="button" className="primary-btn">
-          Upgrade Plan
-        </button>
+        <Link href={"/dashboard/billing/upgrade-plan"}>
+          <button type="button" className="primary-btn">
+            Upgrade Plan
+          </button>
+        </Link>
       </div>
-
+    
       {/* Add your usage statistics and management options here */}
       <div className="flex gap-5 w-full">
         <div className="flex-1 bg-white shadow-xl rounded-xl border">
