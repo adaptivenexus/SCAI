@@ -90,6 +90,7 @@ export const AuthProvider = ({ children }) => {
 
       const { access, refresh } = await response.json();
       storeTokens(access, refresh);
+      return { accessToken: access, refreshToken: refresh };
     } catch (error) {
       console.error("Token refresh error:", error);
       logout();

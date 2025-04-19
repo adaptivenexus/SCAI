@@ -84,24 +84,28 @@ export const isAuthenticated = () => {
   return !!accessToken || !!refreshToken;
 };
 
+let refreshTokenPromise = null;
+
 export const authFetch = async (url, options = {}, refreshTokenFn) => {
-  // Add Authorization header with the access token
   const headers = {
     ...options.headers,
     "Content-Type": "application/json",
   };
 
   try {
-    // Make the API request
     const response = await fetch(url, { ...options, headers });
 
-    // If the access token is expired, refresh it
     if (response.status === 401 || response.status === 403) {
-      const data = await refreshTokenFn();
+      if (!refreshTokenPromise) {
+        refreshTokenPromise = refreshTokenFn().finally(() => {
+          refreshTokenPromise = null;
+        });
+      }
+
+      const data = await refreshTokenPromise;
       const newAccessToken = data.accessToken;
 
       if (newAccessToken) {
-        // Retry the original request with the new access token
         headers.Authorization = `Bearer ${newAccessToken}`;
         return fetch(url, { ...options, headers });
       } else {
