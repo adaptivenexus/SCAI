@@ -3,7 +3,7 @@
 import FileUploader from "@/components/Dashboard/OverviewComponents/DragAndDropFile";
 import { GoSearch } from "react-icons/go";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import DocumentUploadRow from "@/components/Dashboard/documentManagement/DocumentUploadRow";
 import Link from "next/link";
 

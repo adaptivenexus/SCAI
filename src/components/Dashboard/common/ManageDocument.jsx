@@ -71,7 +71,7 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData }) => {
         );
         if (matchedClient) {
           // Update the editDocument state with the matched client
-          console.log(matchedClient);
+          setSearchInputClients("");
           setEditDocument((prev) => ({
             ...prev,
             client: matchedClient,
@@ -80,8 +80,6 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData }) => {
       }
     }
   }, [document, clients]);
-
-  
 
   const formatDateForInput = (dateString) => {
     const date = new Date(dateString);
@@ -111,38 +109,45 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData }) => {
                   </label>
                   <div className="w-full relative">
                     <div className="border rounded-lg p-3 w-full flex items-center">
-                      <input
-                        type="text"
-                        name="client_id"
-                        id="client_id"
-                        className=" placeholder:text-secondary placeholder:font-medium outline-none w-full bg-transparent"
-                        placeholder="Search and select client"
-                        required
-                        onChange={(e) => {
-                          setSearchInputClients(e.target.value);
-                        }}
-                        autoComplete="off"
-                        disabled={editDocument.client ? true : false}
-                        value={
-                          editDocument.client
-                            ? editDocument.client.business_name
-                            : searchInputClients
-                        }
-                      />
-                      {editDocument.client && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSearchInputClients("");
-                            setEditDocument({
-                              ...editDocument,
-                              client: undefined,
-                            });
+                      {!editDocument.client && (
+                        <input
+                          type="text"
+                          name="client_id"
+                          id="client_id"
+                          className=" placeholder:text-secondary placeholder:font-medium outline-none w-full bg-transparent"
+                          placeholder="Search and select client"
+                          required
+                          onChange={(e) => {
+                            setSearchInputClients(e.target.value);
                           }}
-                          className="text-red-500"
-                        >
-                          <IoIosCloseCircle size={24} />
-                        </button>
+                          autoComplete="off"
+                          disabled={editDocument.client ? true : false}
+                          value={
+                            editDocument?.client != (null || undefined)
+                              ? editDocument?.client?.business_name
+                              : searchInputClients
+                          }
+                        />
+                      )}
+                      {editDocument.client && (
+                        <>
+                          <p className="w-full">
+                            {editDocument.client.business_name}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSearchInputClients("");
+                              setEditDocument({
+                                ...editDocument,
+                                client: undefined,
+                              });
+                            }}
+                            className="text-red-500"
+                          >
+                            <IoIosCloseCircle size={24} />
+                          </button>
+                        </>
                       )}
                     </div>
                     <div className="absolute w-full rounded-xl bg-white shadow-lg flex flex-col">

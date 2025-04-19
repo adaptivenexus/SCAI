@@ -1,14 +1,14 @@
 "use client";
 
-
 import DocumentRow from "@/components/Dashboard/documentManagement/DocumentRow";
 import { GlobalContext } from "@/context/GlobalProvider";
 import Link from "next/link";
 import { useState, useMemo, useRef, useEffect, useContext } from "react";
 import { FiSearch, FiDownload } from "react-icons/fi";
+import { IoIosRefresh } from "react-icons/io";
+import { BiLoaderAlt } from "react-icons/bi";
 
 const AllDocumentPage = () => {
-  
   const { documents, fetchDocuments } = useContext(GlobalContext);
   const [selectedDocuments, setSelectedDocuments] = useState(new Set());
   const [searchQuery, setSearchQuery] = useState("");
@@ -20,6 +20,8 @@ const AllDocumentPage = () => {
   const [showDocumentDatePicker, setShowDocumentDatePicker] = useState(false);
   const processDateRef = useRef(null);
   const documentDateRef = useRef(null);
+
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -142,6 +144,19 @@ const AllDocumentPage = () => {
     return rangeWithDots;
   };
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <BiLoaderAlt className="animate-spin text-4xl" />
+        <span className="ml-2">Loading...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -168,7 +183,16 @@ const AllDocumentPage = () => {
             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
         </div>
-
+        {/* Refresh */}
+        <button
+          onClick={() => {
+            window.location.reload();
+          }}
+          className="px-4 py-2 rounded-lg border border-gray-200 flex items-center gap-2 hover:bg-gray-50"
+        >
+          <IoIosRefresh />
+          Refresh
+        </button>
         {/* Export Button */}
         <button className="px-4 py-2 rounded-lg border border-gray-200 flex items-center gap-2 hover:bg-gray-50">
           <FiDownload />

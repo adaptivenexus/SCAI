@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { authFetch } from "@/utils/auth";
 import { useAuth } from "@/context/AuthContext";
 import ManageDocument from "../common/ManageDocument";
+import { BiLoaderAlt } from "react-icons/bi";
 
 const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,6 +16,7 @@ const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments }) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [parsedData, setParsedData] = useState({});
   const { refreshTokenFn } = useAuth();
+  const [isMounted, setIsMounted] = useState(false);
 
   const [isManageDocumentOpen, setIsManageDocumentOpen] = useState(false);
 
@@ -68,6 +70,7 @@ const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments }) => {
         setParsedData(data.parsed_data);
       } else {
         console.log("Error fetching parsed data:", response.statusText);
+        setParsedData({});
       }
     } catch (error) {
       console.error("Error fetching document data:", error);
@@ -75,12 +78,30 @@ const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments }) => {
   };
 
   useEffect(() => {
-    if (doc) {
+    setIsMounted(true);
+  }, []);
+  useEffect(() => {
+    if (isMounted) {
       fetchParsedData();
     }
-  }, [doc]);
+  }, [isMounted]);
 
-  console.log(parsedData);
+  useEffect(() => {
+    if (doc) {
+      const interval = setInterval(() => {
+        if (
+          !parsedData.suggested_title ||
+          Object.keys(parsedData).length === 0
+        ) {
+          fetchParsedData();
+        } else {
+          clearInterval(interval);
+        }
+      }, 5000);
+
+      return () => clearInterval(interval);
+    }
+  }, [doc, parsedData]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -119,7 +140,7 @@ const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments }) => {
             height={30}
             className="rounded-full"
           />
-          <span className="text-sm font-medium">{doc.client}</span>
+          <span className="text-sm font-medium truncate">{doc.client}</span>
         </div>
       </td>
       <td className="px-6 py-4 text-sm text-foreground">
@@ -130,7 +151,7 @@ const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments }) => {
                 setIsPreviewOpen(true);
               }}
               type="button"
-              className="text-primary underline"
+              className="text-primary underline text-start truncate"
             >
               {parsedData?.suggested_title || extractFilenameFromUrl(doc.file)}
             </button>
@@ -138,7 +159,7 @@ const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments }) => {
             <a
               href={doc.file}
               target="_blank"
-              className="text-primary underline"
+              className="text-primary underline text-start truncate"
             >
               {parsedData?.suggested_title || extractFilenameFromUrl(doc.file)}
             </a>
@@ -163,7 +184,13 @@ const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments }) => {
       </td>
 
       <td className="px-6 py-4">
-        {doc.status === "Verified" ? (
+        {!parsedData.suggested_title ? (
+          <span
+            className={`px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800`}
+          >
+            Processing <BiLoaderAlt className="animate-spin inline-block" />
+          </span>
+        ) : doc.status === "Verified" ? (
           <span
             className={`px-2 py-1 text-xs rounded-full bg-green-100 text-green-800`}
           >
