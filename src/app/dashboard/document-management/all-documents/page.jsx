@@ -1,6 +1,6 @@
 "use client";
 
-import ManageDocument from "@/components/Dashboard/common/ManageDocument";
+
 import DocumentRow from "@/components/Dashboard/documentManagement/DocumentRow";
 import { GlobalContext } from "@/context/GlobalProvider";
 import Link from "next/link";
@@ -8,11 +8,9 @@ import { useState, useMemo, useRef, useEffect, useContext } from "react";
 import { FiSearch, FiDownload } from "react-icons/fi";
 
 const AllDocumentPage = () => {
+  
   const { documents, fetchDocuments } = useContext(GlobalContext);
-  const [isManageDocumentOpen, setIsManageDocumentOpen] = useState(false);
-  const [editDocument, setEditDocument] = useState(null);
   const [selectedDocuments, setSelectedDocuments] = useState(new Set());
-
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [currentPage, setCurrentPage] = useState(1);
@@ -266,6 +264,52 @@ const AllDocumentPage = () => {
               </th>
 
               <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
+                <div className="relative" ref={documentDateRef}>
+                  <div
+                    className="flex items-center gap-2 cursor-pointer"
+                    onClick={() =>
+                      setShowDocumentDatePicker(!showDocumentDatePicker)
+                    }
+                  >
+                    <span>Document Date</span>
+                    <svg
+                      className={`w-4 h-4 transition-transform ${
+                        showDocumentDatePicker ? "rotate-180" : ""
+                      }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                  {showDocumentDatePicker && (
+                    <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
+                      <input
+                        type="date"
+                        className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
+                        value={documentDateFilter}
+                        onChange={(e) => setDocumentDateFilter(e.target.value)}
+                      />
+                      {documentDateFilter && (
+                        <button
+                          onClick={() => setDocumentDateFilter("")}
+                          className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </th>
+
+              <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                 Status
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
@@ -278,8 +322,6 @@ const AllDocumentPage = () => {
               <DocumentRow
                 key={doc.id}
                 doc={doc}
-                setIsManageDocumentOpen={setIsManageDocumentOpen}
-                setEditDocument={setEditDocument}
                 isSelected={selectedDocuments.has(doc.id)}
                 onSelect={handleSelectDocument}
                 fetchDocuments={fetchDocuments}
@@ -347,13 +389,6 @@ const AllDocumentPage = () => {
           </div>
         </div>
       </div>
-      {isManageDocumentOpen && (
-        <ManageDocument
-          setIsManageDocumentOpen={setIsManageDocumentOpen}
-          editDocument={editDocument}
-          setEditDocument={setEditDocument}
-        />
-      )}
     </div>
   );
 };

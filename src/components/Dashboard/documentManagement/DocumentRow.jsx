@@ -7,20 +7,16 @@ import DocumentPreview from "./DocumentPreview";
 import { toast } from "react-toastify";
 import { authFetch } from "@/utils/auth";
 import { useAuth } from "@/context/AuthContext";
+import ManageDocument from "../common/ManageDocument";
 
-const DocumentRow = ({
-  doc,
-  setIsManageDocumentOpen,
-  setEditDocument,
-  isSelected,
-  onSelect,
-  fetchDocuments,
-}) => {
+const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [parsedData, setParsedData] = useState({});
   const { refreshTokenFn } = useAuth();
+
+  const [isManageDocumentOpen, setIsManageDocumentOpen] = useState(false);
 
   const getFileType = (filename) => {
     if (!filename) return "unknown";
@@ -69,7 +65,7 @@ const DocumentRow = ({
       );
       if (response.ok) {
         const data = await response.json();
-        setParsedData(data);
+        setParsedData(data.parsed_data);
       } else {
         console.log("Error fetching parsed data:", response.statusText);
       }
@@ -83,6 +79,8 @@ const DocumentRow = ({
       fetchParsedData();
     }
   }, [doc]);
+
+  console.log(parsedData);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -134,7 +132,7 @@ const DocumentRow = ({
               type="button"
               className="text-primary underline"
             >
-              {extractFilenameFromUrl(doc.file)}
+              {parsedData?.suggested_title || extractFilenameFromUrl(doc.file)}
             </button>
           ) : (
             <a
@@ -142,7 +140,7 @@ const DocumentRow = ({
               target="_blank"
               className="text-primary underline"
             >
-              {extractFilenameFromUrl(doc.file)}
+              {parsedData?.suggested_title || extractFilenameFromUrl(doc.file)}
             </a>
           )}
           {isPreviewOpen && (
@@ -155,10 +153,13 @@ const DocumentRow = ({
         </div>
       </td>
       <td className="px-6 py-4 text-sm text-foreground">
-        {doc?.category?.name}
+        {parsedData?.document_type}
       </td>
       <td className="px-6 py-4 text-sm text-foreground">
         {formatDate(doc.uploaded_at)}
+      </td>
+      <td className="px-6 py-4 text-sm text-foreground">
+        {parsedData?.document_date}
       </td>
 
       <td className="px-6 py-4">
@@ -173,7 +174,6 @@ const DocumentRow = ({
             type="button"
             className="px-2 py-1 text-xs rounded-full  bg-orange-100 text-orange-800"
             onClick={() => {
-              setEditDocument(doc);
               setIsManageDocumentOpen(true);
             }}
           >
@@ -182,44 +182,52 @@ const DocumentRow = ({
         )}
       </td>
       <td className="px-6 py-4 relative">
-        <button
-          type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          className="text-gray-400 hover:text-gray-600"
-        >
-          <FiMoreVertical />
-        </button>
-        {isOpen && (
-          <div
-            ref={dropdownRef}
-            className="absolute bg-white rounded-lg shadow-lg z-10 overflow-hidden"
+        <div>
+          <button
+            type="button"
+            onClick={() => setIsOpen(!isOpen)}
+            className="text-gray-400 hover:text-gray-600"
           >
-            <button
-              type="button"
-              className="block subtitle-text px-3 py-1 text-foreground hover:opacity-80 hover:bg-black/10 w-full text-start"
-              onClick={() => {
-                setIsOpen(false);
-                setEditDocument(doc);
-                setIsManageDocumentOpen(true);
-              }}
+            <FiMoreVertical />
+          </button>
+          {isOpen && (
+            <div
+              ref={dropdownRef}
+              className="absolute bg-white rounded-lg shadow-lg z-10 overflow-hidden"
             >
-              Edit
-            </button>
-            <button
-              type="button"
-              className="block subtitle-text px-3 py-1 text-foreground hover:opacity-80 hover:bg-black/10 w-full text-start"
-            >
-              Share
-            </button>
-            <button
-              type="button"
-              onClick={handleDelete}
-              className="block subtitle-text px-3 py-1 text-red-500 hover:opacity-80 hover:bg-black/10 w-full text-start"
-            >
-              Delete
-            </button>
-          </div>
-        )}
+              <button
+                type="button"
+                className="block subtitle-text px-3 py-1 text-foreground hover:opacity-80 hover:bg-black/10 w-full text-start"
+                onClick={() => {
+                  setIsOpen(false);
+                  setIsManageDocumentOpen(true);
+                }}
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                className="block subtitle-text px-3 py-1 text-foreground hover:opacity-80 hover:bg-black/10 w-full text-start"
+              >
+                Share
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="block subtitle-text px-3 py-1 text-red-500 hover:opacity-80 hover:bg-black/10 w-full text-start"
+              >
+                Delete
+              </button>
+            </div>
+          )}
+          {isManageDocumentOpen && (
+            <ManageDocument
+              setIsManageDocumentOpen={setIsManageDocumentOpen}
+              document={doc}
+              parsedData={parsedData}
+            />
+          )}
+        </div>
       </td>
     </tr>
   );

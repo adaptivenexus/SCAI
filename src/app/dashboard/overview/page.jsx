@@ -208,7 +208,23 @@ const DashboardPage = () => {
                   <td className="border-b py-2">
                     {formatDate(doc.uploaded_at)}
                   </td>
-                  <td className="border-b py-2 text-green-500">Verified</td>
+                  <td className="border-b py-2">
+                    {doc.status === "Verified" ? (
+                      <span
+                        className={`px-2 py-1 text-xs rounded-full bg-green-100 text-green-800`}
+                      >
+                        {doc?.status}
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        className="px-2 py-1 text-xs rounded-full  bg-orange-100 text-orange-800"
+                        onClick={() => {}}
+                      >
+                        Verify Now
+                      </button>
+                    )}
+                  </td>
                 </tr>
               );
             })}

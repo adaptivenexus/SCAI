@@ -3,8 +3,9 @@
 import FileUploader from "@/components/Dashboard/OverviewComponents/DragAndDropFile";
 import { GoSearch } from "react-icons/go";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DocumentUploadRow from "@/components/Dashboard/documentManagement/DocumentUploadRow";
+import Link from "next/link";
 
 const AddDocument = () => {
   const [files, setFiles] = useState([]);
@@ -56,19 +57,28 @@ const AddDocument = () => {
           <div className="flex items-center justify-between">
             <h5 className="heading-5">Files</h5>
             {/* search bar */}
-            <label
-              htmlFor="search"
-              className="w-[300px] bg-[#F6F7FB] rounded-xl border p-2 flex items-center"
-            >
-              <input
-                type="text"
-                placeholder="Search File"
-                className="flex-1 bg-transparent outline-none placeholder:text-secondary-foreground"
-              />
-              <button type="button" className="block">
-                <GoSearch size={24} />
-              </button>
-            </label>
+            <div className="flex items-center gap-2">
+              <Link
+                href={"/dashboard/document-management/all-documents"}
+                className="primary-btn"
+              >
+                View All Documents
+              </Link>
+
+              <label
+                htmlFor="search"
+                className="w-[300px] bg-[#F6F7FB] rounded-xl border p-2 flex items-center"
+              >
+                <input
+                  type="text"
+                  placeholder="Search File"
+                  className="flex-1 bg-transparent outline-none placeholder:text-secondary-foreground"
+                />
+                <button type="button" className="block">
+                  <GoSearch size={24} />
+                </button>
+              </label>
+            </div>
           </div>
           <table className="w-full">
             <thead>
