@@ -204,7 +204,7 @@ const DashboardPage = () => {
                   <td className="border-b py-2">
                     {extractFilenameFromUrl(doc.file)}
                   </td>
-                  <td className="border-b py-2">{doc.category.name}</td>
+                  <td className="border-b py-2">{doc?.category?.name}</td>
                   <td className="border-b py-2">
                     {formatDate(doc.uploaded_at)}
                   </td>

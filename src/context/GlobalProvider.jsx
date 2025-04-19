@@ -31,6 +31,7 @@ const GlobalDashboardProvider = ({ children }) => {
         return;
       }
       const data = await res.json();
+
       setClients(data);
     } catch (error) {
       console.error("Error fetching clients:", error);
@@ -54,7 +55,10 @@ const GlobalDashboardProvider = ({ children }) => {
         return;
       }
       const data = await response.json();
-      setDocuments(data);
+      const sortedData = data.sort(
+        (a, b) => new Date(b.uploaded_at) - new Date(a.uploaded_at)
+      );
+      setDocuments(sortedData);
     } catch (error) {
       console.error("Error fetching documents:", error);
     }
