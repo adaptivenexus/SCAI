@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 // icons
-import { IoIosEye } from "react-icons/io";
+import { IoIosEye, IoMdArrowDropdown } from "react-icons/io";
 import { IoIosEyeOff } from "react-icons/io";
 import { FaArrowLeft, FaFacebook } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
@@ -215,6 +215,28 @@ const SignUp = () => {
                     )}
                   </button>
                 </fieldset>
+
+                <div className="relative">
+                  <select
+                    className="bg-white border border-[#79747E] rounded-md px-4 py-2 w-full outline-none appearance-none"
+                    name="planType"
+                    id="planType"
+                    value={formData.planType}
+                    onChange={handleChange}
+                  >
+                    <option value="" disabled hidden>
+                      Select Plan Type
+                    </option>
+                    <option value="free-plan">Free Plan</option>
+                    <option value="basic-plan">Basic Plan</option>
+                    <option value="standard-plan">Standard Plan</option>
+                    <option value="enterprise-plan">Enterprise Plan</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                    <IoMdArrowDropdown size={24} />
+                  </div>
+                </div>
+
               </div>
               <label htmlFor="terms" className="flex gap-2">
                 <input
