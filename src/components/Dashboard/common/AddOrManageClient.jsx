@@ -2,8 +2,9 @@
 
 import { GlobalContext } from "@/context/GlobalProvider";
 import Image from "next/image";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useTransition } from "react";
 import { toast } from "react-toastify";
+import { BiLoaderAlt } from "react-icons/bi";
 
 const AddOrManageClient = ({
   setIsAddClientOpen,
@@ -14,6 +15,8 @@ const AddOrManageClient = ({
   const token = localStorage.getItem("accessToken");
 
   const { fetchClients } = useContext(GlobalContext);
+
+  const [loading, startTransition] = useTransition();
 
   const [client, setClient] = useState({
     business_name: "",
@@ -28,54 +31,60 @@ const AddOrManageClient = ({
   });
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isNew) {
-      try {
-        console.log(client);
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_SWAGGER_URL}/client/`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(client),
+    startTransition(async () => {
+      if (isNew) {
+        try {
+          console.log(client);
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_SWAGGER_URL}/client/`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify(client),
+            }
+          );
+          if (!response.ok) {
+            console.log(await response.json());
+            toast.error("Something went wrong or check your fields");
+            return;
           }
-        );
-        if (!response.ok) {
-          console.log(await response.json());
-          return;
+          toast.success("Client added successfully");
+          fetchClients();
+          setIsAddClientOpen(false);
+        } catch (error) {
+          console.error("Error adding client:", error);
+          toast.error("Something went wrong");
         }
-        toast.success("Client added successfully");
-        fetchClients();
-        setIsAddClientOpen(false);
-      } catch (error) {
-        console.error("Error adding client:", error);
-      }
-    } else {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_SWAGGER_URL}/client/${oldClient.id}/`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(client),
+      } else {
+        try {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_SWAGGER_URL}/client/${oldClient.id}/`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify(client),
+            }
+          );
+          if (!response.ok) {
+            console.log(await response.json());
+            toast.error("Something went wrong or check your fields");
+            return;
           }
-        );
-        if (!response.ok) {
-          console.log(await response.json());
-          return;
+          toast.success("Client updated successfully");
+          fetchClients();
+          setIsAddClientOpen(false);
+        } catch (error) {
+          console.error("Error updating client:", error);
+          toast.error("Something went wrong");
         }
-        toast.success("Client updated successfully");
-        fetchClients();
-        setIsAddClientOpen(false);
-      } catch (error) {
-        console.error("Error updating client:", error);
       }
-    }
+    });
   };
 
   const handleChange = (e) => {
@@ -333,6 +342,12 @@ const AddOrManageClient = ({
             </button>
           </div>
         </form>
+        {/* add loading */}
+        {loading && (
+          <div className="absolute !m-0 inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg z-10">
+            <BiLoaderAlt className="animate-spin text-primary" size={100} />
+          </div>
+        )}
       </div>
     </div>
   );

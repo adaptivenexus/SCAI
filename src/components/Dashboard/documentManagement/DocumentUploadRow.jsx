@@ -4,8 +4,9 @@ import { FaCheckCircle } from "react-icons/fa";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { IoCloseCircle } from "react-icons/io5";
 import AddNewDocumentModal from "../common/AddDocumentModal";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { toast } from "react-toastify";
+import { GlobalContext } from "@/context/GlobalProvider";
 
 const DocumentUploadRow = ({
   file,
@@ -20,6 +21,7 @@ const DocumentUploadRow = ({
     category_id: undefined,
   });
   const [isOpenModal, setIsOpenModal] = useState(false);
+  const { fetchDocuments } = useContext(GlobalContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,6 +44,7 @@ const DocumentUploadRow = ({
       const data = await res.json();
       if (res.ok) {
         setUploadedFilesIndex([...uploadedFilesIndex, index]);
+        fetchDocuments();
         setIsOpenModal(false);
         toast.success("Document uploaded successfully");
       } else {
@@ -53,8 +56,6 @@ const DocumentUploadRow = ({
       console.log(err);
     }
   };
-
-  
 
   return (
     <tr>
