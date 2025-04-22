@@ -45,7 +45,7 @@ const Sidebar = () => {
     >
       <div className="p-4 min-w-[90px]">
         <Link href={"/"} className="text-background text-center text-2xl block">
-          SCAI
+        SCANDOQ.
         </Link>
         <hr className="my-4" />
         <nav>
