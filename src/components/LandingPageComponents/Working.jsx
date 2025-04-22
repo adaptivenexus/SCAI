@@ -23,7 +23,7 @@ const Working = () => {
         <div className="flex flex-col xl:flex-row items-center gap-2 w-full">
           <div className="flex flex-col items-center bg-background px-5 py-7 rounded-lg flex-1 md:w-80 xl:w-auto w-full hover:scale-[1.02] duration-300 gap-2">
             <div className="">
-              <Image src={"/Step1.png"} alt={"Step 1"} width={66} height={66} />
+              <Image src={"/step1.png"} alt={"Step 1"} width={66} height={66} />
             </div>
             <div className="flex flex-col gap-2">
               <h5 className="heading-5 text-center">Upload Documents</h5>
@@ -40,7 +40,7 @@ const Working = () => {
           </div>
           <div className="flex flex-col items-center bg-background px-5 py-7 rounded-lg flex-1 md:w-80 xl:w-auto w-full hover:scale-[1.02] duration-300 gap-2">
             <div className="">
-              <Image src={"/Step2.png"} alt={"Step 2"} width={66} height={66} />
+              <Image src={"/step2.png"} alt={"Step 2"} width={66} height={66} />
             </div>
             <div className="flex flex-col gap-2">
               <h5 className="heading-5 text-center">AI Processing</h5>
@@ -57,7 +57,7 @@ const Working = () => {
           </div>
           <div className="flex flex-col items-center bg-background px-5 py-7 rounded-lg flex-1 md:w-80 xl:w-auto w-full hover:scale-[1.02] duration-300 gap-2">
             <div className="">
-              <Image src={"/Step3.png"} alt={"Step 3"} width={66} height={66} />
+              <Image src={"/step3.png"} alt={"Step 3"} width={66} height={66} />
             </div>
             <div className="flex flex-col gap-2">
               <h5 className="heading-5 text-center">Smart Organization</h5>
@@ -74,7 +74,7 @@ const Working = () => {
           </div>
           <div className="flex flex-col items-center bg-background px-5 py-7 rounded-lg flex-1 md:w-80 xl:w-auto w-full hover:scale-[1.02] duration-300 gap-2">
             <div className="">
-              <Image src={"/Step4.png"} alt={"Step 4"} width={66} height={66} />
+              <Image src={"/step4.png"} alt={"Step 4"} width={66} height={66} />
             </div>
             <div className="flex flex-col gap-2">
               <h5 className="heading-5 text-center">Easy Access</h5>
