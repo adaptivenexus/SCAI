@@ -8,11 +8,9 @@ import { useEffect, useState } from "react";
 const Hero = () => {
   const [showVideo, setShowVideo] = useState(false);
 
-
-
   return (
     <section
-      className="h-[calc(100vh-72px)] md:h-[calc(100vh-76px)] flex items-center bg-center bg-no-repeat bg-cover"
+      className="h-[calc(100vh-72px)] md:h-[calc(100vh-76px)] flex items-center bg-center bg-no-repeat bg-cover py-24"
       style={{ backgroundImage: " url('/Hero.png')" }}
     >
       <div className="xl:max-w-[1280px] max-xl:px-4 mx-auto space-y-10">

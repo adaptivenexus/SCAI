@@ -67,6 +67,7 @@ const MobileNav = ({ isNavOpen, setIsNavOpen }) => {
           </Link>
         </li>
       </ul>
+      
 
       <h2 className="heading-4 text-foreground text-center">LOGO.</h2>
 

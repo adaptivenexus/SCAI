@@ -121,27 +121,29 @@ const AddNewDocumentModal = ({
                       )}
                     </div>
                     <div className="absolute w-full rounded-xl bg-white shadow-lg flex flex-col">
-                      {listClients.map((client) => (
-                        <button
-                          type="button"
-                          key={client.id}
-                          className="py-2 px-4 border-b w-full cursor-pointer hover:bg-blue-50 text-start"
-                          onClick={() => {
-                            setFormData({
-                              ...formData,
-                              client: client,
-                            });
-                            setSearchInputClients("");
-                          }}
-                        >
-                          <p className="body-text font-semibold">
-                            {client.business_name}
-                          </p>
-                          <p className="label-text text-primary">
-                            {client.email}
-                          </p>
-                        </button>
-                      ))}
+                      {listClients
+                        .filter((client) => client.status == "Verified")
+                        .map((client) => (
+                          <button
+                            type="button"
+                            key={client.id}
+                            className="py-2 px-4 border-b w-full cursor-pointer hover:bg-blue-50 text-start"
+                            onClick={() => {
+                              setFormData({
+                                ...formData,
+                                client: client,
+                              });
+                              setSearchInputClients("");
+                            }}
+                          >
+                            <p className="body-text font-semibold">
+                              {client.business_name}
+                            </p>
+                            <p className="label-text text-primary">
+                              {client.email}
+                            </p>
+                          </button>
+                        ))}
                     </div>
                   </div>
                 </div>

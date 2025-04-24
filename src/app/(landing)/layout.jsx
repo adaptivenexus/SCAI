@@ -5,7 +5,7 @@ const LandingLayout = ({ children }) => {
   return (
     <>
       <Header />
-      <main>{children}</main>
+      <main className="">{children}</main>
       <Footer />
     </>
   );
