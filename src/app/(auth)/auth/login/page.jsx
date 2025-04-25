@@ -12,7 +12,6 @@ import { IoIosEyeOff } from "react-icons/io";
 import { FaArrowLeft, FaFacebook } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
-import { isAuthenticated } from "@/utils/auth";
 
 const Login = () => {
   const router = useRouter();
@@ -59,15 +58,16 @@ const Login = () => {
 
   return (
     <section className="h-screen w-screen flex items-center justify-center">
-      <div className="space-y-8 bg-white p-20 rounded-2xl shadow-lg">
+      <div className="space-y-8 bg-white p-4 md:p-10 lg:p-20 rounded-2xl shadow-lg max-lg:w-full mx-4">
         <div>
-          <Link
-            href="/"
+          <button
+            type="button"
+            onClick={() => router.back()}
             className="flex gap-2 items-center bg-slate-50 rounded-full w-max px-4 py-1 border"
           >
             <FaArrowLeft />
             <span>Back</span>
-          </Link>
+          </button>
         </div>
         <div className="flex gap-10">
           <div className="flex-1 space-y-6">
@@ -159,7 +159,7 @@ const Login = () => {
               </div>
             </form>
           </div>
-          <div className="flex-1 rounded-[30px] overflow-hidden">
+          <div className="flex-1 hidden md:block rounded-[30px] overflow-hidden">
             <Image
               src={"/login.png"}
               alt={"Login"}

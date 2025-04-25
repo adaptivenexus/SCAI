@@ -69,16 +69,17 @@ const SignUp = () => {
   };
 
   return (
-    <section className="h-screen w-screen flex items-center justify-center">
-      <div className="space-y-6 bg-white px-20 py-10 rounded-2xl shadow-lg">
+    <section className="min-h-screen flex items-center justify-center">
+      <div className="space-y-8 bg-white p-4 md:p-10 lg:px-20 lg:py-10 rounded-2xl shadow-lg max-lg:w-full m-4">
         <div>
-          <Link
-            href="/"
+          <button
+            type="button"
+            onClick={() => router.back()}
             className="flex gap-2 items-center bg-slate-50 rounded-full w-max px-4 py-1 border"
           >
             <FaArrowLeft />
             <span>Back</span>
-          </Link>
+          </button>
         </div>
         <div className="flex gap-10">
           <div className="flex-1 space-y-6">
@@ -107,7 +108,7 @@ const SignUp = () => {
                     />
                   </fieldset>
                 </div>
-                <div className="flex gap-4">
+                <div className="flex gap-4 flex-col md:flex-row">
                   <fieldset className="border border-[#79747E]  pb-2 px-4 rounded-md flex-1">
                     <legend className="px-1">
                       Email<span className="text-red-500">*</span>
@@ -139,32 +140,6 @@ const SignUp = () => {
                     />
                   </fieldset>
                 </div>
-                {/* <div className="flex gap-4">
-                  <fieldset className="border border-[#79747E]  pb-2 px-4 rounded-md flex-1">
-                    <legend className="px-1">
-                      Country<span className="text-red-500">*</span>
-                    </legend>
-                    <input
-                      type="text"
-                      id="country"
-                      name="country"
-                      placeholder="India"
-                      className="w-full bg-transparent outline-none"
-                      />
-                  </fieldset>
-                  <fieldset className="border border-[#79747E]  pb-2 px-4 rounded-md flex-1">
-                    <legend className="px-1">
-                      Postal Code<span className="text-red-500">*</span>
-                    </legend>
-                    <input
-                      type="text"
-                      id="postalCode"
-                      name="postalCode"
-                      placeholder="411028"
-                      className="w-full bg-transparent outline-none"
-                    />
-                  </fieldset>
-                </div> */}
                 <fieldset className="border border-[#79747E]  pb-2 px-4 rounded-md flex items-center justify-between">
                   <legend className="px-1">
                     Password<span className="text-red-500">*</span>
@@ -236,7 +211,6 @@ const SignUp = () => {
                     <IoMdArrowDropdown size={24} />
                   </div>
                 </div>
-
               </div>
               <label htmlFor="terms" className="flex gap-2">
                 <input
@@ -302,7 +276,7 @@ const SignUp = () => {
               </div>
             </form>
           </div>
-          <div className="flex-1 rounded-[30px] overflow-hidden bg-[#EFEFEF]">
+          <div className="flex-1 hidden md:block rounded-[30px] overflow-hidden bg-[#EFEFEF]">
             <Image
               src={"/signup.png"}
               alt={"Login"}

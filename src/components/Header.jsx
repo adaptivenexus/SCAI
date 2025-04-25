@@ -125,7 +125,7 @@ const Header = () => {
             >
               Get Started
             </Link>
-            <Link href="/auth/login" className={"hidden md:block primary-btn"}>
+            <Link href="/auth/login" className={"primary-btn"}>
               Login
             </Link>
             <button
