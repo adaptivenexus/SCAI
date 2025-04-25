@@ -133,7 +133,7 @@ const ClientListPage = () => {
           >
             <option value="All">All Status</option>
             <option value="Verified">Verified</option>
-            <option value="Not Verified">Not Verified</option>
+            <option value="Pending">Not Verified</option>
           </select>
         </div>
 
@@ -154,10 +154,10 @@ const ClientListPage = () => {
               </th>
               <th
                 className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
-                onClick={() => handleSort("FIRST_NAME")}
+                onClick={() => handleSort("business_name")}
               >
                 Client Name
-                {sortConfig.key === "FIRST_NAME" && (
+                {sortConfig.key === "business_name" && (
                   <span className="ml-1">
                     {sortConfig.direction === "asc" ? "↑" : "↓"}
                   </span>
@@ -182,10 +182,10 @@ const ClientListPage = () => {
               </th>
               <th
                 className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
-                onClick={() => handleSort("CREATED_AT")}
+                onClick={() => handleSort("created_at")}
               >
                 Creation date
-                {sortConfig.key === "CREATED_AT" && (
+                {sortConfig.key === "created_at" && (
                   <span className="ml-1">
                     {sortConfig.direction === "asc" ? "↑" : "↓"}
                   </span>
