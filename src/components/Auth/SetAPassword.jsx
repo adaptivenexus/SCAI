@@ -27,7 +27,7 @@ const SetAPassword = () => {
             <div className="space-y-3">
               <h3 className="heading-3">Set a password</h3>
               <p className="subtitle-text text-secondary-foreground">
-                Your previous password has been reseted. Please set a new
+                Your previous password has been reseted.  set a new
                 password for your account.
               </p>
             </div>

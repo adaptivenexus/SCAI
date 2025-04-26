@@ -29,8 +29,20 @@ const AddOrManageClient = ({
     postal_code: "",
     status: "",
   });
+
+  const [message, setMessage] = useState({ type: "", text: "" });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const validationError = validateForm();
+
+    console.log('Form validation error ' + validationError);
+    if (validationError) {
+      setMessage({ type: "error", text: validationError });
+      return;
+    }
+
     startTransition(async () => {
       if (isNew) {
         try {
@@ -93,7 +105,44 @@ const AddOrManageClient = ({
       ...client,
       [name]: value,
     });
+
+    // Clear error immediately when user fixes field
+    setMessage({ type: "", text: "" });
   };
+
+  const validateForm = () => {
+
+    console.log('Form svalidation in progress');
+    
+    // Mobile validation
+    if (!client.mobile_number) {
+      return 'Mobile number is required';
+    } else if (!/^\d{10}$/.test(client.mobile_number)) {
+      return 'Mobile number must be exactly 10 digits';
+    }
+    
+    if (!client.email) {
+      return 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(client.email)) {
+      return 'Invalid email address';
+    }
+  
+
+    if (!client.business_name) {
+      return 'Business Name is required';
+    }
+
+    if (!client.tin) {
+      return 'SSN/TIN Number is required';
+    }
+
+    if (!client.business_type) {
+      return 'Please select Business Type';
+    }
+
+    return "";
+  };
+
 
   useEffect(() => {
     if (!isNew) {
@@ -126,6 +175,20 @@ const AddOrManageClient = ({
               <input type="file" name="avatar" id="avatar" className="hidden" />
               <span className="primary-btn cursor-pointer">Upload Avatar</span>
             </label>
+            {/* Success/Error Messages */}
+            {message.text && (
+                  <div className={`mb-4 p-3 rounded-lg flex items-center gap-2 ${message.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d={message.type === "success" ? "M5 13l4 4L19 7" : "M6 18L18 6M6 6l12 12"}
+                      />
+                    </svg>
+                    {message.text}
+                  </div>
+                )}
           </div>
           {/* <div className="flex gap-2">
             <div className="flex flex-col flex-1 gap-1">
@@ -254,7 +317,7 @@ const AddOrManageClient = ({
 
           <div className="flex gap-2">
             <div className="flex flex-col flex-1 gap-1">
-              <label htmlFor="tin">Social Security Number (SSN) / TIN</label>
+              <label htmlFor="tin">Social Security Number (SSN) / TIN <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 name="tin"
@@ -274,14 +337,15 @@ const AddOrManageClient = ({
                 value={client.status}
                 onChange={handleChange}
               >
-                <option value="Verified">Verified</option>
+                
                 <option value="Pending">Pending</option>
+                <option value="Verified">Verified</option>
                 <option value="Rejected">Rejected</option>
                 <option value="Inactive">Inactive</option>
               </select>
             </div>
             <div className="flex flex-col flex-1 gap-1">
-              <label htmlFor="business_name">Business Name</label>
+              <label htmlFor="business_name">Business Name <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 name="business_name"
@@ -295,7 +359,7 @@ const AddOrManageClient = ({
           </div>
           <div className="grid grid-cols-3 gap-2">
             <div className="flex flex-col flex-1 gap-1">
-              <label htmlFor="business_type">Business Type</label>
+              <label htmlFor="business_type">Business Type <span className="text-red-500">*</span></label>
               <select
                 name="business_type"
                 id="business_type"
