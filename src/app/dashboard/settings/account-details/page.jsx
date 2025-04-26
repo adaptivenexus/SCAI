@@ -1,17 +1,33 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext"; // ✅ add this
 
 const AccountDetails = () => {
+  const { user } = useAuth(); // ✅ auth hook
+
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: "John",
-    lastName: "Doe",
-    email: "JohnDoe1234@gmail.com",
-    phoneNumber: "+91 9999777788",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "+91 9999777788", // Phone number abhi fix hai, jab API se aaye tab replace karna
     password: "***************",
   });
+
+  useEffect(() => {
+    if (user) {
+      const [firstName, ...lastNameParts] = user.agency_name.split(" ");
+      setFormData({
+        firstName: firstName || "",
+        lastName: lastNameParts.join(" ") || "",
+        email: user.email || "",
+        phoneNumber: "+91 9999777788", // Abhi default phone, tu baad me dynamic kar sakta
+        password: "***************",
+      });
+    }
+  }, [user]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -23,8 +39,7 @@ const AccountDetails = () => {
   };
 
   const handleSave = () => {
-    // Add save logic here
-
+    // Save logic yaha ayega (API call karni hogi)
     setIsEditing(false);
   };
 

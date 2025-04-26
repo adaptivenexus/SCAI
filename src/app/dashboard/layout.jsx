@@ -53,7 +53,7 @@ const DashboardLayout = ({ children }) => {
                     {user?.agency_name}
                   </p>
                   <p className="text-sm text-start text-primary">
-                    Welcome Back Admin
+                    Welcome Back 
                   </p>
                 </div>
               </div>

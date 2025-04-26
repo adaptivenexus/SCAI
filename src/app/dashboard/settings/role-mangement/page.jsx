@@ -9,7 +9,7 @@ const RoleMangementPage = () => {
     <div className=" w-full p-6 bg-white shadow-lg space-y-6 rounded-xl border">
       <div className="space-y-2 flex justify-between gap-3">
         <div className="space-y-2">
-          <h4 className="heading-4">Project members</h4>
+          <h4 className="heading-4">Agency members</h4>
           <p className="subtitle-text text-secondary-foreground">
             Project members can be given access to data in the project. Users
             with the "Viewer" role do not consume seats.
