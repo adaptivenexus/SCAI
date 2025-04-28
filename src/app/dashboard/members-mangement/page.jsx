@@ -5,12 +5,10 @@ import { IoFilterSharp } from "react-icons/io5";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 
-// Main component for managing project members
+// Main component for managing agency members
 const MembersManagementPage = () => {
-  // State for members list (starts empty)
+  // State for members list (will come from API later)
   const [members, setMembers] = useState([]);
-  // Counter for generating unique member IDs
-  const [idCounter, setIdCounter] = useState(1);
   // State for modal (open/close, edit mode, form data)
   const [modal, setModal] = useState({ isOpen: false, isEditMode: false, editId: null });
   const [formData, setFormData] = useState({
@@ -21,43 +19,34 @@ const MembersManagementPage = () => {
     confirmPassword: "",
     role: "Administrator",
   });
-  // State for dropdowns (roles and actions)
-  const [dropdown, setDropdown] = useState({ roleIndex: null, actionsIndex: null });
-  const roleDropdownRef = useRef(null);
+  // State for actions dropdown and search
+  const [actionsIndex, setActionsIndex] = useState(null);
   const actionsDropdownRef = useRef(null);
-  // State for search and feedback messages
   const [searchQuery, setSearchQuery] = useState("");
-  const [roleSearchQuery, setRoleSearchQuery] = useState("");
   const [message, setMessage] = useState({ type: "", text: "" });
 
-  // Roles with descriptions for dropdown
-  const roles = [
-    { name: "Administrator", description: "Read and write access to all datasets, with full access to project settings." },
-    { name: "Contributor", description: "Read and write access to draft content within all datasets, with no access to project settings. (Tokens: read+write)" },
-    { name: "Developer", description: "Read and write access to all datasets, with access to project settings for developers. (Tokens: read+write)" },
-    { name: "Editor", description: "Read and write access to all datasets, with limited access to project settings. (Tokens: read+write)" },
-  ];
+  // Static roles for dropdown (can be fetched from API later)
+  const roles = ["Administrator", "Contributor", "Developer", "Editor"];
 
-  // Filter roles for role dropdown search
-  const filteredRoles = roles.filter((role) =>
-    role.name.toLowerCase().includes(roleSearchQuery.toLowerCase())
-  );
-
-  // Filter members for search functionality
+  // Filter members based on search query
   const filteredMembers = members.filter(
     (member) =>
       member.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       member.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Close dropdowns when clicking outside
+  // Fetch members on component mount (API integration point)
+  useEffect(() => {
+    // TODO: Replace this with API call to fetch members
+    // Example: fetch('/api/members').then(res => res.json()).then(data => setMembers(data));
+    // For now, keeping members empty initially
+  }, []);
+
+  // Close actions dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (roleDropdownRef.current && !roleDropdownRef.current.contains(event.target)) {
-        setDropdown((prev) => ({ ...prev, roleIndex: null }));
-      }
       if (actionsDropdownRef.current && !actionsDropdownRef.current.contains(event.target)) {
-        setDropdown((prev) => ({ ...prev, actionsIndex: null }));
+        setActionsIndex(null);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -110,76 +99,43 @@ const MembersManagementPage = () => {
 
     const timestamp = new Date().toLocaleTimeString();
     if (modal.isEditMode) {
-      // Edit existing member
+      // TODO: Replace this with API call to update member
+      // Example: fetch(`/api/members/${modal.editId}`, { method: 'PUT', body: JSON.stringify(formData) });
       setMembers(
         members.map((member) =>
           member.id === modal.editId
-            ? {
-                ...member,
-                fullName: formData.fullName,
-                email: formData.email,
-                phoneNumber: formData.phoneNumber,
-                role: formData.role,
-                password: formData.password || member.password,
-                lastActive: timestamp,
-              }
+            ? { ...member, ...formData, lastActive: timestamp }
             : member
         )
       );
       setMessage({ type: "success", text: "Member updated successfully!" });
     } else {
-      // Add new member
+      // TODO: Replace this with API call to add member
+      // Example: fetch('/api/members', { method: 'POST', body: JSON.stringify(formData) });
       const newMember = {
-        id: idCounter,
-        fullName: formData.fullName,
-        email: formData.email,
-        phoneNumber: formData.phoneNumber,
-        password: formData.password,
-        role: formData.role,
+        id: Date.now(), // Temporary ID, should come from API
+        ...formData,
         added: timestamp,
         lastActive: "Not yet",
       };
       setMembers([...members, newMember]);
-      setIdCounter(idCounter + 1);
       setMessage({ type: "success", text: "Member added successfully!" });
     }
     setTimeout(closeModal, 1000);
   };
 
-  // Remove member from the list
+  // Remove member
   const handleRemove = (id) => {
+    // TODO: Replace this with API call to delete member
+    // Example: fetch(`/api/members/${id}`, { method: 'DELETE' });
     setMembers(members.filter((member) => member.id !== id));
-    setDropdown((prev) => ({ ...prev, actionsIndex: null }));
+    setActionsIndex(null);
     setMessage({ type: "success", text: "Member removed successfully!" });
-  };
-
-  // Toggle role dropdown
-  const toggleRoleDropdown = (index) => {
-    setDropdown((prev) => ({
-      ...prev,
-      roleIndex: prev.roleIndex === index ? null : index,
-      actionsIndex: null,
-    }));
-    setRoleSearchQuery("");
   };
 
   // Toggle actions dropdown
   const toggleActionsDropdown = (index) => {
-    setDropdown((prev) => ({
-      ...prev,
-      actionsIndex: prev.actionsIndex === index ? null : index,
-      roleIndex: null,
-    }));
-  };
-
-  // Update member's role
-  const handleRoleSelect = (index, role) => {
-    setMembers(
-      members.map((m, i) =>
-        i === index ? { ...m, role, lastActive: new Date().toLocaleTimeString() } : m
-      )
-    );
-    setDropdown((prev) => ({ ...prev, roleIndex: null }));
+    setActionsIndex(actionsIndex === index ? null : index);
   };
 
   return (
@@ -224,7 +180,7 @@ const MembersManagementPage = () => {
                 strokeLinejoin="round"
                 strokeWidth="2"
                 d={message.type === "success" ? "M5 13l4 4L19 7" : "M6 18L18 6M6 6l12 12"}
-              />
+              />  
             </svg>
             {message.text}
           </div>
@@ -282,45 +238,7 @@ const MembersManagementPage = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="text-forground label-text">
-                    <div className="relative flex items-center justify-center gap-1">
-                      <button
-                        className="flex items-center gap-1"
-                        onClick={() => toggleRoleDropdown(idx)}
-                      >
-                        {member.role}
-                        <HiChevronUpDown className="text-primary w-5 h-5 cursor-pointer" />
-                      </button>
-                      {dropdown.roleIndex === idx && (
-                        <div
-                          ref={roleDropdownRef}
-                          className="absolute bottom-full mb-2 w-80 bg-white border rounded-md shadow-lg z-10"
-                        >
-                          <div className="p-2">
-                            <input
-                              type="text"
-                              placeholder="Search roles by name"
-                              className="w-full px-3 py-2 border rounded-md text-sm focus:outline-primary"
-                              value={roleSearchQuery}
-                              onChange={(e) => setRoleSearchQuery(e.target.value)}
-                            />
-                          </div>
-                          <div className="max-h-48 overflow-y-auto">
-                            {filteredRoles.map((role) => (
-                              <div
-                                key={role.name}
-                                className="px-4 py-2 text-left text-sm text-gray-700 hover:bg-blue-100 cursor-pointer"
-                                onClick={() => handleRoleSelect(idx, role.name)}
-                              >
-                                <div className="font-semibold">{role.name}</div>
-                                <div className="text-xs text-gray-500">{role.description}</div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </td>
+                  <td className="text-forground label-text">{member.role}</td>
                   <td className="text-forground label-text">{member.added}</td>
                   <td className="text-forground label-text">{member.lastActive}</td>
                   <td>
@@ -331,7 +249,7 @@ const MembersManagementPage = () => {
                       >
                         <HiOutlineEllipsisVertical />
                       </button>
-                      {dropdown.actionsIndex === idx && (
+                      {actionsIndex === idx && (
                         <div
                           ref={actionsDropdownRef}
                           className="absolute top-full mt-2 w-48 bg-white border rounded-md shadow-lg z-10"
@@ -398,7 +316,7 @@ const MembersManagementPage = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded-md focus:outline-primary" // Fixed typo: classNameJOHN to className
+                  className="w-full px-3 py-2 border rounded-md focus:outline-primary"
                   placeholder="Enter email"
                 />
               </div>
@@ -448,8 +366,8 @@ const MembersManagementPage = () => {
                   className="w-full px-3 py-2 border rounded-md focus:outline-primary"
                 >
                   {roles.map((role) => (
-                    <option key={role.name} value={role.name}>
-                      {role.name}
+                    <option key={role} value={role}>
+                      {role}
                     </option>
                   ))}
                 </select>
