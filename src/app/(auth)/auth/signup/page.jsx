@@ -12,6 +12,7 @@ import { FaApple } from "react-icons/fa";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { handleCheckout } from "@/utils/paymentGateway";
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -31,18 +32,17 @@ const SignUp = () => {
   const router = useRouter();
 
   const handleSubmit = async (e) => {
-
-    console.log('Form submitted ');
+    console.log("Form submitted ");
     e.preventDefault();
 
     const validationError = validateForm();
 
-    console.log('Form validation error ' + validationError);
+    console.log("Form validation error " + validationError);
     if (validationError) {
       setMessage({ type: "error", text: validationError });
       return;
     }
-    
+
     // TODO: Add API call to create user
     if (!aggrement) {
       toast.error("Please agree to the terms and conditions");
@@ -67,7 +67,13 @@ const SignUp = () => {
       }
       toast.success("User created successfully");
       setMessage({ type: "success", text: "User created successfully" });
-      router.push("/auth/login");
+
+      if (
+        formData.planType === "basic-plan" ||
+        formData.planType === "standard-plan"
+      ) {
+        await handleCheckout(formData.planType);
+      }
     } catch (error) {
       setMessage({ type: "error", text: "error" });
       console.error(error);
@@ -85,45 +91,47 @@ const SignUp = () => {
   };
 
   const validateForm = () => {
+    console.log("Form svalidation in progress");
 
-    console.log('Form svalidation in progress');
-    
     if (!formData.agency_name) {
-      return 'Agency Name is required';
+      return "Agency Name is required";
     }
     if (!formData.email) {
-      return 'Email is required';
+      return "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      return 'Invalid email address';
+      return "Invalid email address";
     }
     // Phone validation
-  if (!formData.phone_number) {
-    return 'Phone number is required';
-  } else if (!/^\d{10}$/.test(formData.phone_number)) {
-    return 'Phone number must be exactly 10 digits';
-  }
+    if (!formData.phone_number) {
+      return "Phone number is required";
+    } else if (!/^\d{10}$/.test(formData.phone_number)) {
+      return "Phone number must be exactly 10 digits";
+    }
 
-  // Password validation
-  if (!formData.password) {
-    return 'Password is required';
-  } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(formData.password)) {
-    return 'Password must be at least 8 characters, include uppercase, lowercase, number, and special character';
-  }
+    // Password validation
+    if (!formData.password) {
+      return "Password is required";
+    } else if (
+      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
+        formData.password
+      )
+    ) {
+      return "Password must be at least 8 characters, include uppercase, lowercase, number, and special character";
+    }
 
-  // Confirm Password validation
-  if (!formData.password2) {
-    return 'Please re-enter password';
-  } else if (formData.password !== formData.password2) {
-    return 'Passwords do not match';
-  }
+    // Confirm Password validation
+    if (!formData.password2) {
+      return "Please re-enter password";
+    } else if (formData.password !== formData.password2) {
+      return "Passwords do not match";
+    }
 
     //setErrors(newErrors);
-    
+
     //return Object.keys(newErrors).length === 0;
 
     return "";
   };
-
 
   return (
     <section className="min-h-screen flex items-center justify-center">
@@ -142,20 +150,35 @@ const SignUp = () => {
           <div className="flex-1 space-y-6">
             <div className="space-y-3">
               <h3 className="heading-3">Signup</h3>
-                {/* Success/Error Messages */}
-                {message.text && (
-                  <div className={`mb-4 p-3 rounded-lg flex items-center gap-2 ${message.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d={message.type === "success" ? "M5 13l4 4L19 7" : "M6 18L18 6M6 6l12 12"}
-                      />
-                    </svg>
-                    {message.text}
-                  </div>
-                )}
+              {/* Success/Error Messages */}
+              {message.text && (
+                <div
+                  className={`mb-4 p-3 rounded-lg flex items-center gap-2 ${
+                    message.type === "success"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
+                  }`}
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d={
+                        message.type === "success"
+                          ? "M5 13l4 4L19 7"
+                          : "M6 18L18 6M6 6l12 12"
+                      }
+                    />
+                  </svg>
+                  {message.text}
+                </div>
+              )}
               <p className="subtitle-text text-secondary-foreground">
                 Let’s get you all st up so you can access your personal account.
               </p>
@@ -176,8 +199,6 @@ const SignUp = () => {
                       value={formData.agency_name}
                       onChange={handleChange}
                     />
-
-                  
                   </fieldset>
                 </div>
                 <div className="flex gap-4 flex-col md:flex-row">
@@ -191,7 +212,6 @@ const SignUp = () => {
                       name="email"
                       placeholder="e.g. xyz@example.com"
                       className="w-full bg-transparent outline-none"
-
                       value={formData.email}
                       onChange={handleChange}
                     />
@@ -206,7 +226,6 @@ const SignUp = () => {
                       name="phone_number"
                       placeholder="e.g. +1 (123) 456-7890"
                       className="w-full bg-transparent outline-none"
-
                       value={formData.phone_number}
                       onChange={handleChange}
                     />
@@ -222,7 +241,6 @@ const SignUp = () => {
                     name="password"
                     placeholder="********"
                     className="w-full bg-transparent outline-none"
-                    
                     value={formData.password}
                     onChange={handleChange}
                   />
@@ -247,7 +265,6 @@ const SignUp = () => {
                     name="password2"
                     placeholder="********"
                     className="w-full bg-transparent outline-none"
-                    
                     value={formData.password2}
                     onChange={handleChange}
                   />
@@ -292,7 +309,6 @@ const SignUp = () => {
                   className="w-6 h-6 accent-primary"
                   checked={aggrement}
                   onChange={() => setAggrement(!aggrement)}
-                  
                 />
                 <p>
                   I agree to all the{" "}

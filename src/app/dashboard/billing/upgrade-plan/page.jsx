@@ -1,14 +1,9 @@
 "use client";
-import {
-  IoMdArrowRoundBack,
-  IoIosCloseCircle,
-  IoMdCloseCircle,
-} from "react-icons/io";
-import { FaArrowRight, FaCheck, FaCheckCircle } from "react-icons/fa";
-import Heading from "@/components/AccentComponents/Heading";
-import PrimaryButton from "@/components/CTAs/PrimaryButton";
-import Link from "next/link";
+import { IoMdArrowRoundBack, IoIosCloseCircle } from "react-icons/io";
+import { FaCheckCircle } from "react-icons/fa";
+
 import { useRouter } from "next/navigation";
+import { handleCheckout } from "@/utils/paymentGateway";
 
 const UpgradePlanPage = () => {
   const router = useRouter();
@@ -26,7 +21,7 @@ const UpgradePlanPage = () => {
           <h4 className="heading-4">Upgrade Plan</h4>
         </div>
       </div>
-      
+
       {/* Cards */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -105,7 +100,13 @@ const UpgradePlanPage = () => {
               <li className="text-primary">✔ Custom integration</li>
             </ul>
           </div>
-          <button className="bg-primary text-white rounded-md py-2 mt-auto">
+          <button
+            type="button"
+            onClick={async () => {
+              await handleCheckout("standard-plan");
+            }}
+            className="bg-primary text-white rounded-md py-2 mt-auto"
+          >
             Upgrade Plan
           </button>
         </div>
@@ -134,7 +135,7 @@ const UpgradePlanPage = () => {
 
       {/* Table */}
       <section>
-        <div >
+        <div>
           <div className="hidden md:grid grid-cols-10 gap-5 p-4 rounded-3xl ">
             <div className="col-span-3 px-4">
               <table className="w-full text-Black h-full table-fixed">
