@@ -37,7 +37,7 @@ const AddOrManageClient = ({
 
     const validationError = validateForm();
 
-    console.log('Form validation error ' + validationError);
+    console.log("Form validation error " + validationError);
     if (validationError) {
       setMessage({ type: "error", text: validationError });
       return;
@@ -111,38 +111,104 @@ const AddOrManageClient = ({
   };
 
   const validateForm = () => {
+    // Check if all fields are empty
+    const allFieldsEmpty = Object.values(client).every(
+      (value) => value === "" || value === undefined || value === null
+    );
+    if (allFieldsEmpty) {
+      return "Please fill the details";
+    }
 
-    console.log('Form svalidation in progress');
-    
-    // Mobile validation
+    // Mobile number validation
     if (!client.mobile_number) {
-      return 'Mobile number is required';
-    } else if (!/^\d{10}$/.test(client.mobile_number)) {
-      return 'Mobile number must be exactly 10 digits';
+      return "Mobile number is required";
     }
-    
+    if (!/^\d+$/.test(client.mobile_number)) {
+      return "Please enter digits only in Mobile number";
+    }
+    if (client.mobile_number.length !== 10) {
+      return "Please enter exactly 10 digits in Mobile number";
+    }
+
+    // Telephone number validation (optional, only if provided)
+    if (client.telephone_number) {
+      if (!/^\d+$/.test(client.telephone_number)) {
+        return "Please enter digits only in Telephone number";
+      }
+      const digitCount = client.telephone_number.length;
+      if (digitCount < 10 || digitCount > 15) {
+        return "Telephone number must be 10-15 digits (optional)";
+      }
+    }
+
+    // Email validation
     if (!client.email) {
-      return 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(client.email)) {
-      return 'Invalid email address';
+      return "Email is required";
     }
-  
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(client.email)) {
+      return "Invalid email address";
+    }
 
+    // Business name validation
     if (!client.business_name) {
-      return 'Business Name is required';
+      return "Business Name is required";
+    }
+    if (client.business_name.match(/['";\\]/)) {
+      return "Business Name contains invalid characters (e.g., quotes, semicolons)";
+    }
+    if (client.business_name.match(/\d/)) {
+      return "Please enter characters only in Business Name, numbers not allowed";
     }
 
+    // TIN validation
     if (!client.tin) {
-      return 'SSN/TIN Number is required';
+      return "SSN/TIN Number is required";
+    }
+    if (!/^\d{3}-\d{2}-\d{4}$/.test(client.tin)) {
+      return "SSN/TIN must be in XXX-XX-XXXX format";
     }
 
+    // Business type validation
     if (!client.business_type) {
-      return 'Please select Business Type';
+      return "Business Type is required";
+    }
+    if (client.business_type.match(/['";\\]/)) {
+      return "Business Type contains invalid characters (e.g., quotes, semicolons)";
+    }
+    if (client.business_type.match(/\d/)) {
+      return "Please enter characters only in Business Type, numbers not allowed";
+    }
+
+    // Business address validation (optional, only length check)
+    if (client.business_address) {
+      if (client.business_address.length > 200) {
+        return "Business Address cannot exceed 200 characters";
+      }
+      if (client.business_address.match(/['";\\]/)) {
+        return "Business Address contains invalid characters (e.g., quotes, semicolons)";
+      }
+    }
+
+    // Postal code validation (optional, only if provided)
+    if (client.postal_code) {
+      if (!/^\d+$/.test(client.postal_code)) {
+        return "Please enter digits only in Postal code";
+      }
+      if (!/^\d{5,6}$/.test(client.postal_code)) {
+        return "Postal code must be 5 or 6 digits";
+      }
+    }
+
+    // Status validation (optional, only if provided)
+    if (client.status) {
+      const validStatuses = ["Pending", "Verified", "Rejected", "Inactive"];
+      if (!validStatuses.includes(client.status)) {
+        return "Invalid status selected";
+      }
     }
 
     return "";
   };
-
 
   useEffect(() => {
     if (!isNew) {
@@ -177,53 +243,34 @@ const AddOrManageClient = ({
             </label>
             {/* Success/Error Messages */}
             {message.text && (
-                  <div className={`mb-4 p-3 rounded-lg flex items-center gap-2 ${message.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d={message.type === "success" ? "M5 13l4 4L19 7" : "M6 18L18 6M6 6l12 12"}
-                      />
-                    </svg>
-                    {message.text}
-                  </div>
-                )}
+              <div
+                className={`mb-4 p-3 rounded-lg flex items-center gap-2 ${
+                  message.type === "success"
+                    ? "bg-green-100 text-green-800"
+                    : "bg-red-100 text-red-800"
+                }`}
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d={
+                      message.type === "success"
+                        ? "M5 13l4 4L19 7"
+                        : "M6 18L18 6M6 6l12 12"
+                    }
+                  />
+                </svg>
+                {message.text}
+              </div>
+            )}
           </div>
-          {/* <div className="flex gap-2">
-            <div className="flex flex-col flex-1 gap-1">
-              <label htmlFor="firstName">
-                First Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="firstName"
-                id="firstName"
-                className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
-                placeholder="Enter Your Firstname"
-                value={client.FIRST_NAME}
-                onChange={(e) =>
-                  setClient({ ...client, FIRST_NAME: e.target.value })
-                }
-              />
-            </div>
-            <div className="flex flex-col flex-1 gap-1">
-              <label htmlFor="lastName">
-                Last Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="lastName"
-                id="lastName"
-                className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
-                placeholder="Enter Your Lastname"
-                value={client.LAST_NAME}
-                onChange={(e) =>
-                  setClient({ ...client, LAST_NAME: e.target.value })
-                }
-              />
-            </div>
-          </div> */}
           <div className="flex gap-2">
             <div className="flex flex-col flex-1 gap-1">
               <label htmlFor="mobile_number">
@@ -266,58 +313,12 @@ const AddOrManageClient = ({
               />
             </div>
           </div>
-          {/* <div className="flex gap-2">
-            <div className="flex flex-col flex-1 gap-1">
-              <label htmlFor="DOB">Date of Birth</label>
-              <div className="border rounded-lg p-3 flex items-center justify-between">
-                <input
-                  type="date"
-                  name="DOB"
-                  id="DOB"
-                  className="placeholder:text-secondary placeholder:font-medium w-full outline-none"
-                  value={client.date_of_birth}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-            <div className="flex flex-col flex-1 gap-1">
-              <label htmlFor="passportNumber">
-                Passport Number <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="passportNumber"
-                id="passportNumber"
-                placeholder="Enter Passport number"
-                className="border rounded-lg p-3  placeholder:text-secondary placeholder:font-medium w-full outline-none"
-                value={client.PASSPORT}
-                onChange={(e) =>
-                  setClient({
-                    ...client,
-                    PASSPORT: e.target.value,
-                  })
-                }
-              />
-            </div>
-            <div className="flex flex-col flex-1 gap-1">
-              <label htmlFor="licenseNumber">License Number</label>
-              <input
-                type="text"
-                name="licenseNumber"
-                id="licenseNumber"
-                className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
-                placeholder="Enter Your License Number"
-                value={client.LICENSE_NUMBER}
-                onChange={(e) =>
-                  setClient({ ...client, LICENSE_NUMBER: e.target.value })
-                }
-              />
-            </div>
-          </div> */}
-
           <div className="flex gap-2">
             <div className="flex flex-col flex-1 gap-1">
-              <label htmlFor="tin">Social Security Number (SSN) / TIN <span className="text-red-500">*</span></label>
+              <label htmlFor="tin">
+                Social Security Number (SSN) / TIN{" "}
+                <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 name="tin"
@@ -337,7 +338,6 @@ const AddOrManageClient = ({
                 value={client.status}
                 onChange={handleChange}
               >
-                
                 <option value="Pending">Pending</option>
                 <option value="Verified">Verified</option>
                 <option value="Rejected">Rejected</option>
@@ -345,7 +345,9 @@ const AddOrManageClient = ({
               </select>
             </div>
             <div className="flex flex-col flex-1 gap-1">
-              <label htmlFor="business_name">Business Name <span className="text-red-500">*</span></label>
+              <label htmlFor="business_name">
+                Business Name <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 name="business_name"
@@ -359,7 +361,9 @@ const AddOrManageClient = ({
           </div>
           <div className="grid grid-cols-3 gap-2">
             <div className="flex flex-col flex-1 gap-1">
-              <label htmlFor="business_type">Business Type <span className="text-red-500">*</span></label>
+              <label htmlFor="business_type">
+                Business Type <span className="text-red-500">*</span>
+              </label>
               <select
                 name="business_type"
                 id="business_type"
@@ -416,4 +420,5 @@ const AddOrManageClient = ({
     </div>
   );
 };
+
 export default AddOrManageClient;
