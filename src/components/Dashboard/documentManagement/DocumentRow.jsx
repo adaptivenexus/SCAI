@@ -9,6 +9,7 @@ import { authFetch } from "@/utils/auth";
 import { useAuth } from "@/context/AuthContext";
 import ManageDocument from "../common/ManageDocument";
 import { BiLoaderAlt } from "react-icons/bi";
+import DocumentShareModal from "./DocumentShareModal";
 
 const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,6 +20,8 @@ const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments }) => {
   const [isMounted, setIsMounted] = useState(false);
 
   const [isManageDocumentOpen, setIsManageDocumentOpen] = useState(false);
+
+  const [isShareDocumentOpen, setIsShareDocumentOpen] = useState(false);
 
   const getFileType = (filename) => {
     if (!filename) return "unknown";
@@ -235,6 +238,10 @@ const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments }) => {
               <button
                 type="button"
                 className="block subtitle-text px-3 py-1 text-foreground hover:opacity-80 hover:bg-black/10 w-full text-start"
+                onClick={() => {
+                  setIsOpen(false);
+                  setIsShareDocumentOpen(true);
+                }}
               >
                 Share
               </button>
@@ -252,6 +259,12 @@ const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments }) => {
               setIsManageDocumentOpen={setIsManageDocumentOpen}
               document={doc}
               parsedData={parsedData}
+            />
+          )}
+          {isShareDocumentOpen && (
+            <DocumentShareModal
+              setIsShareDocumentOpen={setIsShareDocumentOpen}
+              doc={doc}
             />
           )}
         </div>

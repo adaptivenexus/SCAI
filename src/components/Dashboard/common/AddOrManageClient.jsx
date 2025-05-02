@@ -123,9 +123,11 @@ const AddOrManageClient = ({
     if (!client.mobile_number) {
       return "Mobile number is required";
     }
+
     if (!/^\d+$/.test(client.mobile_number)) {
       return "Please enter digits only in Mobile number";
     }
+
     if (client.mobile_number.length !== 10) {
       return "Please enter exactly 10 digits in Mobile number";
     }
@@ -163,9 +165,6 @@ const AddOrManageClient = ({
     // TIN validation
     if (!client.tin) {
       return "SSN/TIN Number is required";
-    }
-    if (!/^\d{3}-\d{2}-\d{4}$/.test(client.tin)) {
-      return "SSN/TIN must be in XXX-XX-XXXX format";
     }
 
     // Business type validation

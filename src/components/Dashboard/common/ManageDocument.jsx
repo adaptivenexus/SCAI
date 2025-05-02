@@ -175,7 +175,7 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData }) => {
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-col flex-1 gap-1">
+                <div className="flex flex-col flex-1 gap-1 w-[50%]">
                   <label htmlFor="category_id">
                     Category <span className="text-red-500">*</span>
                   </label>

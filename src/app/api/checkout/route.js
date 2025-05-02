@@ -22,7 +22,7 @@ export async function POST(req) {
       ],
       mode: "subscription",
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
+      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel?session_id={CHECKOUT_SESSION_ID}`,
     });
 
     return NextResponse.json({ url: session.url }, { status: 200 });

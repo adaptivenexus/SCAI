@@ -53,15 +53,24 @@ const UserRow = ({ client, setEditClient, setIsEditClientOpen }) => {
         {formatDate(client.created_at)}
       </td>
       <td className="px-6 py-4">
-        <span
-          className={`px-2 py-1 text-xs rounded-full ${
-            client.status === "Verified"
-              ? "bg-green-100 text-green-800"
-              : "bg-orange-100 text-orange-800"
-          }`}
-        >
-          {client.status === "Verified" ? "Verified" : "Verify Now"}
-        </span>
+        {client.status === "Verified" ? (
+          <span
+            className={`px-2 py-1 text-xs rounded-full bg-green-100 text-green-800`}
+          >
+            Verified
+          </span>
+        ) : (
+          <button
+            type="button"
+            onClick={() => {
+              setIsEditClientOpen(true);
+              setEditClient(client);
+            }}
+            className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800"
+          >
+            Verify Now
+          </button>
+        )}
       </td>
       <td className="px-6 py-4 relative">
         <button

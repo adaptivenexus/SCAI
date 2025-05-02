@@ -56,20 +56,7 @@ const Header = () => {
                 <span className="absolute -bottom-1 right-1/2 w-0 transition-all h-[2px] bg-primary"></span>
               </Link>
             </li>
-            <li className="text-primary">
-              <Link
-                href={"/case-studies"}
-                className={`relative w-max ${
-                  pathname === "/case-studies"
-                    ? "underlineOpen text-primary"
-                    : "underlineHover text-foreground"
-                }`}
-              >
-                <span>Case Studies</span>
-                <span className="absolute -bottom-1 left-1/2 w-0 transition-all h-[2px] bg-primary"></span>
-                <span className="absolute -bottom-1 right-1/2 w-0 transition-all h-[2px] bg-primary"></span>
-              </Link>
-            </li>
+
             <li>
               <Link
                 href={"/faq"}

@@ -5,7 +5,7 @@ import { GlobalContext } from "@/context/GlobalProvider";
 import { extractFilenameFromUrl, formatDate } from "@/utils";
 import Image from "next/image";
 import Link from "next/link";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FaFileAlt, FaUserFriends } from "react-icons/fa";
 import { GrDocumentPerformance } from "react-icons/gr";
 import { MdHistory } from "react-icons/md";
@@ -20,26 +20,71 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const jantojune = [
-  { name: "Jan", documents: 2400 },
-  { name: "Feb", documents: 1398 },
-  { name: "Mar", documents: 9000 },
-  { name: "Apr", documents: 3908 },
-  { name: "May", documents: 4800 },
-  { name: "Jun", documents: 3800 },
-];
-const jultodec = [
-  { name: "Jul", documents: 8234 },
-  { name: "Aug", documents: 6523 },
-  { name: "Sep", documents: 7345 },
-  { name: "Oct", documents: 11821 },
-  { name: "Nov", documents: 4512 },
-  { name: "Dec", documents: 1789 },
-];
 const DashboardPage = () => {
+  const { clients, documents } = useContext(GlobalContext);
+
+  const [jantojune, setJantojune] = useState([
+    { name: "Jan", documents: 0 },
+    { name: "Feb", documents: 0 },
+    { name: "Mar", documents: 0 },
+    { name: "Apr", documents: 0 },
+    { name: "May", documents: 0 },
+    { name: "Jun", documents: 0 },
+  ]);
+  const [jultodec, setJultodec] = useState([
+    { name: "Jul", documents: 0 },
+    { name: "Aug", documents: 0 },
+    { name: "Sep", documents: 0 },
+    { name: "Oct", documents: 0 },
+    { name: "Nov", documents: 0 },
+    { name: "Dec", documents: 0 },
+  ]);
+
   const [data, setData] = useState(jantojune);
 
-  const { clients, documents } = useContext(GlobalContext);
+  function calculateMonthlyData(documents) {
+    const monthlyData = Array(12).fill(0); // Array to store document counts for each month (Jan to Dec)
+
+    documents.forEach((doc) => {
+      const uploadedDate = new Date(doc.uploaded_at);
+      const month = uploadedDate.getMonth(); // Get the month (0 = Jan, 11 = Dec)
+      monthlyData[month] += 1; // Increment the count for the respective month
+    });
+
+    // Split the data into two halves: Jan-Jun and Jul-Dec
+    const jantojune = [
+      { name: "Jan", documents: monthlyData[0] },
+      { name: "Feb", documents: monthlyData[1] },
+      { name: "Mar", documents: monthlyData[2] },
+      { name: "Apr", documents: monthlyData[3] },
+      { name: "May", documents: monthlyData[4] },
+      { name: "Jun", documents: monthlyData[5] },
+    ];
+
+    const jultodec = [
+      { name: "Jul", documents: monthlyData[6] },
+      { name: "Aug", documents: monthlyData[7] },
+      { name: "Sep", documents: monthlyData[8] },
+      { name: "Oct", documents: monthlyData[9] },
+      { name: "Nov", documents: monthlyData[10] },
+      { name: "Dec", documents: monthlyData[11] },
+    ];
+
+    setJantojune(jantojune);
+    setJultodec(jultodec);
+    setData(jantojune); // Set the initial data to Jan-Jun
+  }
+
+  useEffect(() => {
+    calculateMonthlyData(documents);
+  }, [documents]);
+
+  const last30DaysDocuments = documents.filter((doc) => {
+    const uploadedDate = new Date(doc.uploaded_at);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    return uploadedDate >= thirtyDaysAgo;
+  });
 
   return (
     <div className="p-8 w-full flex flex-col gap-6">
@@ -79,7 +124,9 @@ const DashboardPage = () => {
               New Documents
             </p>
             <div className="flex items-center gap-3">
-              <p className="text-2xl font-semibold text-foreground">30</p>
+              <p className="text-2xl font-semibold text-foreground">
+                {last30DaysDocuments.length}
+              </p>
               <p className="text-[#796AFF] text-sm">last 30 days</p>
             </div>
           </div>
