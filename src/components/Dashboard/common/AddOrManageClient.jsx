@@ -27,7 +27,7 @@ const AddOrManageClient = ({
     tin: "",
     business_address: "",
     postal_code: "",
-    status: "",
+    status: "", // Changed default value to empty string
   });
 
   const [message, setMessage] = useState({ type: "", text: "" });
@@ -198,7 +198,7 @@ const AddOrManageClient = ({
       }
     }
 
-    // Status validation (optional, only if provided)
+    // Status validation (optional, only if explicitly selected)
     if (client.status) {
       const validStatuses = ["Pending", "Verified", "Rejected", "Inactive"];
       if (!validStatuses.includes(client.status)) {
@@ -210,7 +210,7 @@ const AddOrManageClient = ({
   };
 
   useEffect(() => {
-    if (!isNew) {
+    if (!isNew && oldClient) {
       setClient(oldClient);
     }
   }, [isNew, oldClient]);
@@ -337,6 +337,7 @@ const AddOrManageClient = ({
                 value={client.status}
                 onChange={handleChange}
               >
+                <option value="">Select Status</option>
                 <option value="Pending">Pending</option>
                 <option value="Verified">Verified</option>
                 <option value="Rejected">Rejected</option>
