@@ -59,7 +59,17 @@ const AddOrManageClient = ({
             }
           );
           if (!response.ok) {
-            console.log(await response.json());
+            const result = await response.json();
+            console.log(await result);
+
+            if (!response.ok) {
+              for (const key in result) {
+                if (Array.isArray(result[key])) {
+                  setMessage({ type: "error", text: result[key]  });
+                  return
+                }
+              }
+            }
             toast.error("Something went wrong or check your fields");
             return;
           }
@@ -85,7 +95,9 @@ const AddOrManageClient = ({
           );
           if (!response.ok) {
             console.log(await response.json());
-            toast.error("Something went wrong or check your fields");
+            const errorData = await response.json();
+            setMessage({ type: "error", text: errorData.error  });
+            //toast.error("Something went wrong or check your fields");
             return;
           }
           toast.success("Client updated successfully");
@@ -155,11 +167,14 @@ const AddOrManageClient = ({
     if (!client.business_name) {
       return "Business Name is required";
     }
-    if (client.business_name.match(/['";\\]/)) {
-      return "Business Name contains invalid characters (e.g., quotes, semicolons)";
-    }
-    if (client.business_name.match(/\d/)) {
-      return "Please enter characters only in Business Name, numbers not allowed";
+    // if (client.business_name.match(/['";\\]/)) {
+    //   return "Business Name contains invalid characters (e.g., quotes, semicolons)";
+    // }
+    // if (client.business_name.match(/\d/)) {
+    //   return "Please enter characters only in Business Name, numbers not allowed";
+    // }
+    if (!/^[a-zA-Z\s]+$/.test(client.business_name)) {
+      return "Please enter a valid Business Name (letters only).";
     }
 
     // TIN validation
