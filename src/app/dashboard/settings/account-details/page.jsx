@@ -23,7 +23,7 @@ const AccountDetails = () => {
         firstName: firstName || "",
         lastName: lastNameParts.join(" ") || "",
         email: user.email || "",
-        phoneNumber: "+91 9999777788", // Abhi default phone, tu baad me dynamic kar sakta
+        phoneNumber: "+91 9999777788", // 
         password: "***************",
       });
     }
@@ -39,7 +39,7 @@ const AccountDetails = () => {
   };
 
   const handleSave = () => {
-    // Save logic yaha ayega (API call karni hogi)
+    // Save logic
     setIsEditing(false);
   };
 
@@ -55,13 +55,7 @@ const AccountDetails = () => {
         <div className="bg-primary-gradient h-20"></div>
         <div className="p-6 space-y-4">
           <div className="flex items-center">
-            <Image
-              src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8YXZhdGFyfGVufDB8fDB8fHww"
-              alt="Profile"
-              className="w-16 h-16 rounded-full mr-4"
-              height={100}
-              width={100}
-            />
+        
             <div>
               <h2 className="text-lg font-semibold">
                 {formData.firstName} {formData.lastName}
@@ -76,48 +70,23 @@ const AccountDetails = () => {
             </button>
           </div>
 
-          <form className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+          <form className="grid grid-cols-2 gap-4 ">
+            <div className="space-y-2 ">
               <label htmlFor="firstName" className="block subtitle-text">
-                First Name
+                Agency Name
               </label>
               <input
                 type="text"
                 id="firstName"
                 name="firstName"
-                value={formData.firstName}
+                value={`${formData.firstName} ${formData.lastName}`}
                 onChange={handleInputChange}
                 disabled={!isEditing}
                 className="py-3 px-2 rounded-xl bg-slate-100 w-full outline-none border disabled:opacity-70"
               />
             </div>
-            <div className="space-y-2">
-              <label htmlFor="lastName" className="block subtitle-text">
-                Last Name
-              </label>
-              <input
-                type="text"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                className="py-3 px-2 rounded-xl bg-slate-100 w-full outline-none border disabled:opacity-70"
-              />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="email" className="block subtitle-text">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                id="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                className="py-3 px-2 rounded-xl bg-slate-100 w-full outline-none border disabled:opacity-70"
-              />
-            </div>
+            
+          
             <div className="space-y-2">
               <label htmlFor="phoneNumber" className="block subtitle-text">
                 Phone Number
