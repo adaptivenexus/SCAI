@@ -7,10 +7,12 @@ import { useState, useMemo, useRef, useEffect, useContext } from "react";
 import { FiSearch, FiDownload } from "react-icons/fi";
 import { IoIosRefresh } from "react-icons/io";
 import { BiLoaderAlt } from "react-icons/bi";
+import DocumentShareModal from "@/components/Dashboard/documentManagement/DocumentShareModal";
 
 const AllDocumentPage = () => {
   const { documents, fetchDocuments } = useContext(GlobalContext);
   const [selectedDocuments, setSelectedDocuments] = useState(new Set());
+  const [selectedClient, setSelectedClient] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [currentPage, setCurrentPage] = useState(1);
@@ -18,9 +20,9 @@ const AllDocumentPage = () => {
   const [documentDateFilter, setDocumentDateFilter] = useState("");
   const [showProcessDatePicker, setShowProcessDatePicker] = useState(false);
   const [showDocumentDatePicker, setShowDocumentDatePicker] = useState(false);
+  const [isShareDocumentOpen, setIsShareDocumentOpen] = useState(false);
   const processDateRef = useRef(null);
   const documentDateRef = useRef(null);
-
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -59,24 +61,36 @@ const AllDocumentPage = () => {
     });
   };
 
-  const handleSelectAll = (e) => {
-    if (e.target.checked) {
-      setSelectedDocuments(new Set(currentItems.map((doc) => doc.id)));
-    } else {
-      setSelectedDocuments(new Set());
-    }
-  };
-
-  const handleSelectDocument = (docId) => {
+  const handleSelectDocument = (docId, clientName) => {
     setSelectedDocuments((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(docId)) {
         newSet.delete(docId);
+        if (newSet.size === 0) {
+          setSelectedClient(null); // Reset client if no documents selected
+        }
       } else {
-        newSet.add(docId);
+        // If no documents selected yet, set the client
+        if (newSet.size === 0) {
+          setSelectedClient(clientName);
+        }
+        // Only allow selection if the client matches or no client is selected yet
+        if (selectedClient === null || selectedClient === clientName) {
+          newSet.add(docId);
+          setSelectedClient(clientName);
+        }
       }
       return newSet;
     });
+  };
+
+  const handleCancelAll = () => {
+    setSelectedDocuments(new Set());
+    setSelectedClient(null);
+  };
+
+  const isRowDisabled = (docClient) => {
+    return selectedDocuments.size > 0 && selectedClient !== docClient;
   };
 
   // Sort the documents
@@ -84,14 +98,8 @@ const AllDocumentPage = () => {
     if (!sortConfig.key) return documents;
 
     return [...documents].sort((a, b) => {
-      const aValue =
-        sortConfig.key === "client"
-          ? a[sortConfig.key].name
-          : a[sortConfig.key];
-      const bValue =
-        sortConfig.key === "client"
-          ? b[sortConfig.key].name
-          : b[sortConfig.key];
+      const aValue = sortConfig.key === "client" ? (a.client || "") : (a.file || "");
+      const bValue = sortConfig.key === "client" ? (b.client || "") : (b.file || "");
 
       if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
       if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
@@ -102,10 +110,10 @@ const AllDocumentPage = () => {
   // Filter and paginate
   const filteredAndSortedItems = sortedDocuments.filter(
     (doc) =>
-      (doc.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        doc.file.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      (!processDateFilter || doc.processedDate === processDateFilter) &&
-      (!documentDateFilter || doc.documentDate === documentDateFilter)
+      ((doc.client || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (doc.file || "").toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (!processDateFilter || (doc.uploaded_at || "") === processDateFilter) &&
+      (!documentDateFilter || (doc.document_date || "") === documentDateFilter)
   );
 
   const totalPages = Math.ceil(filteredAndSortedItems.length / itemsPerPage);
@@ -144,6 +152,9 @@ const AllDocumentPage = () => {
     return rangeWithDots;
   };
 
+  // Get selected documents for sharing
+  const selectedDocs = documents.filter((doc) => selectedDocuments.has(doc.id));
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -161,21 +172,38 @@ const AllDocumentPage = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="heading-5">All Documents</h2>
-        <Link
-          className="primary-btn"
-          href={"/dashboard/document-management/add-documents"}
-        >
-          Add Document
-        </Link>
+        <div className="flex gap-2">
+          {selectedDocuments.size > 0 && (
+            <>
+              <button
+                className="primary-btn"
+                onClick={() => setIsShareDocumentOpen(true)}
+              >
+                Share
+              </button>
+              <button
+                className="primary-btn"
+                onClick={handleCancelAll}
+              >
+                Cancel All
+              </button>
+            </>
+          )}
+          <Link
+            className="primary-btn"
+            href={"/dashboard/document-management/add-documents"}
+          >
+            Add Document
+          </Link>
+        </div>
       </div>
 
       <div className="flex justify-between items-center mb-6 gap-4">
-        {/* Search Bar */}
         <div className="relative flex-1">
           <div className="relative">
             <input
               type="text"
-              placeholder="Search by client name or document name"
+              placeholder="Search by client or document name"
               className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-blue-500"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -183,7 +211,6 @@ const AllDocumentPage = () => {
             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
         </div>
-        {/* Refresh */}
         <button
           onClick={() => {
             window.location.reload();
@@ -193,35 +220,22 @@ const AllDocumentPage = () => {
           <IoIosRefresh />
           Refresh
         </button>
-        {/* Export Button */}
         <button className="px-4 py-2 rounded-lg border border-gray-200 flex items-center gap-2 hover:bg-gray-50">
           <FiDownload />
           Export
         </button>
       </div>
 
-      {/* Document Table */}
       <div className="bg-white rounded-lg border border-gray-200">
         <table className="w-full">
           <thead className="bg-accent-primary">
             <tr>
-              <th className="px-6 py-3 text-left">
-                <input
-                  type="checkbox"
-                  className="rounded"
-                  checked={
-                    currentItems.length > 0 &&
-                    currentItems.every((doc) => selectedDocuments.has(doc.id))
-                  }
-                  onChange={handleSelectAll}
-                />
-              </th>
               <th
                 className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
-                onClick={() => handleSort("associatedTo")}
+                onClick={() => handleSort("client")}
               >
                 Associated To
-                {sortConfig.key === "associatedTo" && (
+                {sortConfig.key === "client" && (
                   <span className="ml-1">
                     {sortConfig.direction === "asc" ? "↑" : "↓"}
                   </span>
@@ -229,10 +243,10 @@ const AllDocumentPage = () => {
               </th>
               <th
                 className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
-                onClick={() => handleSort("documentName")}
+                onClick={() => handleSort("file")}
               >
                 Document
-                {sortConfig.key === "documentName" && (
+                {sortConfig.key === "file" && (
                   <span className="ml-1">
                     {sortConfig.direction === "asc" ? "↑" : "↓"}
                   </span>
@@ -286,7 +300,6 @@ const AllDocumentPage = () => {
                   )}
                 </div>
               </th>
-
               <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                 <div className="relative" ref={documentDateRef}>
                   <div
@@ -332,7 +345,6 @@ const AllDocumentPage = () => {
                   )}
                 </div>
               </th>
-
               <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                 Status
               </th>
@@ -349,12 +361,12 @@ const AllDocumentPage = () => {
                 isSelected={selectedDocuments.has(doc.id)}
                 onSelect={handleSelectDocument}
                 fetchDocuments={fetchDocuments}
+                isDisabled={isRowDisabled(doc.client)}
               />
             ))}
           </tbody>
         </table>
 
-        {/* Pagination */}
         <div className="flex justify-between items-center p-4 border-t border-gray-200">
           <div className="flex gap-2">
             <button
@@ -413,6 +425,13 @@ const AllDocumentPage = () => {
           </div>
         </div>
       </div>
+
+      {isShareDocumentOpen && selectedDocs.length > 0 && (
+        <DocumentShareModal
+          setIsShareDocumentOpen={setIsShareDocumentOpen}
+          docs={selectedDocs}
+        />
+      )}
     </div>
   );
 };

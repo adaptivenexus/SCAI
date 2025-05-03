@@ -1,35 +1,64 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
-import { FiSearch, FiFilter } from 'react-icons/fi';
-import { IoIosRefresh } from 'react-icons/io';
+import React, { useState, useMemo, useEffect } from "react";
+import { FiSearch, FiDownload } from "react-icons/fi";
+import { IoIosRefresh } from "react-icons/io";
 
-// SharedDocument component - Displays a table of shared documents with search, filter, and pagination
+// SharedDocument component - Displays a table of shared documents with specific columns
 const SharedDocument = () => {
-  // Static data for clients - Replace this with API data in the future
-  const clients = [
-    { name: "Jack Reid", document: "Invoice.pdf", password: "pass123" },
-    { name: "Jane Doe", document: "Contract.pdf", password: "pass456" },
-    { name: "John Smith", document: "Receipt.pdf", password: "pass789" },
-    { name: "Emily Brown", document: "Report.pdf", password: "pass101" },
-    { name: "Mike Johnson", document: "Statement.pdf", password: "pass112" },
-    { name: "Sarah Wilson", document: "TaxForm.pdf", password: "pass131" },
-    { name: "Tom Clark", document: "Bill.pdf", password: "pass141" },
-    { name: "Anna Lee", document: "Agreement.pdf", password: "pass151" },
-    { name: "David Kim", document: "Summary.pdf", password: "pass161" },
-    { name: "Lisa Wong", document: "Policy.pdf", password: "pass171" },
-    { name: "Mark Tan", document: "Invoice2.pdf", password: "pass181" },
-  ];
-
-  // State for search query, pagination, password visibility, and filtering
+  // State for shared documents, loaded from localStorage
+  const [documents, setDocuments] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [visiblePasswords, setVisiblePasswords] = useState(
-    clients.reduce((acc, _, index) => ({ ...acc, [index]: false }), {})
-  );
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+  const [visiblePasswords, setVisiblePasswords] = useState({}); // State for password visibility
+  const [showFullPassword, setShowFullPassword] = useState(null); // State for showing full password in modal
 
-  const itemsPerPage = 5;
+  const itemsPerPage = 10; // Number of items per page
+
+  // Load and clean documents from localStorage on client side
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      let storedDocs = JSON.parse(localStorage.getItem("sharedDocuments")) || [];
+      
+      // Filter out invalid entries (where file is "Unnamed Document" or undefined)
+      storedDocs = storedDocs.filter((doc) => 
+        doc.file && typeof doc.file === "string" && doc.file !== "Unnamed Document"
+      );
+
+      // Update localStorage with cleaned data
+      localStorage.setItem("sharedDocuments", JSON.stringify(storedDocs));
+
+      // Set the cleaned documents to state
+      setDocuments(storedDocs);
+
+      // Initialize password visibility for each document
+      setVisiblePasswords(
+        storedDocs.reduce((acc, _, index) => ({ ...acc, [index]: false }), {})
+      );
+    }
+  }, []);
+
+  // Function to refresh documents from localStorage
+  const refreshDocuments = () => {
+    if (typeof window !== "undefined") {
+      let updatedDocs = JSON.parse(localStorage.getItem("sharedDocuments")) || [];
+
+      // Filter out invalid entries again on refresh
+      updatedDocs = updatedDocs.filter((doc) => 
+        doc.file && typeof doc.file === "string" && doc.file !== "Unnamed Document"
+      );
+
+      // Update localStorage with cleaned data
+      localStorage.setItem("sharedDocuments", JSON.stringify(updatedDocs));
+
+      setDocuments(updatedDocs);
+
+      // Reset password visibility
+      setVisiblePasswords(
+        updatedDocs.reduce((acc, _, index) => ({ ...acc, [index]: false }), {})
+      );
+    }
+  };
 
   // Function to toggle password visibility for a specific row
   const togglePasswordVisibility = (index) => {
@@ -39,41 +68,43 @@ const SharedDocument = () => {
     }));
   };
 
-  // Function to handle filtering by a specific key (name or document)
-  const handleFilter = (key) => {
-    setSortConfig((prevConfig) => {
-      if (prevConfig.key === key) {
-        if (prevConfig.direction === "desc") {
-          return { key: null, direction: "asc" }; // Reset filtering
-        }
-        return { key, direction: "desc" };
-      }
-      return { key, direction: "asc" };
-    });
+  // Function to truncate password for display
+  const truncatePassword = (password, maxLength = 10) => {
+    if (!password) return "••••••"; // Handle undefined or empty password
+    if (password.length <= maxLength) return password;
+    return password.substring(0, maxLength) + "...";
   };
 
-  // Sort the clients based on the filter configuration
-  const sortedItems = useMemo(() => {
-    if (!sortConfig.key) return clients;
-
-    return [...clients].sort((a, b) => {
-      const aValue = a[sortConfig.key];
-      const bValue = b[sortConfig.key];
-
-      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
-      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
-      return 0;
-    });
-  }, [clients, sortConfig]);
+  // Function to extract file name from URL with proper undefined handling
+  const extractFileName = (url) => {
+    // If url is undefined, null, or empty, return a default value
+    if (!url || typeof url !== "string") {
+      return "N/A"; // This should not happen now due to filtering
+    }
+    try {
+      // Split the URL by '/' and get the last part
+      const parts = url.split("/");
+      let fileName = parts[parts.length - 1];
+      // Remove query parameters if any (e.g., ?X-Amz-Algorithm=...)
+      fileName = fileName.split("?")[0];
+      // Decode URL-encoded characters (e.g., %20 to space)
+      fileName = decodeURIComponent(fileName);
+      // If fileName is empty after processing, return default
+      return fileName || "N/A";
+    } catch (error) {
+      console.error("Error extracting file name:", error);
+      return "N/A";
+    }
+  };
 
   // Filter documents based on search query
   const filteredItems = useMemo(() => {
-    return sortedItems.filter(
-      (client) =>
-        client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        client.document.toLowerCase().includes(searchQuery.toLowerCase())
+    return documents.filter(
+      (doc) =>
+        (doc.client || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (doc.file || "").toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [sortedItems, searchQuery]);
+  }, [documents, searchQuery]);
 
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
   const currentItems = filteredItems.slice(
@@ -81,7 +112,7 @@ const SharedDocument = () => {
     currentPage * itemsPerPage
   );
 
-  // Function to generate visible page numbers for pagination
+  // Generate visible page numbers for pagination
   const getVisiblePageNumbers = () => {
     const delta = 2;
     const range = [];
@@ -111,108 +142,126 @@ const SharedDocument = () => {
     return rangeWithDots;
   };
 
-  // Reset to page 1 when search query or filter changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, sortConfig]);
-
   return (
     <div className="p-6">
-      {/* Heading for the page */}
+      {/* Page Header */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="heading-5">Shared Documents</h2>
       </div>
-      
-      {/* Search bar and action buttons */}
+
+      {/* Search and Action Buttons */}
       <div className="flex justify-between items-center mb-6 gap-4">
-        {/* Search Bar */}
         <div className="relative flex-1">
           <div className="relative">
             <input
               type="text"
-              placeholder="Search by client name or document name"
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-blue-500"
+              placeholder="Search by client or document name"
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-blue-500 transition-all duration-300"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
         </div>
-        {/* Refresh Button */}
         <button
-          onClick={() => {
-            window.location.reload();
-          }}
-          className="px-4 py-2 rounded-lg border border-gray-200 flex items-center gap-2 hover:bg-gray-50"
+          onClick={refreshDocuments}
+          className="px-4 py-2 rounded-lg border border-gray-200 flex items-center gap-2 hover:bg-gray-50 transition-all duration-300"
         >
           <IoIosRefresh />
           Refresh
         </button>
-        {/* Filter Dropdown */}
-        <div className="relative">
-          <button
-            className="px-4 py-2 rounded-lg border border-gray-200 flex items-center gap-2 hover:bg-gray-50"
-          >
-            <FiFilter />
-            Filter
-          </button>
-          <select
-            onChange={(e) => handleFilter(e.target.value)}
-            className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
-          >
-            <option value="">Filter</option>
-            <option value="name">Filter by Name</option>
-            <option value="document">Filter by Document</option>
-          </select>
-        </div>
+        <button className="px-4 py-2 rounded-lg border border-gray-200 flex items-center gap-2 hover:bg-gray-50 transition-all duration-300">
+          <FiDownload />
+          Export
+        </button>
       </div>
 
-      {/* Table container */}
-      <div className="bg-white rounded-lg border border-gray-200">
+      {/* Table Container */}
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
         <table className="w-full">
-          <thead className="bg-gray-200 text-gray-600">
+          <thead className="bg-accent-primary">
             <tr>
-              <th className="px-6 py-3 text-left">
-                <input type="checkbox" className="rounded" />
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+              {/* Column: Client Name */}
+              <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                 Client Name
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                Document
+              {/* Column: Document Name */}
+              <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
+                Document Name
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+              {/* Column: Shared Date */}
+              <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
+                Shared Date
+              </th>
+              {/* Column: Password */}
+              <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                 Password
               </th>
-              <th className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
+              {/* Column: Action */}
+              <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                 Action
               </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {currentItems.map((client, index) => {
+            {currentItems.map((doc, index) => {
               const globalIndex = (currentPage - 1) * itemsPerPage + index;
               return (
-                <tr key={globalIndex} className="hover:bg-gray-50">
-                  <td className="px-6 py-3">
-                    <input type="checkbox" className="rounded" />
+                <tr key={globalIndex} className="hover:bg-gray-50 transition-all duration-200">
+                  {/* Client Name */}
+                  <td className="px-6 py-4 text-foreground">{doc.client || "N/A"}</td>
+                  {/* Document Name - Ensure only file name is displayed */}
+                  <td className="px-6 py-4 text-foreground">
+                    {extractFileName(doc.file)}
                   </td>
-                  <td className="px-6 py-3 text-foreground">{client.name}</td>
-                  <td className="px-6 py-3 text-foreground">{client.document}</td>
-                  <td className="px-6 py-3 text-foreground flex items-center gap-2">
-                    <span className="inline-block w-[60px]">{visiblePasswords[globalIndex] ? client.password : "••••••"}</span>
-                    <button
-                      onClick={() => togglePasswordVisibility(globalIndex)}
-                      className="text-foreground hover:text-blue-500"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    </button>
+                  {/* Shared Date */}
+                  <td className="px-6 py-4 text-foreground">{doc.shared_date || "N/A"}</td>
+                  {/* Password with Eye Icon */}
+                  <td className="px-6 py-4 text-foreground">
+                    <div className="flex items-center gap-3">
+                      <span className="inline-block w-[120px]">
+                        {visiblePasswords[globalIndex]
+                          ? truncatePassword(doc.password)
+                          : "••••••"}
+                      </span>
+                      <button
+                        onClick={() => togglePasswordVisibility(globalIndex)}
+                        className="text-foreground hover:text-blue-500 transition-colors duration-200"
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                          />
+                        </svg>
+                      </button>
+                      {visiblePasswords[globalIndex] && doc.password && doc.password.length > 10 && (
+                        <button
+                          onClick={() => setShowFullPassword(doc.password)}
+                          className="text-blue-500 hover:text-blue-700 text-sm"
+                        >
+                          Show Full
+                        </button>
+                      )}
+                    </div>
                   </td>
-                  <td className="px-6 py-3 text-center">
-                    <button className="text-blue-500 hover:text-blue-700">
+                  {/* Action */}
+                  <td className="px-6 py-4 text-foreground">
+                    <button className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 transition-all duration-200">
                       Copy Link
                     </button>
                   </td>
@@ -222,22 +271,22 @@ const SharedDocument = () => {
           </tbody>
         </table>
 
-        {/* Pagination section */}
+        {/* Pagination Section */}
         <div className="flex justify-between items-center p-4 border-t border-gray-200">
           <div className="flex gap-2">
             <button
               onClick={() => setCurrentPage(1)}
               disabled={currentPage === 1}
-              className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
+              className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50 hover:bg-gray-50 transition-all duration-200"
             >
-              {/* << */}
+              &lt;&lt;
             </button>
             <button
               onClick={() => setCurrentPage(currentPage - 1)}
               disabled={currentPage === 1}
-              className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
+              className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50 hover:bg-gray-50 transition-all duration-200"
             >
-              {/* < */}
+              &lt;
             </button>
             {getVisiblePageNumbers().map((pageNum, index) => (
               <button
@@ -251,7 +300,7 @@ const SharedDocument = () => {
                     : pageNum === "..."
                     ? "border-transparent cursor-default"
                     : "border-gray-200 hover:bg-gray-50"
-                }`}
+                } transition-all duration-200`}
               >
                 {pageNum}
               </button>
@@ -259,16 +308,16 @@ const SharedDocument = () => {
             <button
               onClick={() => setCurrentPage(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
+              className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50 hover:bg-gray-50 transition-all duration-200"
             >
-              {/* > */}
+              &gt;
             </button>
             <button
               onClick={() => setCurrentPage(totalPages)}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
+              className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50 hover:bg-gray-50 transition-all duration-200"
             >
-              {/* >> */}
+              &gt;&gt;
             </button>
           </div>
           <div className="text-sm text-foreground">
@@ -278,6 +327,22 @@ const SharedDocument = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal for Showing Full Password */}
+      {showFullPassword && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-lg font-semibold mb-4">Full Password</h3>
+            <p className="break-all">{showFullPassword}</p>
+            <button
+              onClick={() => setShowFullPassword(null)}
+              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-all duration-200"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

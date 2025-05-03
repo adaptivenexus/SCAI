@@ -9,19 +9,15 @@ import { authFetch } from "@/utils/auth";
 import { useAuth } from "@/context/AuthContext";
 import ManageDocument from "../common/ManageDocument";
 import { BiLoaderAlt } from "react-icons/bi";
-import DocumentShareModal from "./DocumentShareModal";
 
-const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments }) => {
+const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments, isDisabled }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [parsedData, setParsedData] = useState({});
   const { refreshTokenFn } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
-
   const [isManageDocumentOpen, setIsManageDocumentOpen] = useState(false);
-
-  const [isShareDocumentOpen, setIsShareDocumentOpen] = useState(false);
 
   const getFileType = (filename) => {
     if (!filename) return "unknown";
@@ -83,6 +79,7 @@ const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments }) => {
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
   useEffect(() => {
     if (isMounted) {
       fetchParsedData();
@@ -123,17 +120,16 @@ const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments }) => {
   }, [isOpen]);
 
   return (
-    <tr className="hover:bg-gray-50">
-      <td className="px-6 py-4">
-        <input
-          type="checkbox"
-          className="rounded"
-          checked={isSelected}
-          onChange={() => onSelect(doc.id)}
-        />
-      </td>
+    <tr className={`hover:bg-gray-50 ${isDisabled && !isSelected ? "opacity-50" : ""}`}>
       <td className="px-6 py-4">
         <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            className="rounded"
+            checked={isSelected}
+            onChange={() => onSelect(doc.id, doc.client)}
+            disabled={isDisabled}
+          />
           <Image
             src={
               "https://images.unsplash.com/photo-1633332755192-727a05c4013d?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8YXZhdGFyfGVufDB8fDB8fHww"
@@ -147,34 +143,33 @@ const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments }) => {
         </div>
       </td>
       <td className="px-6 py-4 text-sm text-foreground">
-        <div>
-          {type == "pdf" ? (
-            <button
-              onClick={() => {
-                setIsPreviewOpen(true);
-              }}
-              type="button"
-              className="text-primary underline text-start truncate"
-            >
-              {parsedData?.suggested_title || extractFilenameFromUrl(doc.file)}
-            </button>
-          ) : (
-            <a
-              href={doc.file}
-              target="_blank"
-              className="text-primary underline text-start truncate"
-            >
-              {parsedData?.suggested_title || extractFilenameFromUrl(doc.file)}
-            </a>
-          )}
-          {isPreviewOpen && (
-            <DocumentPreview
-              document={doc.file}
-              setIsDocumentPreviewOpen={setIsPreviewOpen}
-              type={type}
-            />
-          )}
-        </div>
+        {type === "pdf" ? (
+          <button
+            onClick={() => {
+              setIsPreviewOpen(true);
+            }}
+            type="button"
+            className="text-primary underline text-start truncate"
+          >
+            {parsedData?.suggested_title || extractFilenameFromUrl(doc.file)}
+          </button>
+        ) : (
+          <a
+            href={doc.file}
+            target="_blank"
+            className="text-primary underline text-start truncate"
+            rel="noopener noreferrer"
+          >
+            {parsedData?.suggested_title || extractFilenameFromUrl(doc.file)}
+          </a>
+        )}
+        {isPreviewOpen && (
+          <DocumentPreview
+            document={doc.file}
+            setIsDocumentPreviewOpen={setIsPreviewOpen}
+            type={type}
+          />
+        )}
       </td>
       <td className="px-6 py-4 text-sm text-foreground">
         {parsedData?.document_type}
@@ -185,24 +180,23 @@ const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments }) => {
       <td className="px-6 py-4 text-sm text-foreground">
         {parsedData?.document_date}
       </td>
-
       <td className="px-6 py-4">
         {!parsedData.suggested_title ? (
           <span
-            className={`px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800`}
+            className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800"
           >
             Processing <BiLoaderAlt className="animate-spin inline-block" />
           </span>
         ) : doc.status === "Verified" ? (
           <span
-            className={`px-2 py-1 text-xs rounded-full bg-green-100 text-green-800`}
+            className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800"
           >
             {doc?.status}
           </span>
         ) : (
           <button
             type="button"
-            className="px-2 py-1 text-xs rounded-full  bg-orange-100 text-orange-800"
+            className="px-2 py-1 text-xs rounded-full bg-orange-100 text-orange-800"
             onClick={() => {
               setIsManageDocumentOpen(true);
             }}
@@ -237,16 +231,6 @@ const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments }) => {
               </button>
               <button
                 type="button"
-                className="block subtitle-text px-3 py-1 text-foreground hover:opacity-80 hover:bg-black/10 w-full text-start"
-                onClick={() => {
-                  setIsOpen(false);
-                  setIsShareDocumentOpen(true);
-                }}
-              >
-                Share
-              </button>
-              <button
-                type="button"
                 onClick={handleDelete}
                 className="block subtitle-text px-3 py-1 text-red-500 hover:opacity-80 hover:bg-black/10 w-full text-start"
               >
@@ -261,15 +245,10 @@ const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments }) => {
               parsedData={parsedData}
             />
           )}
-          {isShareDocumentOpen && (
-            <DocumentShareModal
-              setIsShareDocumentOpen={setIsShareDocumentOpen}
-              doc={doc}
-            />
-          )}
         </div>
       </td>
     </tr>
   );
 };
+
 export default DocumentRow;

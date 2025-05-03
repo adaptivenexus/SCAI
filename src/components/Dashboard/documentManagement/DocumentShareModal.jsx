@@ -6,82 +6,121 @@ import { useContext, useEffect, useState, useTransition } from "react";
 import { IoIosCloseCircle } from "react-icons/io";
 import { toast } from "react-toastify";
 
-const DocumentShareModal = ({ setIsShareDocumentOpen, doc }) => {
+const DocumentShareModal = ({ setIsShareDocumentOpen, docs }) => {
   const { user } = useAuth();
   const [formData, setFormData] = useState({
-    client: undefined,
-    document: undefined,
     access_password: "",
     expired_at: addHoursToCurrentTime(1),
     shared_by_agency: user.id,
   });
-
-  const [searchInputClients, setSearchInputClients] = useState("");
-  const { clients } = useContext(GlobalContext);
-  const [listClients, setListClients] = useState(clients);
+  const [passwordError, setPasswordError] = useState(""); // State for password validation error
   const [loading, startTransition] = useTransition();
 
+  // Utility function to add hours to current time for expiration
   function addHoursToCurrentTime(hours) {
     const currentTime = new Date();
     currentTime.setHours(currentTime.getHours() + hours);
-    return currentTime.toISOString(); // Returns in the format: 2025-04-30T07:12:30.271Z
+    return currentTime.toISOString();
   }
 
-  useEffect(() => {
-    if (searchInputClients.length > 2) {
-      const filteredClients = clients.filter(
-        (client) =>
-          client.business_name
-            .toLowerCase()
-            .includes(searchInputClients.toLowerCase()) ||
-          client.email.toLowerCase().includes(searchInputClients.toLowerCase())
-      );
-      setListClients(filteredClients);
-    } else {
-      setListClients([]);
+  // Utility function to extract file name from URL with proper undefined handling
+  const extractFileName = (url) => {
+    // If url is undefined, null, or empty, return a default value
+    if (!url || typeof url !== "string") {
+      toast.error("Document file is missing. Cannot share this document.");
+      throw new Error("Document file is missing");
     }
-  }, [searchInputClients]);
-
-  useEffect(() => {
-    if (doc) {
-      setFormData({
-        ...formData,
-        document: doc.id,
-      });
+    try {
+      // Split the URL by '/' and get the last part
+      const parts = url.split("/");
+      let fileName = parts[parts.length - 1];
+      // Remove query parameters if any (e.g., ?X-Amz-Algorithm=...)
+      fileName = fileName.split("?")[0];
+      // Decode URL-encoded characters (e.g., %20 to space)
+      fileName = decodeURIComponent(fileName);
+      // If fileName is empty after processing, throw an error
+      if (!fileName) {
+        toast.error("Document file name is invalid. Cannot share this document.");
+        throw new Error("Document file name is invalid");
+      }
+      return fileName;
+    } catch (error) {
+      console.error("Error extracting file name:", error);
+      throw error; // Re-throw to handle in handleSubmit
     }
-  }, [doc]);
+  };
 
-  const handleSubmit = async (e) => {
+  // Password validation function
+  const validatePassword = (password) => {
+    const minLength = password.length >= 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    if (!minLength) {
+      return "Password must be at least 8 characters long.";
+    }
+    if (!hasUpperCase) {
+      return "Password must contain at least one uppercase letter.";
+    }
+    if (!hasLowerCase) {
+      return "Password must contain at least one lowercase letter.";
+    }
+    if (!hasNumber) {
+      return "Password must contain at least one number.";
+    }
+    if (!hasSpecialChar) {
+      return "Password must contain at least one special character.";
+    }
+    return "";
+  };
+
+  // Handle form submission to save shared documents in localStorage
+  const handleSubmit = (e) => {
     e.preventDefault();
-    startTransition(async () => {
+    startTransition(() => {
+      // Check if docs array is empty
+      if (!docs || docs.length === 0) {
+        toast.error("No documents selected to share.");
+        return;
+      }
+
+      // Validate password
+      const error = validatePassword(formData.access_password);
+      if (error) {
+        setPasswordError(error);
+        toast.error(error);
+        return;
+      }
+
+      // Check if we're on the client side
+      if (typeof window === "undefined") {
+        toast.error("Cannot share document on server side.");
+        return;
+      }
+
+      // Get existing shared documents from localStorage
+      const sharedDocs = JSON.parse(localStorage.getItem("sharedDocuments")) || [];
+
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_SWAGGER_URL}/shares/shares/`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-            body: JSON.stringify({
-              client: formData.client.id,
-              document: formData.document,
-              access_password: formData.access_password,
-              expired_at: formData.expired_at,
-              shared_by_agency: formData.shared_by_agency,
-            }),
-          }
-        );
-        if (response.ok) {
-          setIsShareDocumentOpen(false);
-          toast.success("Document shared successfully");
-        } else {
-          console.error("Error sharing document:", response.statusText);
-          toast.error("Something went wrong. Please try again.");
-        }
+        // Map selected documents to the format needed for SharedDocument
+        const newDocs = docs.map((doc) => ({
+          client: doc.client || "", // Client name
+          file: extractFileName(doc.file), // Extract file name with validation
+          shared_date: new Date().toISOString().split("T")[0], // Shared date (current date)
+          password: formData.access_password, // Password from modal
+        }));
+
+        // Save to localStorage
+        localStorage.setItem("sharedDocuments", JSON.stringify([...sharedDocs, ...newDocs]));
+
+        // Show success message and close modal
+        setIsShareDocumentOpen(false);
+        toast.success("Document shared successfully");
       } catch (error) {
-        console.error("Error sharing document:", error);
-        toast.error("Something went wrong. Please try again.");
+        // Error already handled in extractFileName with toast
+        return;
       }
     });
   };
@@ -96,86 +135,8 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, doc }) => {
         onClick={(e) => e.stopPropagation()}
       >
         <h5 className="heading-5">Share Document</h5>
-        {/* Add your document sharing content here */}
         <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
-          {/* Add form fields here */}
-          <div className="flex flex-col flex-1 gap-1">
-            <label htmlFor="client_id">
-              Client Name <span className="text-red-500">*</span>
-            </label>
-            <div className="w-full relative">
-              <div className="border rounded-lg p-3 w-full flex items-center">
-                {!formData.client && (
-                  <input
-                    type="text"
-                    name="client_id"
-                    id="client_id"
-                    className=" placeholder:text-secondary placeholder:font-medium outline-none w-full bg-transparent"
-                    placeholder="Search and select client"
-                    required
-                    onChange={(e) => {
-                      setSearchInputClients(e.target.value);
-                    }}
-                    autoComplete="off"
-                    disabled={formData.client ? true : false}
-                    value={
-                      formData?.client != (null || undefined)
-                        ? formData?.client?.business_name
-                        : searchInputClients
-                    }
-                  />
-                )}
-                {formData.client && (
-                  <>
-                    <p className="w-full">{formData.client.business_name}</p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSearchInputClients("");
-                        setFormData({
-                          ...formData,
-                          client: undefined,
-                        });
-                      }}
-                      className="text-red-500"
-                    >
-                      <IoIosCloseCircle size={24} />
-                    </button>
-                  </>
-                )}
-              </div>
-
-              <div className="absolute w-full rounded-xl overflow-hidden bg-white shadow-lg flex flex-col">
-                {searchInputClients &&
-                  listClients.map((client, index) => (
-                    <button
-                      type="button"
-                      key={client.id}
-                      className={`py-2 px-4 ${
-                        listClients.length === index + 1 ? "" : "border-b"
-                      } w-full cursor-pointer hover:bg-blue-50 text-start`}
-                      onClick={() => {
-                        setSearchInputClients("");
-                        setFormData({
-                          ...formData,
-                          client: {
-                            id: client.id,
-                            business_name: client.business_name,
-                            email: client.email,
-                          },
-                        });
-                      }}
-                    >
-                      <p className="body-text font-semibold">
-                        {client.business_name}
-                      </p>
-                      <p className="label-text text-primary">{client.email}</p>
-                    </button>
-                  ))}
-              </div>
-            </div>
-          </div>
-          <div className="">
+          <div className="flex flex-col gap-1">
             <label htmlFor="access_password">
               Access Password <span className="text-red-500">*</span>
             </label>
@@ -187,16 +148,24 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, doc }) => {
               value={formData.access_password}
               placeholder="Enter access password"
               required
-              onChange={(e) =>
+              onChange={(e) => {
                 setFormData({
                   ...formData,
                   access_password: e.target.value,
-                })
-              }
+                });
+                setPasswordError(""); // Clear error on change
+              }}
             />
+            {passwordError && (
+              <p className="text-red-500 text-sm mt-1">{passwordError}</p>
+            )}
           </div>
 
-          <button type="submit" className="primary-btn">
+          <button
+            type="submit"
+            className={`primary-btn ${(!docs || docs.length === 0) ? "opacity-50 cursor-not-allowed" : ""}`}
+            disabled={!docs || docs.length === 0}
+          >
             Submit
           </button>
         </form>
@@ -228,4 +197,5 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, doc }) => {
     </div>
   );
 };
+
 export default DocumentShareModal;
