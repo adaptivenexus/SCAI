@@ -8,6 +8,7 @@ import { FiSearch, FiDownload } from "react-icons/fi";
 import { IoIosRefresh } from "react-icons/io";
 import { BiLoaderAlt } from "react-icons/bi";
 import DocumentShareModal from "@/components/Dashboard/documentManagement/DocumentShareModal";
+import { toast } from "react-toastify";
 
 const AllDocumentPage = () => {
   const { documents, fetchDocuments } = useContext(GlobalContext);
@@ -53,7 +54,7 @@ const AllDocumentPage = () => {
     setSortConfig((prevConfig) => {
       if (prevConfig.key === key) {
         if (prevConfig.direction === "desc") {
-          return { key: null, direction: "asc" }; // Reset sorting
+          return { key: null, direction: "asc" };
         }
         return { key, direction: "desc" };
       }
@@ -67,14 +68,12 @@ const AllDocumentPage = () => {
       if (newSet.has(docId)) {
         newSet.delete(docId);
         if (newSet.size === 0) {
-          setSelectedClient(null); // Reset client if no documents selected
+          setSelectedClient(null);
         }
       } else {
-        // If no documents selected yet, set the client
         if (newSet.size === 0) {
           setSelectedClient(clientName);
         }
-        // Only allow selection if the client matches or no client is selected yet
         if (selectedClient === null || selectedClient === clientName) {
           newSet.add(docId);
           setSelectedClient(clientName);
@@ -84,16 +83,44 @@ const AllDocumentPage = () => {
     });
   };
 
-  const handleCancelAll = () => {
+  const handleReset = () => {
     setSelectedDocuments(new Set());
     setSelectedClient(null);
+  };
+
+  const handleDelete = async () => {
+    try {
+      const deletePromises = Array.from(selectedDocuments).map((docId) =>
+        fetch(`${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${docId}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        })
+      );
+
+      const responses = await Promise.all(deletePromises);
+      const allSuccessful = responses.every((res) => res.ok);
+
+      if (allSuccessful) {
+        toast.success("Selected documents deleted successfully");
+        setSelectedDocuments(new Set());
+        setSelectedClient(null);
+        fetchDocuments();
+      } else {
+        toast.error("Failed to delete some documents");
+      }
+    } catch (error) {
+      console.error("Error deleting documents:", error);
+      toast.error("Something went wrong while deleting documents");
+    }
   };
 
   const isRowDisabled = (docClient) => {
     return selectedDocuments.size > 0 && selectedClient !== docClient;
   };
 
-  // Sort the documents
   const sortedDocuments = useMemo(() => {
     if (!sortConfig.key) return documents;
 
@@ -107,7 +134,6 @@ const AllDocumentPage = () => {
     });
   }, [documents, sortConfig]);
 
-  // Filter and paginate
   const filteredAndSortedItems = sortedDocuments.filter(
     (doc) =>
       ((doc.client || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -122,7 +148,6 @@ const AllDocumentPage = () => {
     currentPage * itemsPerPage
   );
 
-  // Get visible page numbers
   const getVisiblePageNumbers = () => {
     const delta = 2;
     const range = [];
@@ -152,7 +177,6 @@ const AllDocumentPage = () => {
     return rangeWithDots;
   };
 
-  // Get selected documents for sharing
   const selectedDocs = documents.filter((doc) => selectedDocuments.has(doc.id));
 
   useEffect(() => {
@@ -176,6 +200,12 @@ const AllDocumentPage = () => {
           {selectedDocuments.size > 0 && (
             <>
               <button
+                className="primary-btn bg-red-500 hover:bg-red-600"
+                onClick={handleDelete}
+              >
+                Delete
+              </button>
+              <button
                 className="primary-btn"
                 onClick={() => setIsShareDocumentOpen(true)}
               >
@@ -183,9 +213,9 @@ const AllDocumentPage = () => {
               </button>
               <button
                 className="primary-btn"
-                onClick={handleCancelAll}
+                onClick={handleReset}
               >
-                Cancel All
+                Reset
               </button>
             </>
           )}
@@ -374,14 +404,14 @@ const AllDocumentPage = () => {
               disabled={currentPage === 1}
               className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
             >
-              &lt;&lt;
+              {/* << */}
             </button>
             <button
               onClick={() => setCurrentPage(currentPage - 1)}
               disabled={currentPage === 1}
               className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
             >
-              &lt;
+              {/* < */}
             </button>
             {getVisiblePageNumbers().map((pageNum, index) => (
               <button
@@ -405,14 +435,14 @@ const AllDocumentPage = () => {
               disabled={currentPage === totalPages}
               className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
             >
-              &gt;
+              {/* > */}
             </button>
             <button
               onClick={() => setCurrentPage(totalPages)}
               disabled={currentPage === totalPages}
               className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
             >
-              &gt;&gt;
+              {/* >> */}
             </button>
           </div>
           <div className="text-sm text-foreground">

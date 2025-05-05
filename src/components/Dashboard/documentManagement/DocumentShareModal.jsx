@@ -5,6 +5,30 @@ import { GlobalContext } from "@/context/GlobalProvider";
 import { useContext, useEffect, useState, useTransition } from "react";
 import { IoIosCloseCircle } from "react-icons/io";
 import { toast } from "react-toastify";
+import { authFetch } from "@/utils/auth";
+
+// Utility function to format date to "14 April 2025"
+const formatDate = (dateString) => {
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+};
+
+// Utility function to validate email format
+const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email) {
+    return "Email is required.";
+  }
+  if (!emailRegex.test(email)) {
+    return "Please enter a valid email address.";
+  }
+  return "";
+};
 
 const DocumentShareModal = ({ setIsShareDocumentOpen, docs }) => {
   const { user } = useAuth();
@@ -12,33 +36,80 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs }) => {
     access_password: "",
     expired_at: addHoursToCurrentTime(1),
     shared_by_agency: user.id,
+    client_email: "",
   });
-  const [passwordError, setPasswordError] = useState(""); // State for password validation error
+  const [passwordError, setPasswordError] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [loading, startTransition] = useTransition();
+  const [parsedDataMap, setParsedDataMap] = useState({});
+  const [isFetching, setIsFetching] = useState(false);
 
-  // Utility function to add hours to current time for expiration
+  // Fetch parsed data for each document
+  const fetchParsedData = async (docId) => {
+    try {
+      const response = await authFetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${docId}/parsed-data/`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        },
+        user.refreshTokenFn
+      );
+      if (response.ok) {
+        const data = await response.json();
+        return data.parsed_data;
+      } else {
+        console.log("Error fetching parsed data:", response.statusText);
+        return {};
+      }
+    } catch (error) {
+      console.error("Error fetching document data:", error);
+      return {};
+    }
+  };
+
+  useEffect(() => {
+    const fetchAllParsedData = async () => {
+      setIsFetching(true);
+      const parsedDataPromises = docs.map(async (doc) => {
+        const parsedData = await fetchParsedData(doc.id);
+        return { id: doc.id, parsedData };
+      });
+
+      const results = await Promise.all(parsedDataPromises);
+      const parsedDataMap = results.reduce((acc, { id, parsedData }) => {
+        acc[id] = parsedData;
+        return acc;
+      }, {});
+
+      setParsedDataMap(parsedDataMap);
+      setIsFetching(false);
+    };
+
+    if (docs && docs.length > 0) {
+      fetchAllParsedData();
+    }
+  }, [docs]);
+
   function addHoursToCurrentTime(hours) {
     const currentTime = new Date();
     currentTime.setHours(currentTime.getHours() + hours);
     return currentTime.toISOString();
   }
 
-  // Utility function to extract file name from URL with proper undefined handling
   const extractFileName = (url) => {
-    // If url is undefined, null, or empty, return a default value
     if (!url || typeof url !== "string") {
       toast.error("Document file is missing. Cannot share this document.");
       throw new Error("Document file is missing");
     }
     try {
-      // Split the URL by '/' and get the last part
       const parts = url.split("/");
       let fileName = parts[parts.length - 1];
-      // Remove query parameters if any (e.g., ?X-Amz-Algorithm=...)
       fileName = fileName.split("?")[0];
-      // Decode URL-encoded characters (e.g., %20 to space)
       fileName = decodeURIComponent(fileName);
-      // If fileName is empty after processing, throw an error
       if (!fileName) {
         toast.error("Document file name is invalid. Cannot share this document.");
         throw new Error("Document file name is invalid");
@@ -46,11 +117,10 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs }) => {
       return fileName;
     } catch (error) {
       console.error("Error extracting file name:", error);
-      throw error; // Re-throw to handle in handleSubmit
+      throw error;
     }
   };
 
-  // Password validation function
   const validatePassword = (password) => {
     const minLength = password.length >= 8;
     const hasUpperCase = /[A-Z]/.test(password);
@@ -76,50 +146,51 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs }) => {
     return "";
   };
 
-  // Handle form submission to save shared documents in localStorage
   const handleSubmit = (e) => {
     e.preventDefault();
     startTransition(() => {
-      // Check if docs array is empty
       if (!docs || docs.length === 0) {
         toast.error("No documents selected to share.");
         return;
       }
 
-      // Validate password
-      const error = validatePassword(formData.access_password);
-      if (error) {
-        setPasswordError(error);
-        toast.error(error);
+      // Validate email
+      const emailErr = validateEmail(formData.client_email);
+      if (emailErr) {
+        setEmailError(emailErr);
+        toast.error(emailErr);
         return;
       }
 
-      // Check if we're on the client side
+      // Validate password
+      const passwordErr = validatePassword(formData.access_password);
+      if (passwordErr) {
+        setPasswordError(passwordErr);
+        toast.error(passwordErr);
+        return;
+      }
+
       if (typeof window === "undefined") {
         toast.error("Cannot share document on server side.");
         return;
       }
 
-      // Get existing shared documents from localStorage
       const sharedDocs = JSON.parse(localStorage.getItem("sharedDocuments")) || [];
 
       try {
-        // Map selected documents to the format needed for SharedDocument
         const newDocs = docs.map((doc) => ({
-          client: doc.client || "", // Client name
-          file: extractFileName(doc.file), // Extract file name with validation
-          shared_date: new Date().toISOString().split("T")[0], // Shared date (current date)
-          password: formData.access_password, // Password from modal
+          client: doc.client || "",
+          file: extractFileName(doc.file),
+          shared_date: new Date().toISOString().split("T")[0],
+          password: formData.access_password,
         }));
 
-        // Save to localStorage
         localStorage.setItem("sharedDocuments", JSON.stringify([...sharedDocs, ...newDocs]));
 
-        // Show success message and close modal
         setIsShareDocumentOpen(false);
         toast.success("Document shared successfully");
+        window.location.href = "/dashboard/shared-doc"; // Fixed URL to /shared-doc
       } catch (error) {
-        // Error already handled in extractFileName with toast
         return;
       }
     });
@@ -131,13 +202,43 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs }) => {
       onClick={() => setIsShareDocumentOpen(false)}
     >
       <div
-        className="bg-white rounded-lg space-y-4 p-10 max-w-[800px] w-full relative"
+        className="bg-white rounded-lg space-y-4 p-10 max-w-[1000px] w-full min-h-[500px] relative mt-10"
         onClick={(e) => e.stopPropagation()}
-      >
-        <h5 className="heading-5">Share Document</h5>
-        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
+    >
+      <h5 className="heading-5 mb-4">Share Document</h5>
+      <div className="flex gap-6">
+        {/* Left Side: Client Name, Inputs, Button */}
+        <div className="w-1/2 flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <label htmlFor="access_password">
+            <label className="font-medium">Client Name:</label>
+            <span>{docs[0]?.client || "N/A"}</span>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="client_email" className="font-medium">
+              Client Email <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="email"
+              name="client_email"
+              id="client_email"
+              className="border rounded-lg p-3 w-full outline-none"
+              value={formData.client_email}
+              placeholder="Enter client email"
+              required
+              onChange={(e) => {
+                setFormData({
+                  ...formData,
+                  client_email: e.target.value,
+                });
+                setEmailError("");
+              }}
+            />
+            {emailError && (
+              <p className="text-red-500 text-sm mt-1">{emailError}</p>
+            )}
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="access_password" className="font-medium">
               Access Password <span className="text-red-500">*</span>
             </label>
             <input
@@ -153,48 +254,65 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs }) => {
                   ...formData,
                   access_password: e.target.value,
                 });
-                setPasswordError(""); // Clear error on change
+                setPasswordError("");
               }}
             />
             {passwordError && (
               <p className="text-red-500 text-sm mt-1">{passwordError}</p>
             )}
           </div>
-
           <button
-            type="submit"
-            className={`primary-btn ${(!docs || docs.length === 0) ? "opacity-50 cursor-not-allowed" : ""}`}
+            onClick={handleSubmit}
+            className={`primary-btn mt-4 ${(!docs || docs.length === 0) ? "opacity-50 cursor-not-allowed" : ""}`}
             disabled={!docs || docs.length === 0}
           >
-            Submit
+            Confirm Share
           </button>
-        </form>
-        {loading && (
-          <div className="absolute top-0 left-0 w-full h-full bg-white opacity-50 flex items-center justify-center rounded-lg z-20">
-            <svg
-              className="animate-spin h-5 w-5 text-blue-500"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                fill="none"
-                strokeWidth="4"
-                stroke="currentColor"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4.93 4.93a10 10 0 0114.14 14.14l1.41 1.41a12 12 0 00-16.97-16.97l1.42 1.42z"
-              />
-            </svg>
+        </div>
+        {/* Right Side: Document List */}
+        <div className="w-1/2 flex flex-col gap-1">
+          <label className="font-medium">Documents ({docs.length}):</label>
+          <div className="max-h-[300px] overflow-y-auto border rounded-lg p-4">
+            {isFetching ? (
+              <p>Loading document dates...</p>
+            ) : (
+              <ul className="list-disc pl-5">
+                {docs.map((doc, index) => (
+                  <li key={index}>
+                    {extractFileName(doc.file)} (Date: {formatDate(parsedDataMap[doc.id]?.document_date)})
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
-        )}
+        </div>
       </div>
+      {loading && (
+        <div className="absolute top-0 left-0 w-full h-full bg-white opacity-50 flex items-center justify-center rounded-lg z-20">
+          <svg
+            className="animate-spin h-5 w-5 text-blue-500"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              fill="none"
+              strokeWidth="4"
+              stroke="currentColor"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4.93 4.93a10 10 0 0114.14 14.14l1.41 1.41a12 12 0 00-16.97-16.97l1.42 1.42z"
+            />
+          </svg>
+        </div>
+      )}
     </div>
+  </div>
   );
 };
 
