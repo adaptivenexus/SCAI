@@ -36,10 +36,35 @@ const SharedDocumentRow = ({ doc }) => {
       console.error("Error fetching document:", err);
     }
   };
+  const fetchParsedData = async (documentId) => {
+    try {
+      const response = await authFetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${documentId}/parsed-data/`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        },
+        refreshTokenFn
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setParsedData(data.parsed_data);
+      } else {
+        console.log("Error fetching parsed data:", response.statusText);
+        setParsedData({});
+      }
+    } catch (error) {
+      console.error("Error fetching document data:", error);
+    }
+  };
 
   useEffect(() => {
     fetchClient(doc.client);
     fetchDocument(doc.document);
+    fetchParsedData(doc.document);
   }, [doc]);
 
   return (
