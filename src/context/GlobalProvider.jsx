@@ -2,7 +2,7 @@
 
 import AddOrManageClient from "@/components/Dashboard/common/AddOrManageClient";
 import { authFetch } from "@/utils/auth";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
 
 export const GlobalContext = createContext(null);

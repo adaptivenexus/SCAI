@@ -7,6 +7,7 @@ import {
   getStoredTokens,
   clearTokens,
   isAuthenticated,
+  authFetch,
 } from "@/utils/auth";
 import { toast } from "react-toastify";
 
@@ -16,8 +17,96 @@ export const AuthProvider = ({ children }) => {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [subscriptions, setSubscriptions] = useState([]);
+  const [subscription, setSubscription] = useState({});
+  const [previousSubscriptions, setPreviousSubscriptions] = useState([]);
+  const [subscriptionDetails, setSubscriptionDetails] = useState({});
+
+  const getSubscriptions = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/subscription_plan/plans/`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch subscription");
+      }
+
+      const data = await response.json();
+      setSubscriptions(data);
+    } catch (error) {
+      console.error("Error fetching subscription:", error);
+    }
+  };
+
+  const getSubscription = async () => {
+    try {
+      const response = await authFetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/agency-subscriptions/`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        },
+        refreshTokenFn
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch subscription");
+      }
+
+      const data = await response.json();
+      const agency = localStorage.getItem("userData");
+      const subscriptionData = data.find(
+        (item) => item.agency === JSON.parse(agency).id && item.is_active
+      );
+      console.log(subscriptionData);
+      setSubscription(subscriptionData || {});
+      const previousSubscriptionsData = data;
+      setPreviousSubscriptions(previousSubscriptionsData);
+    } catch (error) {
+      console.error("Error fetching subscription:", error);
+    }
+  };
+  const getSubscriptionDetails = async (id) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/subscription_plan/plans/${id}/`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch subscription");
+      }
+
+      const data = await response.json();
+      setSubscriptionDetails(data);
+      console.log(data);
+    } catch (error) {
+      console.error("Error fetching subscription:", error);
+    }
+  };
 
   useEffect(() => {
+    getSubscriptions();
+    if (isAuthenticated()) {
+      getSubscription();
+    }
+
     // Check for stored tokens on mount
     const { userData } = getStoredTokens();
     if (userData) {
@@ -25,6 +114,12 @@ export const AuthProvider = ({ children }) => {
     }
     setLoading(false);
   }, []);
+
+  useEffect(() => {
+    if (subscription && subscription.plan) {
+      getSubscriptionDetails(subscription.plan);
+    }
+  }, [subscription]);
 
   const login = async (email, password) => {
     try {
@@ -104,6 +199,10 @@ export const AuthProvider = ({ children }) => {
     logout,
     isAuthenticated: isAuthenticated(),
     refreshTokenFn,
+    subscriptions,
+    subscription,
+    previousSubscriptions,
+    subscriptionDetails,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

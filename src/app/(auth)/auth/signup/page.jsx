@@ -12,12 +12,13 @@ import { FaApple } from "react-icons/fa";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import { handleCheckout } from "@/utils/paymentGateway";
+import { useAuth } from "@/context/AuthContext";
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [aggrement, setAggrement] = useState(false);
+  const { subscriptions } = useAuth();
 
   const [formData, setFormData] = useState({
     agency_name: "",
@@ -25,14 +26,16 @@ const SignUp = () => {
     email: "",
     password: "",
     password2: "",
+    plan: 0,
   });
 
   const [message, setMessage] = useState({ type: "", text: "" });
 
   const router = useRouter();
 
+
+
   const handleSubmit = async (e) => {
-    console.log("Form submitted ");
     e.preventDefault();
 
     const validationError = validateForm();
@@ -65,21 +68,16 @@ const SignUp = () => {
         setMessage({ type: "error", text: "Failed to create user" });
         return;
       }
-      toast.success("User created successfully");
+      // toast.success("User created successfully");
       setMessage({ type: "success", text: "User created successfully" });
 
-      if (
-        formData.planType === "basic-plan" ||
-        formData.planType === "standard-plan"
-      ) {
-        await handleCheckout(formData.planType);
+      if (formData.plan !== 0) {
+        await handleCheckout(formData.plan);
       }
     } catch (error) {
       setMessage({ type: "error", text: "error" });
       console.error(error);
     }
-
-    // Redirect to login page
   };
 
   const handleChange = (e) => {
@@ -283,18 +281,16 @@ const SignUp = () => {
                 <div className="relative">
                   <select
                     className="bg-white border border-[#79747E] rounded-md px-4 py-2 w-full outline-none appearance-none"
-                    name="planType"
-                    id="planType"
-                    value={formData.planType}
+                    name="plan"
+                    id="plan"
+                    value={formData.plan}
                     onChange={handleChange}
                   >
-                    <option value="" disabled hidden>
-                      Select Plan Type
-                    </option>
-                    <option value="free-plan">Free Plan</option>
-                    <option value="basic-plan">Basic Plan</option>
-                    <option value="standard-plan">Standard Plan</option>
-                    <option value="enterprise-plan">Enterprise Plan</option>
+                    {subscriptions.map((subscription) => (
+                      <option key={subscription.id} value={subscription.id}>
+                        {subscription.name} - ${subscription.price}{" "}
+                      </option>
+                    ))}
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
                     <IoMdArrowDropdown size={24} />

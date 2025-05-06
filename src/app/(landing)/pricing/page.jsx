@@ -3,9 +3,55 @@ import { IoMdArrowRoundBack, IoIosCloseCircle } from "react-icons/io";
 import { FaCheckCircle } from "react-icons/fa";
 
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 const PricingPage = () => {
   const router = useRouter();
+
+  const { subscriptions } = useAuth();
+
+  const mapSubscriptions = [
+    {
+      ...subscriptions[0],
+      features: [
+        "Up to 1,000 documents",
+        "Basic AI categorization",
+        "Standard OCR",
+        "Email support",
+      ],
+    },
+    {
+      ...subscriptions[1],
+      features: [
+        "Up to 10,000 documents",
+        "Advanced AI categorization",
+        "Premium OCR",
+        "Priority support",
+        "API access",
+      ],
+    },
+    {
+      ...subscriptions[2],
+      features: [
+        "Unlimited documents",
+        "Custom AI training",
+        "Enterprise OCR",
+        "24/7 dedicated support",
+        "Custom integration",
+      ],
+    },
+    {
+      ...subscriptions[3],
+      features: [
+        "Unlimited documents",
+        "Custom AI training",
+        "Enterprise OCR",
+        "24/7 dedicated support",
+        "Custom integration",
+        "Custom pricing",
+      ],
+    },
+  ];
   return (
     <div className="p-10 flex flex-col gap-6">
       <div className="flex justify-between items-center">
@@ -24,103 +70,40 @@ const PricingPage = () => {
       {/* Cards */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Free Plan */}
-        <div className="bg-white rounded-xl shadow-md border p-6 flex flex-col justify-between">
-          <div>
-            <h3 className="font-bold text-lg text-forground">Free</h3>
-            <p className="label-text text-secondary-foreground mb-2">
-              Perfect for small teams and startups
-            </p>
-            <div className="font-bold text-2xl mb-3">
-              $0{" "}
-              <span className="text-base font-normal text-secondary-foreground">
-                /Month
-              </span>
+        {mapSubscriptions.map((sub, index) => (
+          <div
+            key={index}
+            className={`bg-white rounded-xl shadow-md  p-6 flex flex-col justify-between border`}
+          >
+            <div>
+              <h3 className="font-bold text-lg text-forground">{sub.name}</h3>
+              <p className="label-text text-secondary-foreground mb-2">
+                {sub.description}
+              </p>
+              <div className="font-bold text-2xl mb-3">
+                ${sub.price}
+                <span className="text-base font-normal text-secondary-foreground">
+                  /Month
+                </span>
+              </div>
+              <ul className="text-sm text-forground mb-6 space-y-4">
+                {sub.features.map((feature, index) => (
+                  <li key={index} className="text-primary">
+                    ✔ {feature}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <ul className="text-sm text-forground mb-6 space-y-4">
-              <li className="text-primary">✔ Up to 1,000 documents</li>
-              <li className="text-primary">✔ Basic AI categorization</li>
-              <li className="text-primary">✔ Standard OCR</li>
-              <li className="text-primary">✔ Email support</li>
-            </ul>
-          </div>
-          <button className="bg-primary text-white rounded-md py-2 mt-auto">
-            Get Started
-          </button>
-        </div>
 
-        {/* Basic Plan (Current) */}
-        <div className="bg-white rounded-xl shadow-md border p-6 flex flex-col justify-between">
-          <div>
-            <h3 className="font-bold text-lg text-forground">Basic</h3>
-            <p className="label-text text-secondary-foreground mb-2">
-              For growing businesses
-            </p>
-            <div className="font-bold text-2xl mb-3">
-              $19.99{" "}
-              <span className="text-base font-normal text-secondary-foreground">
-                /Month
-              </span>
-            </div>
-            <ul className="text-sm text-forground mb-6 space-y-4">
-              <li className="text-primary">✔ Up to 10,000 documents</li>
-              <li className="text-primary">✔ Advanced AI categorization</li>
-              <li className="text-primary">✔ Premium OCR</li>
-              <li className="text-primary">✔ Priority support</li>
-              <li className="text-primary">✔ API access</li>
-            </ul>
+            <button
+              onClick={() => {}}
+              type="button"
+              className="bg-primary text-white rounded-md py-2 mt-auto disabled:opacity-50"
+            >
+              {"Get Started"}
+            </button>
           </div>
-          <button className="bg-primary text-white rounded-md py-2 mt-auto">
-            Get Started
-          </button>
-        </div>
-
-        {/* Standard Plan */}
-        <div className="bg-white rounded-xl shadow-md border p-6 flex flex-col justify-between">
-          <div>
-            <h3 className="font-bold text-lg text-forground">Standard</h3>
-            <p className="label-text text-secondary-foreground mb-2">
-              For large organizations
-            </p>
-            <div className="font-bold text-2xl mb-3">
-              $149.99{" "}
-              <span className="text-base font-normal text-secondary-foreground">
-                /Month
-              </span>
-            </div>
-            <ul className="text-sm text-forground mb-6 space-y-4">
-              <li className="text-primary">✔ Unlimited documents</li>
-              <li className="text-primary">✔ Custom AI training</li>
-              <li className="text-primary">✔ Enterprise OCR</li>
-              <li className="text-primary">✔ 24/7 dedicated support</li>
-              <li className="text-primary">✔ Custom integration</li>
-            </ul>
-          </div>
-          <button className="bg-primary text-white rounded-md py-2 mt-auto">
-            Get Started
-          </button>
-        </div>
-
-        {/* Enterprise Plan */}
-        <div className="bg-white rounded-xl shadow-md border p-6 flex flex-col justify-between">
-          <div>
-            <h3 className="font-bold text-lg text-forground">Enterprise</h3>
-            <p className="label-text text-secondary-foreground mb-2">
-              For large organizations
-            </p>
-            <div className="font-bold text-2xl mb-3">Custom Pricing</div>
-            <ul className="text-sm text-forground mb-6 space-y-4">
-              <li className="text-primary">✔ Unlimited documents</li>
-              <li className="text-primary">✔ Custom AI training</li>
-              <li className="text-primary">✔ Enterprise OCR</li>
-              <li className="text-primary">✔ 24/7 dedicated support</li>
-              <li className="text-primary">✔ Custom integration</li>
-            </ul>
-          </div>
-          <button className="bg-primary text-white rounded-md py-2 mt-auto">
-            Get Started
-          </button>
-        </div>
+        ))}
       </div>
 
       {/* Table */}

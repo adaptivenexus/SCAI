@@ -125,8 +125,10 @@ const AllDocumentPage = () => {
     if (!sortConfig.key) return documents;
 
     return [...documents].sort((a, b) => {
-      const aValue = sortConfig.key === "client" ? (a.client || "") : (a.file || "");
-      const bValue = sortConfig.key === "client" ? (b.client || "") : (b.file || "");
+      const aValue =
+        sortConfig.key === "client" ? a.client || "" : a.file || "";
+      const bValue =
+        sortConfig.key === "client" ? b.client || "" : b.file || "";
 
       if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
       if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
@@ -211,10 +213,7 @@ const AllDocumentPage = () => {
               >
                 Share
               </button>
-              <button
-                className="primary-btn"
-                onClick={handleReset}
-              >
+              <button className="primary-btn" onClick={handleReset}>
                 Reset
               </button>
             </>
@@ -460,6 +459,7 @@ const AllDocumentPage = () => {
         <DocumentShareModal
           setIsShareDocumentOpen={setIsShareDocumentOpen}
           docs={selectedDocs}
+          handleReset={handleReset}
         />
       )}
     </div>

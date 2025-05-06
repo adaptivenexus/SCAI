@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FaFileAlt, FaRegUser, FaUsers } from "react-icons/fa";
+import { FaFileAlt, FaRegUser, FaShareAlt, FaUsers } from "react-icons/fa";
 import { RiDashboardFill } from "react-icons/ri";
 import { IoIosCall, IoMdSettings } from "react-icons/io";
 import { motion, AnimatePresence } from "framer-motion";
@@ -45,7 +45,7 @@ const Sidebar = () => {
     >
       <div className="p-4 min-w-[90px]">
         <Link href={"/"} className="text-background text-center text-2xl block">
-        SCANDOQ.
+          SCANDOQ.
         </Link>
         <hr className="my-4" />
         <nav>
@@ -92,6 +92,28 @@ const Sidebar = () => {
                 </AnimatePresence>
               </Link>
             </li>
+            <li>
+              <Link
+                href={"/dashboard/shared-doc"}
+                className="w-full p-2 rounded-lg text-background flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200"
+              >
+                <FaShareAlt size={40} className="min-w-[40px]" />
+                <AnimatePresence mode="wait">
+                  {isOpen && (
+                    <motion.span
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden text-ellipsis whitespace-nowrap"
+                    >
+                      Shared Documents
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </Link>
+            </li>
+
             <li className="rounded-xl flex flex-col gap-2">
               <button
                 type="button"
@@ -313,7 +335,6 @@ const Sidebar = () => {
                 </AnimatePresence>
               </Link>
             </li>
-           
           </ul>
         </nav>
       </div>

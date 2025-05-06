@@ -1,7 +1,59 @@
+"use client";
+
+import { useAuth } from "@/context/AuthContext";
+import { calculatePercentage, formatDate, formatDate2 } from "@/utils";
+import { useEffect, useRef, useState } from "react";
 import { FaDownload } from "react-icons/fa";
 import { RiVisaLine } from "react-icons/ri";
+import { useRouter } from "nextjs-toploader/app";
 
 const BillingPage = () => {
+  const { subscription, previousSubscriptions, subscriptionDetails } =
+    useAuth();
+
+  const [isMounted, setIsMounted] = useState(false);
+  const [scanPercentage, setScanPercentage] = useState(0);
+  const [isOpenManagePlan, setIsOpenManagePlan] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (subscriptionDetails) {
+      const percentage = calculatePercentage(
+        subscription.used_scans,
+        subscriptionDetails.allowed_smart_scan
+      );
+      setScanPercentage(percentage);
+    }
+  }, [subscription]);
+  const dropdownRef = useRef(null);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpenManagePlan(false);
+      }
+    };
+
+    if (isOpenManagePlan) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpenManagePlan]);
+
+  if (!isMounted) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-lg">Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <h4 className="heading-4">Billing & Subscription</h4>
@@ -12,21 +64,65 @@ const BillingPage = () => {
             <div className="space-y-2">
               <div className="space-y-0.5">
                 <p className="subtitle-text text-secondary-foreground">
-                  Basic Plan - $19.99/Month
+                  {subscriptionDetails.name}
+                  {subscriptionDetails.price === "0.00"
+                    ? ""
+                    : ` - $${subscriptionDetails.price}/Month`}
                 </p>
-                <p className="subtitle-text text-secondary-foreground">
-                  Billed Monthly
-                </p>
+                {subscriptionDetails.price !== "0.00" && (
+                  <p className="subtitle-text text-secondary-foreground">
+                    Billed Monthly
+                  </p>
+                )}
               </div>
               <p className="subtitle-text text-primary">Single User Plan</p>
             </div>
-            <div className="flex items-center gap-2">
-              <button type="button" className="primary-btn">
-                My Subscription
-              </button>
-              <button type="button" className="secondary-btn">
+            <div className="relative flex items-center gap-2 mt-auto">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsOpenManagePlan(!isOpenManagePlan);
+                }}
+                className="primary-btn"
+              >
                 Manage Plan
               </button>
+
+              {isOpenManagePlan && (
+                <div
+                  ref={dropdownRef}
+                  className="absolute top-12 left-0 flex flex-col bg-white rounded-lg shadow-md"
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsOpenManagePlan(false);
+                      router.push("/dashboard/billing/upgrade-plan");
+                    }}
+                    className="w-max h-max font-medium text-primary py-2 px-4 hover:bg-slate-100 min-w-full text-start"
+                  >
+                    Upgrade Plan
+                  </button>
+                  <div className="w-full h-[1px] bg-slate-200"></div>
+                  <button
+                    type="button"
+                    className="w-max h-max font-medium py-2 px-4 hover:bg-slate-100 min-w-full text-start"
+                  >
+                    Auto Renew Turn on
+                  </button>
+                  {subscriptionDetails.name !== "Free Plan" && (
+                    <>
+                      <div className="w-full h-[1px] bg-slate-200"></div>
+                      <button
+                        type="button"
+                        className="w-max h-max font-medium text-red-500 py-2 px-4 hover:bg-slate-100 min-w-full text-start"
+                      >
+                        Cancel Subscription
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </div>
           <div className="flex flex-col justify-between text-center">
@@ -34,7 +130,7 @@ const BillingPage = () => {
               <h5 className="heading-5">Next Billing Date</h5>
               <div className="space-y-0.5">
                 <p className="subtitle-text text-secondary-foreground">
-                  27th April 2025
+                  {formatDate(subscriptionDetails.end_date)}
                 </p>
                 <p className="subtitle-text text-primary">
                   (Auto-renewal enabled)
@@ -42,7 +138,8 @@ const BillingPage = () => {
               </div>
             </div>
             <p className="label-text text-[#DF5753]">
-              Expiring Soon: Renew before 03/01/2026
+              Expiring Soon: Renew before{" "}
+              {formatDate(subscriptionDetails.end_date)}.
             </p>
           </div>
         </div>
@@ -91,16 +188,23 @@ const BillingPage = () => {
         </div>
         <div className="space-y-3">
           <p className="subtitle-text text-secondary-foreground">
-            Overall Usage: 200 pages used out of 500.
+            Overall Usage: {subscription.used_scans} pages used out of{" "}
+            {subscriptionDetails.allowed_smart_scan}.
           </p>
           <div className="w-full h-6 rounded-lg border overflow-hidden">
-            <div className="w-1/2 h-full bg-primary-gradient"></div>
+            <div
+              className={`w-0 h-full bg-primary-gradient`}
+              style={{ width: `${scanPercentage}%` }}
+            ></div>
           </div>
           <p className="subtitle-text text-secondary-foreground">
-            Remaining: 300 Credits left.
+            Remaining:{" "}
+            {subscriptionDetails.allowed_smart_scan - subscription.used_scans}{" "}
+            Credits left.
           </p>
         </div>
       </div>
+
       <div className="bg-white p-6 shadow-md rounded-xl space-y-5">
         <h5 className="heading-5">Billing history</h5>
         <div className="rounded-xl border overflow-hidden">
@@ -124,54 +228,33 @@ const BillingPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              <tr className="text-center">
-                <td className="py-4">27th April 2025</td>
-                <td className="py-4">Basic Plan - $19.99/Month</td>
-                <td className="py-4">$19.99</td>
-                <td className="py-4">Credit Card</td>
-                <td className="py-4 text-primary">Paid</td>
-                <td className="py-4">
-                  <div className="flex items-center justify-center">
-                    <FaDownload />
-                  </div>
-                </td>
-              </tr>
-              <tr className="text-center">
-                <td className="py-4">27th April 2025</td>
-                <td className="py-4">Basic Plan - $19.99/Month</td>
-                <td className="py-4">$19.99</td>
-                <td className="py-4">Credit Card</td>
-                <td className="py-4 text-primary">Paid</td>
-                <td className="py-4">
-                  <div className="flex items-center justify-center">
-                    <FaDownload />
-                  </div>
-                </td>
-              </tr>
-              <tr className="text-center">
-                <td className="py-4">27th April 2025</td>
-                <td className="py-4">Basic Plan - $19.99/Month</td>
-                <td className="py-4">$19.99</td>
-                <td className="py-4">Credit Card</td>
-                <td className="py-4 text-primary">Paid</td>
-                <td className="py-4">
-                  <div className="flex items-center justify-center">
-                    <FaDownload />
-                  </div>
-                </td>
-              </tr>
-              <tr className="text-center">
-                <td className="py-4">27th April 2025</td>
-                <td className="py-4">Basic Plan - $19.99/Month</td>
-                <td className="py-4">$19.99</td>
-                <td className="py-4">Credit Card</td>
-                <td className="py-4 text-primary">Paid</td>
-                <td className="py-4">
-                  <div className="flex items-center justify-center">
-                    <FaDownload />
-                  </div>
-                </td>
-              </tr>
+              {previousSubscriptions.length > 0 ? (
+                <tr className="text-center">
+                  <td className="py-4">
+                    {formatDate2(subscription.subscribed_on)}
+                  </td>
+                  <td className="py-4">
+                    {subscriptionDetails.name}
+                    {subscriptionDetails.price === "0.00"
+                      ? ""
+                      : ` - $${subscriptionDetails.price}/Month`}
+                  </td>
+                  <td className="py-4">${subscriptionDetails.price}</td>
+                  <td className="py-4">Credit Card</td>
+                  <td className="py-4 text-primary">Paid</td>
+                  <td className="py-4">
+                    <div className="flex items-center justify-center">
+                      <FaDownload />
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                <tr>
+                  <td colSpan={6} className="text-center py-4">
+                    No Subscriptions
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

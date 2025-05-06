@@ -3,9 +3,9 @@
 import { useAuth } from "@/context/AuthContext";
 import { GlobalContext } from "@/context/GlobalProvider";
 import { useContext, useEffect, useState, useTransition } from "react";
-import { IoIosCloseCircle } from "react-icons/io";
 import { toast } from "react-toastify";
 import { authFetch } from "@/utils/auth";
+import { extractEmail } from "@/utils";
 
 // Utility function to format date to "14 April 2025"
 const formatDate = (dateString) => {
@@ -30,8 +30,9 @@ const validateEmail = (email) => {
   return "";
 };
 
-const DocumentShareModal = ({ setIsShareDocumentOpen, docs }) => {
-  const { user } = useAuth();
+const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
+  const { user, refreshTokenFn } = useAuth();
+  const { clients } = useContext(GlobalContext);
   const [formData, setFormData] = useState({
     access_password: "",
     expired_at: addHoursToCurrentTime(1),
@@ -44,6 +45,14 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs }) => {
   const [parsedDataMap, setParsedDataMap] = useState({});
   const [isFetching, setIsFetching] = useState(false);
 
+  const clientEmail = extractEmail(docs[0].client);
+
+  const clientId = clients.find((client) => {
+    const email = clientEmail;
+    return email === client.email;
+  }).id;
+
+  // console.log(clientEmail);
   // Fetch parsed data for each document
   const fetchParsedData = async (docId) => {
     try {
@@ -56,7 +65,7 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs }) => {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
         },
-        user.refreshTokenFn
+        refreshTokenFn
       );
       if (response.ok) {
         const data = await response.json();
@@ -111,7 +120,9 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs }) => {
       fileName = fileName.split("?")[0];
       fileName = decodeURIComponent(fileName);
       if (!fileName) {
-        toast.error("Document file name is invalid. Cannot share this document.");
+        toast.error(
+          "Document file name is invalid. Cannot share this document."
+        );
         throw new Error("Document file name is invalid");
       }
       return fileName;
@@ -175,22 +186,40 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs }) => {
         return;
       }
 
-      const sharedDocs = JSON.parse(localStorage.getItem("sharedDocuments")) || [];
-
       try {
-        const newDocs = docs.map((doc) => ({
-          client: doc.client || "",
-          file: extractFileName(doc.file),
-          shared_date: new Date().toISOString().split("T")[0],
-          password: formData.access_password,
-        }));
+        docs.forEach(async (doc) => {
+          const shareDoc = {
+            document: doc.id,
+            client: clientId,
+            access_password: formData.access_password,
+            expires_at: formData.expired_at,
+            shared_by_agency: formData.shared_by_agency,
+          };
 
-        localStorage.setItem("sharedDocuments", JSON.stringify([...sharedDocs, ...newDocs]));
+          const res = await authFetch(
+            `${process.env.NEXT_PUBLIC_SWAGGER_URL}/shares/shares/`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+              body: JSON.stringify(shareDoc),
+            },
+            refreshTokenFn
+          );
+          if (!res.ok) {
+            toast.error("Failed to share document. Please try again.");
+            throw new Error("Failed to share document");
+          }
+        });
 
         setIsShareDocumentOpen(false);
+        handleReset();
         toast.success("Document shared successfully");
-        window.location.href = "/dashboard/shared-doc"; // Fixed URL to /shared-doc
+        // window.location.href = "/dashboard/shared-doc"; // Fixed URL to /shared-doc
       } catch (error) {
+        console.log("Something Went Wrong: " + error);
         return;
       }
     });
@@ -204,115 +233,128 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs }) => {
       <div
         className="bg-white rounded-lg space-y-4 p-10 max-w-[1000px] w-full min-h-[500px] relative mt-10"
         onClick={(e) => e.stopPropagation()}
-    >
-      <h5 className="heading-5 mb-4">Share Document</h5>
-      <div className="flex gap-6">
-        {/* Left Side: Client Name, Inputs, Button */}
-        <div className="w-1/2 flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
-            <label className="font-medium">Client Name:</label>
-            <span>{docs[0]?.client || "N/A"}</span>
+      >
+        <h5 className="heading-5 mb-4">Share Document</h5>
+        <div className="flex gap-6">
+          {/* Left Side: Client Name, Inputs, Button */}
+          <div className="w-1/2 flex flex-col gap-4">
+            <div className="flex flex-col gap-1">
+              <label className="font-medium">Client Name:</label>
+              <span>{docs[0]?.client || "N/A"}</span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="client_email" className="font-medium">
+                Client Email <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                name="client_email"
+                id="client_email"
+                className="border rounded-lg p-3 w-full outline-none"
+                value={formData.client_email}
+                placeholder="Enter client email"
+                required
+                onChange={(e) => {
+                  setFormData({
+                    ...formData,
+                    client_email: e.target.value,
+                  });
+                  setEmailError("");
+                }}
+              />
+              {emailError && (
+                <p className="text-red-500 text-sm mt-1">{emailError}</p>
+              )}
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="access_password" className="font-medium">
+                Access Password <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="access_password"
+                id="access_password"
+                className="border rounded-lg p-3 w-full outline-none"
+                value={formData.access_password}
+                placeholder="Enter access password"
+                required
+                onChange={(e) => {
+                  setFormData({
+                    ...formData,
+                    access_password: e.target.value,
+                  });
+                  setPasswordError("");
+                }}
+              />
+              {passwordError && (
+                <p className="text-red-500 text-sm mt-1">{passwordError}</p>
+              )}
+            </div>
+            <button
+              onClick={handleSubmit}
+              className={`primary-btn mt-4 ${
+                !docs || docs.length === 0
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
+              }`}
+              disabled={!docs || docs.length === 0}
+            >
+              Confirm Share
+            </button>
           </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="client_email" className="font-medium">
-              Client Email <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="email"
-              name="client_email"
-              id="client_email"
-              className="border rounded-lg p-3 w-full outline-none"
-              value={formData.client_email}
-              placeholder="Enter client email"
-              required
-              onChange={(e) => {
-                setFormData({
-                  ...formData,
-                  client_email: e.target.value,
-                });
-                setEmailError("");
-              }}
-            />
-            {emailError && (
-              <p className="text-red-500 text-sm mt-1">{emailError}</p>
-            )}
+          {/* Right Side: Document List */}
+          <div className="w-1/2 flex flex-col gap-1">
+            <label className="font-medium">Documents ({docs.length}):</label>
+            <div className="max-h-[300px] overflow-y-auto border rounded-lg p-4">
+              {isFetching ? (
+                <p>Loading document dates...</p>
+              ) : (
+                <div className="flex flex-col">
+                  {docs.map((doc, index) => (
+                    <div
+                      key={index}
+                      className={` ${
+                        docs.length !== index && "border-b border-slate-300"
+                      } py-4`}
+                    >
+                      <p className="font-semibold text-lg">
+                        {extractFileName(doc.file)} (Date:{" "}
+                        {formatDate(parsedDataMap[doc.id]?.document_date)})
+                      </p>
+                      <p>{parsedDataMap[doc.id]?.summary}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="access_password" className="font-medium">
-              Access Password <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              name="access_password"
-              id="access_password"
-              className="border rounded-lg p-3 w-full outline-none"
-              value={formData.access_password}
-              placeholder="Enter access password"
-              required
-              onChange={(e) => {
-                setFormData({
-                  ...formData,
-                  access_password: e.target.value,
-                });
-                setPasswordError("");
-              }}
-            />
-            {passwordError && (
-              <p className="text-red-500 text-sm mt-1">{passwordError}</p>
-            )}
-          </div>
-          <button
-            onClick={handleSubmit}
-            className={`primary-btn mt-4 ${(!docs || docs.length === 0) ? "opacity-50 cursor-not-allowed" : ""}`}
-            disabled={!docs || docs.length === 0}
-          >
-            Confirm Share
-          </button>
         </div>
-        {/* Right Side: Document List */}
-        <div className="w-1/2 flex flex-col gap-1">
-          <label className="font-medium">Documents ({docs.length}):</label>
-          <div className="max-h-[300px] overflow-y-auto border rounded-lg p-4">
-            {isFetching ? (
-              <p>Loading document dates...</p>
-            ) : (
-              <ul className="list-disc pl-5">
-                {docs.map((doc, index) => (
-                  <li key={index}>
-                    {extractFileName(doc.file)} (Date: {formatDate(parsedDataMap[doc.id]?.document_date)})
-                  </li>
-                ))}
-              </ul>
-            )}
+        {loading && (
+          <div className="absolute top-0 left-0 w-full h-full bg-white opacity-50 flex items-center justify-center rounded-lg z-20">
+            <svg
+              className="animate-spin h-5 w-5 text-blue-500"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                fill="none"
+                strokeWidth="4"
+                stroke="currentColor"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4.93 4.93a10 10 0 0114.14 14.14l1.41 1.41a12 12 0 00-16.97-16.97l1.42 1.42z"
+              />
+            </svg>
           </div>
-        </div>
+        )}
       </div>
-      {loading && (
-        <div className="absolute top-0 left-0 w-full h-full bg-white opacity-50 flex items-center justify-center rounded-lg z-20">
-          <svg
-            className="animate-spin h-5 w-5 text-blue-500"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              fill="none"
-              strokeWidth="4"
-              stroke="currentColor"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4.93 4.93a10 10 0 0114.14 14.14l1.41 1.41a12 12 0 00-16.97-16.97l1.42 1.42z"
-            />
-          </svg>
-        </div>
-      )}
     </div>
-  </div>
   );
 };
 

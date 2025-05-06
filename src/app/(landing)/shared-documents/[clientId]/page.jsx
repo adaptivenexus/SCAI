@@ -1,32 +1,25 @@
 "use client";
 
-import SharedDocumentRow from "@/components/Dashboard/sharedDocumentsComponents/SharedDocumentRow";
 import { useEffect, useState } from "react";
-
-const { useAuth } = require("@/context/AuthContext");
-const { authFetch } = require("@/utils/auth");
 
 const SharedDocuments = () => {
   const [sharedDocuments, setSharedDocuments] = useState([]);
 
-  const { refreshTokenFn } = useAuth();
-
   const fetchSharedDocuments = async () => {
     try {
-      const res = await authFetch(
+      const res = await fetch(
         `${process.env.NEXT_PUBLIC_SWAGGER_URL}/shares/shares/`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
-          refreshTokenFn,
         }
       );
       const data = await res.json();
       if (res.ok) {
         setSharedDocuments(data);
+        console.log(data);
       } else {
         console.error("Error fetching shared documents:", data.message);
       }
@@ -63,9 +56,9 @@ const SharedDocuments = () => {
             </tr>
           </thead>
           <tbody>
-            {sharedDocuments.map((doc) => (
+            {/* {sharedDocuments.map((doc) => (
               <SharedDocumentRow key={doc.id} doc={doc} />
-            ))}
+            ))} */}
           </tbody>
         </table>
       </div>
