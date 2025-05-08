@@ -8,6 +8,7 @@ const { authFetch } = require("@/utils/auth");
 
 const SharedDocuments = () => {
   const [sharedDocuments, setSharedDocuments] = useState([]);
+  const { user } = useAuth();
 
   const { refreshTokenFn } = useAuth();
 
@@ -26,7 +27,16 @@ const SharedDocuments = () => {
       );
       const data = await res.json();
       if (res.ok) {
-        setSharedDocuments(data);
+        const filteredData = data.filter(
+          (doc) => doc.shared_by_agency === user.id
+        );
+
+        if (filteredData.length === 0) {
+          setSharedDocuments([]);
+          return;
+        }
+
+        setSharedDocuments(filteredData);
       } else {
         console.error("Error fetching shared documents:", data.message);
       }
