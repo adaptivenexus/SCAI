@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const SharedDocuments = () => {
+const SharedUserDocuments = () => {
   const [sharedDocuments, setSharedDocuments] = useState([]);
 
   const fetchSharedDocuments = async () => {
@@ -65,4 +65,4 @@ const SharedDocuments = () => {
     </div>
   );
 };
-export default SharedDocuments;
+export default SharedUserDocuments;
