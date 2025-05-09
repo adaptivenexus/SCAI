@@ -3,8 +3,56 @@
 import UserRow from "@/components/Dashboard/clientManagementComponents/UserRow";
 import AddOrManageClient from "@/components/Dashboard/common/AddOrManageClient";
 import { GlobalContext } from "@/context/GlobalProvider";
-import { useState, useMemo, useContext } from "react";
+import { useState, useMemo, useContext, useRef, useEffect } from "react";
 import { FiSearch, FiDownload } from "react-icons/fi";
+
+// Helper function to check if a date matches the search query or filter in various formats
+const doesDateMatch = (dateString, query) => {
+  if (!dateString || !query) return false;
+
+  const date = new Date(dateString);
+  if (isNaN(date)) return false; // Invalid date
+
+  const queryLower = query.toLowerCase().trim();
+  const year = date.getFullYear().toString();
+  const monthLong = date.toLocaleString("en-US", { month: "long" }).toLowerCase();
+  const monthShort = date.toLocaleString("en-US", { month: "short" }).toLowerCase();
+  const monthNum = (date.getMonth() + 1).toString().padStart(2, "0"); // e.g., "05"
+  const day = date.getDate().toString().padStart(2, "0"); // e.g., "14"
+
+  // Lightweight array of date formats to match
+  const dateFormats = [
+    year, // e.g., "2025"
+    monthLong, // e.g., "may"
+    monthShort, // e.g., "may"
+    monthNum, // e.g., "05"
+    day, // e.g., "14"
+    `${day} ${monthLong}`, // e.g., "14 may"
+    `${monthLong} ${day}`, // e.g., "may 14"
+    `${day} ${monthShort}`, // e.g., "14 may"
+    `${monthShort} ${day}`, // e.g., "may 14"
+    `${day}-${monthLong}-${year}`, // e.g., "14-may-2025"
+    `${day}-${monthLong}`, // e.g., "14-may"
+    `${day}-${monthShort}-${year}`, // e.g., "14-may-2025"
+    `${day}-${monthShort}`, // e.g., "14-may"
+    dateString.toLowerCase(), // Exact match, e.g., "2025-05-14"
+    date.toISOString().split("T")[0].toLowerCase(), // e.g., "2025-05-14"
+    `${day}/${monthNum}/${year}`, // e.g., "14/05/2025"
+    `${day}-${monthNum}-${year}`, // e.g., "14-05-2025"
+    `${day}.${monthNum}.${year}`, // e.g., "14.05.2025"
+    `${monthNum}/${day}/${year}`, // e.g., "05/14/2025"
+    `${monthNum}-${day}-${year}`, // e.g., "05-14-2025"
+    `${monthNum}.${day}.${year}`, // e.g., "05.14.2025"
+    `${day}/${monthNum}`, // e.g., "14/05"
+    `${day}-${monthNum}`, // e.g., "14-05"
+    `${day}.${monthNum}`, // e.g., "14.05"
+    `${monthNum}/${day}`, // e.g., "05/14"
+    `${monthNum}-${day}`, // e.g., "05-14"
+    `${monthNum}.${day}`, // e.g., "05.14"
+  ];
+
+  return dateFormats.some((format) => format.includes(queryLower));
+};
 
 const ClientListPage = () => {
   const { clients } = useContext(GlobalContext);
@@ -16,21 +64,36 @@ const ClientListPage = () => {
   const [sortConfig, setSortConfig] = useState({ key: "id", direction: "asc" });
   const [currentPage, setCurrentPage] = useState(1);
   const [filterStatus, setFilterStatus] = useState("All");
+  const [creationDateFilter, setCreationDateFilter] = useState("");
+  const [showCreationDatePicker, setShowCreationDatePicker] = useState(false);
+  const creationDateRef = useRef(null);
   const itemsPerPage = 10;
+
+  // Handle click outside to close the date picker
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        creationDateRef.current &&
+        !creationDateRef.current.contains(event.target)
+      ) {
+        setShowCreationDatePicker(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleSort = (key) => {
     setSortConfig((prevConfig) => {
-      // If clicking the same column
       if (prevConfig.key === key) {
-        // If it's already in desc order (meaning this is the third click)
         if (prevConfig.direction === "desc") {
-          // Reset sorting
           return { key: "id", direction: "asc" };
         }
-        // Otherwise change to desc order
         return { key, direction: "desc" };
       }
-      // First click on a new column - start with asc
       return { key, direction: "asc" };
     });
   };
@@ -39,10 +102,12 @@ const ClientListPage = () => {
     const sorted = [...clients];
     if (sortConfig.key) {
       sorted.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
+        const aValue = a[sortConfig.key] || 0; // Handle null/undefined for DOCUMENTS
+        const bValue = b[sortConfig.key] || 0;
+        if (aValue < bValue) {
           return sortConfig.direction === "asc" ? -1 : 1;
         }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
+        if (aValue > bValue) {
           return sortConfig.direction === "asc" ? 1 : -1;
         }
         return 0;
@@ -53,12 +118,17 @@ const ClientListPage = () => {
 
   const filteredClients = sortedClients.filter((client) => {
     const matchesSearch =
-      `${client.business_name}`
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      client.email.toLowerCase().includes(searchQuery.toLowerCase());
-    if (filterStatus === "All") return matchesSearch;
-    return client.status === filterStatus && matchesSearch;
+      (client.business_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (client.email || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (client.phone || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (client.DOCUMENTS || "").toString().includes(searchQuery.toLowerCase()) ||
+      doesDateMatch(client.created_at, searchQuery) ||
+      (client.status || "").toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStatus = filterStatus === "All" || client.status === filterStatus;
+    const matchesCreationDate = !creationDateFilter || doesDateMatch(client.created_at, creationDateFilter);
+
+    return matchesSearch && matchesStatus && matchesCreationDate;
   });
 
   // Calculate total pages
@@ -117,7 +187,7 @@ const ClientListPage = () => {
           <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search Client"
+            placeholder="Search by client name, email, phone, documents, creation date, or status"
             className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-blue-500"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -180,16 +250,50 @@ const ClientListPage = () => {
                   </span>
                 )}
               </th>
-              <th
-                className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
-                onClick={() => handleSort("created_at")}
-              >
-                Creation date
-                {sortConfig.key === "created_at" && (
-                  <span className="ml-1">
-                    {sortConfig.direction === "asc" ? "↑" : "↓"}
-                  </span>
-                )}
+              <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
+                <div className="relative" ref={creationDateRef}>
+                  <div
+                    className="flex items-center gap-2 cursor-pointer"
+                    onClick={() =>
+                      setShowCreationDatePicker(!showCreationDatePicker)
+                    }
+                  >
+                    <span>Creation Date</span>
+                    <svg
+                      className={`w-4 h-4 transition-transform ${
+                        showCreationDatePicker ? "rotate-180" : ""
+                      }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                  {showCreationDatePicker && (
+                    <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
+                      <input
+                        type="date"
+                        className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
+                        value={creationDateFilter}
+                        onChange={(e) => setCreationDateFilter(e.target.value)}
+                      />
+                      {creationDateFilter && (
+                        <button
+                          onClick={() => setCreationDateFilter("")}
+                          className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                 Status

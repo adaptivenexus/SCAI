@@ -1,8 +1,9 @@
 "use client";
 
+import { formatDate, formatDate2 } from "@/utils";
 import { useEffect, useState } from "react";
 
-const SharedDocuments = () => {
+const SharedUserDocuments = () => {
   const [sharedDocuments, setSharedDocuments] = useState([]);
 
   const fetchSharedDocuments = async () => {
@@ -42,10 +43,7 @@ const SharedDocuments = () => {
           <thead className="bg-accent-primary">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                Client Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                Document Name
+                Document
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                 Expiry Date
@@ -56,13 +54,23 @@ const SharedDocuments = () => {
             </tr>
           </thead>
           <tbody>
-            {/* {sharedDocuments.map((doc) => (
-              <SharedDocumentRow key={doc.id} doc={doc} />
-            ))} */}
+            {sharedDocuments.map((doc) => (
+              <tr key={doc.id}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                  {doc.document}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                  {new Date(doc.expires_at).toLocaleDateString()}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                  {doc.access_password}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
     </div>
   );
 };
-export default SharedDocuments;
+export default SharedUserDocuments;
