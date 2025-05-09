@@ -46,8 +46,10 @@ const SharedDocuments = () => {
   };
 
   useEffect(() => {
-    fetchSharedDocuments();
-  }, []);
+    if (user && user.id) {
+      fetchSharedDocuments();
+    }
+  }, [user]);
 
   return (
     <div className="p-6">

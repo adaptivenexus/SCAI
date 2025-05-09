@@ -9,9 +9,60 @@ import { IoIosRefresh } from "react-icons/io";
 import { BiLoaderAlt } from "react-icons/bi";
 import DocumentShareModal from "@/components/Dashboard/documentManagement/DocumentShareModal";
 import { toast } from "react-toastify";
+import { authFetch } from "@/utils/auth";
+import { useAuth } from "@/context/AuthContext";
+
+// Helper function to check if a date matches the search query or filter in various formats
+const doesDateMatch = (dateString, query) => {
+  if (!dateString || !query) return false;
+
+  const date = new Date(dateString);
+  if (isNaN(date)) return false; // Invalid date
+
+  const queryLower = query.toLowerCase().trim();
+  const year = date.getFullYear().toString();
+  const monthLong = date.toLocaleString("en-US", { month: "long" }).toLowerCase();
+  const monthShort = date.toLocaleString("en-US", { month: "short" }).toLowerCase();
+  const monthNum = (date.getMonth() + 1).toString().padStart(2, "0"); // e.g., "05"
+  const day = date.getDate().toString().padStart(2, "0"); // e.g., "14"
+
+  // Lightweight array of date formats to match
+  const dateFormats = [
+    year, // e.g., "2025"
+    monthLong, // e.g., "may"
+    monthShort, // e.g., "may"
+    monthNum, // e.g., "05"
+    day, // e.g., "14"
+    `${day} ${monthLong}`, // e.g., "14 may"
+    `${monthLong} ${day}`, // e.g., "may 14"
+    `${day} ${monthShort}`, // e.g., "14 may"
+    `${monthShort} ${day}`, // e.g., "may 14"
+    `${day}-${monthLong}-${year}`, // e.g., "14-may-2025"
+    `${day}-${monthLong}`, // e.g., "14-may"
+    `${day}-${monthShort}-${year}`, // e.g., "14-may-2025"
+    `${day}-${monthShort}`, // e.g., "14-may"
+    dateString.toLowerCase(), // Exact match, e.g., "2025-05-14"
+    date.toISOString().split("T")[0].toLowerCase(), // e.g., "2025-05-14"
+    `${day}/${monthNum}/${year}`, // e.g., "14/05/2025"
+    `${day}-${monthNum}-${year}`, // e.g., "14-05-2025"
+    `${day}.${monthNum}.${year}`, // e.g., "14.05.2025"
+    `${monthNum}/${day}/${year}`, // e.g., "05/14/2025"
+    `${monthNum}-${day}-${year}`, // e.g., "05-14-2025"
+    `${monthNum}.${day}.${year}`, // e.g., "05.14.2025"
+    `${day}/${monthNum}`, // e.g., "14/05"
+    `${day}-${monthNum}`, // e.g., "14-05"
+    `${day}.${monthNum}`, // e.g., "14.05"
+    `${monthNum}/${day}`, // e.g., "05/14"
+    `${monthNum}-${day}`, // e.g., "05-14"
+    `${monthNum}.${day}`, // e.g., "05.14"
+  ];
+
+  return dateFormats.some((format) => format.includes(queryLower));
+};
 
 const AllDocumentPage = () => {
   const { documents, fetchDocuments } = useContext(GlobalContext);
+  const { refreshTokenFn } = useAuth();
   const [selectedDocuments, setSelectedDocuments] = useState(new Set());
   const [selectedClient, setSelectedClient] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -25,6 +76,54 @@ const AllDocumentPage = () => {
   const processDateRef = useRef(null);
   const documentDateRef = useRef(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [parsedDataMap, setParsedDataMap] = useState({});
+
+  const fetchParsedData = async (docId) => {
+    try {
+      const response = await authFetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${docId}/parsed-data/`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        },
+        refreshTokenFn
+      );
+      if (response.ok) {
+        const data = await response.json();
+        return data.parsed_data;
+      } else {
+        console.log("Error fetching parsed data for doc", docId, ":", response.statusText);
+        return {};
+      }
+    } catch (error) {
+      console.error("Error fetching document data for doc", docId, ":", error);
+      return {};
+    }
+  };
+
+  useEffect(() => {
+    const fetchAllParsedData = async () => {
+      const parsedDataPromises = documents.map(async (doc) => {
+        const parsedData = await fetchParsedData(doc.id);
+        return { id: doc.id, parsedData };
+      });
+
+      const results = await Promise.all(parsedDataPromises);
+      const newParsedDataMap = results.reduce((acc, { id, parsedData }) => {
+        acc[id] = parsedData;
+        return acc;
+      }, {});
+
+      setParsedDataMap(newParsedDataMap);
+    };
+
+    if (documents && documents.length > 0) {
+      fetchAllParsedData();
+    }
+  }, [documents]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -138,10 +237,17 @@ const AllDocumentPage = () => {
 
   const filteredAndSortedItems = sortedDocuments.filter(
     (doc) =>
-      ((doc.client || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (doc.file || "").toLowerCase().includes(searchQuery.toLowerCase())) &&
-      (!processDateFilter || (doc.uploaded_at || "") === processDateFilter) &&
-      (!documentDateFilter || (doc.document_date || "") === documentDateFilter)
+      (
+        (doc.client || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (doc.file || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (parsedDataMap[doc.id]?.suggested_title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (parsedDataMap[doc.id]?.document_type || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        doesDateMatch(doc.uploaded_at, searchQuery) ||
+        doesDateMatch(parsedDataMap[doc.id]?.document_date, searchQuery) ||
+        (doc.status || "").toLowerCase().includes(searchQuery.toLowerCase())
+      ) &&
+      (!processDateFilter || doesDateMatch(doc.uploaded_at, processDateFilter)) &&
+      (!documentDateFilter || doesDateMatch(parsedDataMap[doc.id]?.document_date, documentDateFilter))
   );
 
   const totalPages = Math.ceil(filteredAndSortedItems.length / itemsPerPage);
@@ -232,7 +338,7 @@ const AllDocumentPage = () => {
           <div className="relative">
             <input
               type="text"
-              placeholder="Search by client or document name"
+              placeholder="Search by client, document, category, date, or status"
               className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-blue-500"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -403,14 +509,14 @@ const AllDocumentPage = () => {
               disabled={currentPage === 1}
               className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
             >
-              {/* << */}
+              &lt;&lt;
             </button>
             <button
               onClick={() => setCurrentPage(currentPage - 1)}
               disabled={currentPage === 1}
               className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
             >
-              {/* < */}
+              &lt;
             </button>
             {getVisiblePageNumbers().map((pageNum, index) => (
               <button
@@ -434,14 +540,14 @@ const AllDocumentPage = () => {
               disabled={currentPage === totalPages}
               className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
             >
-              {/* > */}
+              &gt;
             </button>
             <button
               onClick={() => setCurrentPage(totalPages)}
               disabled={currentPage === totalPages}
               className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
             >
-              {/* >> */}
+              &gt;&gt;
             </button>
           </div>
           <div className="text-sm text-foreground">
