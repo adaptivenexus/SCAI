@@ -27,16 +27,18 @@ const SharedDocuments = () => {
       );
       const data = await res.json();
       if (res.ok) {
-        const filteredData = data.filter(
-          (doc) => doc.shared_by_agency === user.id
-        );
+        if (user.id) {
+          const filteredData = data.filter(
+            (doc) => doc.shared_by_agency === user.id
+          );
 
-        if (filteredData.length === 0) {
-          setSharedDocuments([]);
-          return;
+          if (filteredData.length === 0) {
+            setSharedDocuments([]);
+            return;
+          }
+
+          setSharedDocuments(filteredData);
         }
-
-        setSharedDocuments(filteredData);
       } else {
         console.error("Error fetching shared documents:", data.message);
       }
@@ -46,8 +48,10 @@ const SharedDocuments = () => {
   };
 
   useEffect(() => {
-    fetchSharedDocuments();
-  }, []);
+    if (user && user.id) {
+      fetchSharedDocuments();
+    }
+  }, [user]);
 
   return (
     <div className="p-6">

@@ -109,7 +109,7 @@ const UpgradePlanPage = () => {
               </button>
             ) : (
               <button
-                onClick={() => handleCheckout(sub.id)}
+                onClick={() => handleCheckout(sub.id, false)}
                 type="button"
                 disabled={subscription.plan === sub.id && sub.id === 0}
                 className="bg-primary text-white rounded-md py-2 mt-auto"

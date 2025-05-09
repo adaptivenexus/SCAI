@@ -1,11 +1,11 @@
-export const handleCheckout = async (plan) => {
+export const handleCheckout = async (plan, isNewRegistration = false) => {
   try {
     const response = await fetch("/api/checkout", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ plan }),
+      body: JSON.stringify({ plan, isNewRegistration }),
     });
 
     const { url } = await response.json();

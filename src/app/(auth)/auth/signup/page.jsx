@@ -33,8 +33,6 @@ const SignUp = () => {
 
   const router = useRouter();
 
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -72,7 +70,7 @@ const SignUp = () => {
       setMessage({ type: "success", text: "User created successfully" });
 
       if (formData.plan !== 0) {
-        await handleCheckout(formData.plan);
+        await handleCheckout(formData.plan, true);
       }
     } catch (error) {
       setMessage({ type: "error", text: "error" });
