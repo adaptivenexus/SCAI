@@ -63,13 +63,15 @@ const ClientListPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: "id", direction: "asc" });
   const [currentPage, setCurrentPage] = useState(1);
-  const [filterStatus, setFilterStatus] = useState("All");
+  const [filterStatus, setFilterStatus] = useState(""); // Changed to empty string for consistency with AllDocumentPage
   const [creationDateFilter, setCreationDateFilter] = useState("");
   const [showCreationDatePicker, setShowCreationDatePicker] = useState(false);
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false); // For status dropdown visibility
   const creationDateRef = useRef(null);
+  const statusRef = useRef(null); // Ref for status dropdown
   const itemsPerPage = 10;
 
-  // Handle click outside to close the date picker
+  // Handle click outside to close the date picker and status dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -77,6 +79,12 @@ const ClientListPage = () => {
         !creationDateRef.current.contains(event.target)
       ) {
         setShowCreationDatePicker(false);
+      }
+      if (
+        statusRef.current &&
+        !statusRef.current.contains(event.target)
+      ) {
+        setShowStatusDropdown(false);
       }
     };
 
@@ -102,8 +110,21 @@ const ClientListPage = () => {
     const sorted = [...clients];
     if (sortConfig.key) {
       sorted.sort((a, b) => {
-        const aValue = a[sortConfig.key] || 0; // Handle null/undefined for DOCUMENTS
-        const bValue = b[sortConfig.key] || 0;
+        let aValue = a[sortConfig.key] || "";
+        let bValue = b[sortConfig.key] || "";
+        
+        // Handle numeric sorting for DOCUMENTS
+        if (sortConfig.key === "DOCUMENTS") {
+          aValue = parseInt(aValue, 10) || 0;
+          bValue = parseInt(bValue, 10) || 0;
+        }
+
+        // Handle string sorting for other fields (business_name, email, phone)
+        if (typeof aValue === "string") {
+          aValue = aValue.toLowerCase();
+          bValue = bValue.toLowerCase();
+        }
+
         if (aValue < bValue) {
           return sortConfig.direction === "asc" ? -1 : 1;
         }
@@ -117,16 +138,27 @@ const ClientListPage = () => {
   }, [clients, sortConfig]);
 
   const filteredClients = sortedClients.filter((client) => {
+    // Normalize phone number for search by removing spaces, dashes, and other characters
+    const normalizedPhone = (client.phone || "")
+      .replace(/[\s\-\(\)\+]/g, "")
+      .toLowerCase();
+    const queryNormalized = searchQuery.toLowerCase().replace(/[\s\-\(\)\+]/g, "");
+
     const matchesSearch =
       (client.business_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (client.email || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (client.phone || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      normalizedPhone.includes(queryNormalized) ||
       (client.DOCUMENTS || "").toString().includes(searchQuery.toLowerCase()) ||
       doesDateMatch(client.created_at, searchQuery) ||
       (client.status || "").toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesStatus = filterStatus === "All" || client.status === filterStatus;
-    const matchesCreationDate = !creationDateFilter || doesDateMatch(client.created_at, creationDateFilter);
+    const matchesStatus = 
+      !filterStatus ||
+      (filterStatus === "verified" && (client.status || "").toLowerCase() === "verified") ||
+      (filterStatus === "verify_now" && (client.status || "").toLowerCase() !== "verified");
+
+    const matchesCreationDate = 
+      !creationDateFilter || doesDateMatch(client.created_at, creationDateFilter);
 
     return matchesSearch && matchesStatus && matchesCreationDate;
   });
@@ -194,19 +226,6 @@ const ClientListPage = () => {
           />
         </div>
 
-        {/* Status Dropdown */}
-        <div className="relative">
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-blue-500 appearance-none bg-white"
-          >
-            <option value="All">All Status</option>
-            <option value="Verified">Verified</option>
-            <option value="Pending">Not Verified</option>
-          </select>
-        </div>
-
         {/* Export Button */}
         <button className="px-4 py-2 rounded-lg border border-gray-200 flex items-center gap-2">
           <FiDownload />
@@ -233,11 +252,27 @@ const ClientListPage = () => {
                   </span>
                 )}
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
+              <th
+                className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
+                onClick={() => handleSort("email")}
+              >
                 Email
+                {sortConfig.key === "email" && (
+                  <span className="ml-1">
+                    {sortConfig.direction === "asc" ? "↑" : "↓"}
+                  </span>
+                )}
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
+              <th
+                className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
+                onClick={() => handleSort("phone")}
+              >
                 Phone
+                {sortConfig.key === "phone" && (
+                  <span className="ml-1">
+                    {sortConfig.direction === "asc" ? "↑" : "↓"}
+                  </span>
+                )}
               </th>
               <th
                 className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
@@ -296,7 +331,56 @@ const ClientListPage = () => {
                 </div>
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                Status
+                <div className="relative" ref={statusRef}>
+                  <div
+                    className="flex items-center gap-2 cursor-pointer"
+                    onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+                  >
+                    <span>Status</span>
+                    <svg
+                      className={`w-4 h-4 transition-transform ${
+                        showStatusDropdown ? "rotate-180" : ""
+                      }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                  {showStatusDropdown && (
+                    <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
+                      <select
+                        className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
+                        value={filterStatus}
+                        onChange={(e) => {
+                          setFilterStatus(e.target.value);
+                          setShowStatusDropdown(false);
+                        }}
+                      >
+                        <option value="">All</option>
+                        <option value="verified">Verified</option>
+                        <option value="verify_now">Verify Now</option>
+                      </select>
+                      {filterStatus && (
+                        <button
+                          onClick={() => {
+                            setFilterStatus("");
+                            setShowStatusDropdown(false);
+                          }}
+                          className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                 Action
