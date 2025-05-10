@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { FaDownload } from "react-icons/fa";
 import { RiVisaLine } from "react-icons/ri";
 import { useRouter } from "nextjs-toploader/app";
+import BillingHistoryRow from "@/components/Dashboard/settingsComponents/BillingHistoryRow";
 
 const BillingPage = () => {
   const { subscription, previousSubscriptions, subscriptionDetails } =
@@ -229,25 +230,9 @@ const BillingPage = () => {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {previousSubscriptions.length > 0 ? (
-                <tr className="text-center">
-                  <td className="py-4">
-                    {formatDate2(subscription.subscribed_on)}
-                  </td>
-                  <td className="py-4">
-                    {subscriptionDetails.name}
-                    {subscriptionDetails.price === "0.00"
-                      ? ""
-                      : ` - $${subscriptionDetails.price}/Month`}
-                  </td>
-                  <td className="py-4">${subscriptionDetails.price}</td>
-                  <td className="py-4">Credit Card</td>
-                  <td className="py-4 text-primary">Paid</td>
-                  <td className="py-4">
-                    <div className="flex items-center justify-center">
-                      <FaDownload />
-                    </div>
-                  </td>
-                </tr>
+                previousSubscriptions.map((item) => (
+                  <BillingHistoryRow key={item.id} item={item} />
+                ))
               ) : (
                 <tr>
                   <td colSpan={6} className="text-center py-4">

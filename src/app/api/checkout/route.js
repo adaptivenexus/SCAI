@@ -36,7 +36,7 @@ export async function POST(req) {
         process.env.NEXT_PUBLIC_BASE_URL
       }/success?session_id={CHECKOUT_SESSION_ID}&type=${
         isNewRegistration ? "registration" : "upgrade"
-      }`,
+      }&plan=${plan}`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel?session_id={CHECKOUT_SESSION_ID}`,
     };
 

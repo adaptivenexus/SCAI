@@ -21,8 +21,12 @@ const doesDateMatch = (dateString, query) => {
 
   const queryLower = query.toLowerCase().trim();
   const year = date.getFullYear().toString();
-  const monthLong = date.toLocaleString("en-US", { month: "long" }).toLowerCase();
-  const monthShort = date.toLocaleString("en-US", { month: "short" }).toLowerCase();
+  const monthLong = date
+    .toLocaleString("en-US", { month: "long" })
+    .toLowerCase();
+  const monthShort = date
+    .toLocaleString("en-US", { month: "short" })
+    .toLowerCase();
   const monthNum = (date.getMonth() + 1).toString().padStart(2, "0"); // e.g., "05"
   const day = date.getDate().toString().padStart(2, "0"); // e.g., "14"
 
@@ -95,7 +99,12 @@ const AllDocumentPage = () => {
         const data = await response.json();
         return data.parsed_data;
       } else {
-        console.log("Error fetching parsed data for doc", docId, ":", response.statusText);
+        console.log(
+          "Error fetching parsed data for doc",
+          docId,
+          ":",
+          response.statusText
+        );
         return {};
       }
     } catch (error) {
@@ -237,17 +246,21 @@ const AllDocumentPage = () => {
 
   const filteredAndSortedItems = sortedDocuments.filter(
     (doc) =>
-      (
-        (doc.client || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ((doc.client || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
         (doc.file || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (parsedDataMap[doc.id]?.suggested_title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (parsedDataMap[doc.id]?.document_type || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (parsedDataMap[doc.id]?.suggested_title || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (parsedDataMap[doc.id]?.document_type || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
         doesDateMatch(doc.uploaded_at, searchQuery) ||
         doesDateMatch(parsedDataMap[doc.id]?.document_date, searchQuery) ||
-        (doc.status || "").toLowerCase().includes(searchQuery.toLowerCase())
-      ) &&
-      (!processDateFilter || doesDateMatch(doc.uploaded_at, processDateFilter)) &&
-      (!documentDateFilter || doesDateMatch(parsedDataMap[doc.id]?.document_date, documentDateFilter))
+        (doc.status || "").toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (!processDateFilter ||
+        doesDateMatch(doc.uploaded_at, processDateFilter)) &&
+      (!documentDateFilter ||
+        doesDateMatch(parsedDataMap[doc.id]?.document_date, documentDateFilter))
   );
 
   const totalPages = Math.ceil(filteredAndSortedItems.length / itemsPerPage);

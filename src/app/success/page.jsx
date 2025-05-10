@@ -7,6 +7,8 @@ import { FaRegCheckCircle } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import { FaSpinner } from "react-icons/fa";
 import { BiTime } from "react-icons/bi";
+import { useAuth } from "@/context/AuthContext";
+import { authFetch } from "@/utils/auth";
 
 const TransactionSuccess = () => {
   const router = useRouter();
@@ -16,11 +18,21 @@ const TransactionSuccess = () => {
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [error, setError] = useState("");
   const [startTime] = useState(Math.floor(Date.now() / 1000));
+  const [type, setType] = useState("");
+  const [plan, setPlan] = useState(null);
+
+  const { subscription, refreshTokenFn, getSubscription } = useAuth();
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    setType(searchParams.get("type"));
+    setPlan(searchParams.get("plan"));
+  }, []);
+
   const verifySession = useCallback(async () => {
     try {
       const searchParams = new URLSearchParams(window.location.search);
       const sessionId = searchParams.get("session_id");
-      const type = searchParams.get("type");
 
       if (!sessionId) {
         setStatus("error");
@@ -123,6 +135,108 @@ const TransactionSuccess = () => {
     }
   }, [countdown, status, router]);
 
+  const updatePlan = async () => {
+    if (type === "upgrade") {
+      // Placeholder: Add logic for handling plan upgrade
+      const currentPlan = {
+        is_active: false,
+        expires_on: subscription.expires_on,
+        plan: subscription.plan,
+        agency: subscription.agency,
+        used_scans: subscription.used_scans,
+        registered_users_count: subscription.registered_users_count,
+        used_storage: subscription.used_storage,
+      };
+
+      const resUpdateCurrentPlan = await authFetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/agency-subscriptions/${subscription.id}/`,
+        {
+          method: "PUT",
+          body: JSON.stringify(currentPlan),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        },
+        refreshTokenFn
+      );
+      if (!resUpdateCurrentPlan.ok) {
+        setStatus("error");
+        setError("Failed to update plan");
+      }
+
+      const newPlan = {
+        is_active: true,
+        expires_on: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .slice(0, 10), // Extracts the date in "YYYY-MM-DD" format
+        plan: plan,
+        used_scans: 0,
+        registered_users_count: currentPlan.registered_users_count,
+        used_storage: currentPlan.used_storage,
+        agency: subscription.agency,
+      };
+      const resAddNewPlan = await authFetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/agency-subscriptions/`,
+        {
+          method: "POST",
+          body: JSON.stringify(newPlan),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        },
+        refreshTokenFn
+      );
+      if (!resAddNewPlan.ok) {
+        setStatus("error");
+        setError("Failed to add new plan");
+      }
+      getSubscription();
+      console.log(subscription);
+    } else if (type === "registration") {
+      // Placeholder: Add logic for handling new registration
+      const newSubscription = {
+        is_active: true,
+        expires_on: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .slice(0, 10), // Extracts the date in "YYYY-MM-DD" format
+        plan: plan,
+        used_scans: 0,
+        registered_users_count: 0,
+        used_storage: 0,
+        agency: subscription.agency,
+      };
+
+      const resAddNewSubscription = await authFetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/agency-subscriptions/`,
+        {
+          method: "POST",
+          body: JSON.stringify(newSubscription),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        },
+        refreshTokenFn
+      );
+
+      if (!resAddNewSubscription.ok) {
+        setStatus("error");
+        setError("Failed to add new subscription");
+      }
+
+      getSubscription();
+      console.log(subscription);
+    }
+  };
+
+  useEffect(() => {
+    if (status === "success") {
+      updatePlan();
+    }
+  }, [status]);
+
   const renderContent = () => {
     switch (status) {
       case "initializing":
@@ -158,14 +272,12 @@ const TransactionSuccess = () => {
             </div>
             <div className="text-center">
               <h3 className="text-2xl font-semibold text-gray-800 mb-2">
-                {new URLSearchParams(window.location.search).get("type") ===
-                "upgrade"
+                {type === "upgrade"
                   ? "Plan Upgraded Successfully!"
                   : "Registration Successful!"}
               </h3>
               <p className="text-gray-600 mb-6 max-w-sm">
-                {new URLSearchParams(window.location.search).get("type") ===
-                "upgrade"
+                {type === "upgrade"
                   ? "Your plan has been upgraded successfully. You now have access to all premium features."
                   : "Your account has been created successfully. Welcome aboard!"}
               </p>

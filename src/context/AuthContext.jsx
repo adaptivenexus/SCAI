@@ -64,18 +64,34 @@ export const AuthProvider = ({ children }) => {
       }
 
       const data = await response.json();
-      const agency = localStorage.getItem("userData");
-      const subscriptionData = data.find(
-        (item) => item.agency === JSON.parse(agency).id && item.is_active
-      );
-      console.log(subscriptionData);
+
+      const agency = await localStorage.getItem("userData");
+
+      let subscriptionData = data.find((item) => {
+        return item.agency === JSON.parse(agency).id && item.is_active;
+      });
+
+      if (!subscriptionData) {
+        subscriptionData = data
+          .filter((item) => item.agency === JSON.parse(agency).id)
+          .sort(
+            (a, b) => new Date(b.subscribed_on) - new Date(a.subscribed_on)
+          )[0];
+      }
+
       setSubscription(subscriptionData || {});
-      const previousSubscriptionsData = data;
-      setPreviousSubscriptions(previousSubscriptionsData);
+
+      let previousSubscriptionData = data
+        .filter((item) => item.agency === JSON.parse(agency).id)
+        .sort((a, b) => new Date(b.subscribed_on) - new Date(a.subscribed_on));
+
+      setPreviousSubscriptions(previousSubscriptionData);
+      console.log(data);
     } catch (error) {
       console.error("Error fetching subscription:", error);
     }
   };
+
   const getSubscriptionDetails = async (id) => {
     try {
       const response = await fetch(
@@ -103,6 +119,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     getSubscriptions();
+
     if (isAuthenticated()) {
       getSubscription();
     }
@@ -203,6 +220,7 @@ export const AuthProvider = ({ children }) => {
     subscription,
     previousSubscriptions,
     subscriptionDetails,
+    getSubscription,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
