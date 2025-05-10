@@ -159,6 +159,7 @@ export const AuthProvider = ({ children }) => {
       // Store tokens and user data
       storeTokens(tokens.access, tokens.refresh, agency);
       setUser(agency);
+      localStorage.setItem("lastLogin", new Date().toISOString());
 
       // Get redirect path from URL or default to dashboard
       const params = new URLSearchParams(window.location.search);

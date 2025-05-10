@@ -23,7 +23,7 @@ const AccountDetails = () => {
         firstName: firstName || "",
         lastName: lastNameParts.join(" ") || "",
         email: user.email || "",
-        phoneNumber: "+91 9999777788", // 
+        phoneNumber: "+91 9999777788", //
         password: "***************",
       });
     }
@@ -54,22 +54,14 @@ const AccountDetails = () => {
       <div className="bg-white rounded-lg shadow-md overflow-hidden space-y-6">
         <div className="bg-primary-gradient h-20"></div>
         <div className="p-6 space-y-4">
-          <div className="flex items-center">
-        
-            <div>
-              <h2 className="text-lg font-semibold">
-                {formData.firstName} {formData.lastName}
-              </h2>
-              <p className="text-gray-500">{formData.email}</p>
-            </div>
+          <div className="flex justify-end">
             <button
               onClick={handleEditToggle}
-              className="ml-auto bg-blue-500 text-white px-8 py-2 rounded hover:bg-blue-600"
+              className="ml-auto bg-primary text-white px-8 py-2 rounded hover:opacity-80 transition duration-200"
             >
               {isEditing ? "Cancel" : "Edit"}
             </button>
           </div>
-
           <form className="grid grid-cols-2 gap-4 ">
             <div className="space-y-2 ">
               <label htmlFor="firstName" className="block subtitle-text">
@@ -85,8 +77,7 @@ const AccountDetails = () => {
                 className="py-3 px-2 rounded-xl bg-slate-100 w-full outline-none border disabled:opacity-70"
               />
             </div>
-            
-          
+
             <div className="space-y-2">
               <label htmlFor="phoneNumber" className="block subtitle-text">
                 Phone Number
@@ -101,9 +92,23 @@ const AccountDetails = () => {
                 className="py-3 px-2 rounded-xl bg-slate-100 w-full outline-none border disabled:opacity-70"
               />
             </div>
+            <div className="space-y-2 col-span-2">
+              <label htmlFor="email" className="block subtitle-text">
+                Email
+              </label>
+              <input
+                type="text"
+                name="email"
+                id="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                disabled={true}
+                className="py-3 px-2 rounded-xl bg-slate-100 w-full outline-none border disabled:opacity-70"
+              />
+            </div>
             <Link
               href={"/dashboard/settings/security-privacy"}
-              className="primary-btn w-max py-3 rounded-xl text-center mt-3"
+              className="primary-btn w-max py-3 rounded-xl text-center mt-3 block h-max"
             >
               Change Password
             </Link>
