@@ -5,7 +5,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export async function POST(req) {
   try {
-    const { plan } = await req.json(); // Accept `autopay` parameter
+    const { plan, isNewRegistration } = await req.json();
 
     const fetchedPlanDetails = await fetch(
       `${process.env.NEXT_PUBLIC_SWAGGER_URL}/subscription_plan/plans/${plan}/`
@@ -31,9 +31,12 @@ export async function POST(req) {
           quantity: 1,
         },
       ],
-
-      mode: "subscription", // Changed to subscription mode
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+      mode: "subscription",
+      success_url: `${
+        process.env.NEXT_PUBLIC_BASE_URL
+      }/success?session_id={CHECKOUT_SESSION_ID}&type=${
+        isNewRegistration ? "registration" : "upgrade"
+      }`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel?session_id={CHECKOUT_SESSION_ID}`,
     };
 
