@@ -56,13 +56,19 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
   // Fetch parsed data for each document
   const fetchParsedData = async (docId) => {
     try {
+
+      // Ensure localStorage is accessed only on the client side
+      const accessToken =
+        typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+
+
       const response = await authFetch(
         `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${docId}/parsed-data/`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         },
         refreshTokenFn
@@ -187,6 +193,11 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
       }
 
       try {
+        // Ensure localStorage is accessed only on the client side
+      const accessToken =
+      typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+
+      
         docs.forEach(async (doc) => {
           const shareDoc = {
             document: doc.id,
@@ -202,7 +213,7 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${accessToken}`,
               },
               body: JSON.stringify(shareDoc),
             },

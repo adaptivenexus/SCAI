@@ -29,13 +29,17 @@ const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments, isDisabled }) 
 
   const handleDelete = async () => {
     try {
+      // Ensure localStorage is accessed only on the client side
+      const accessToken =
+        typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${doc.id}`,
         {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         }
       );
@@ -59,7 +63,7 @@ const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments, isDisabled }) 
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         },
         refreshTokenFn

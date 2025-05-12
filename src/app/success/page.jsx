@@ -136,6 +136,12 @@ const TransactionSuccess = () => {
   }, [countdown, status, router]);
 
   const updatePlan = async () => {
+
+     // Ensure localStorage is accessed only on the client side
+     const accessToken =
+     typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+
+     
     if (type === "upgrade") {
       // Placeholder: Add logic for handling plan upgrade
       const currentPlan = {
@@ -155,7 +161,7 @@ const TransactionSuccess = () => {
           body: JSON.stringify(currentPlan),
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         },
         refreshTokenFn
@@ -183,7 +189,7 @@ const TransactionSuccess = () => {
           body: JSON.stringify(newPlan),
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         },
         refreshTokenFn

@@ -29,12 +29,16 @@ const ManualDocumentUploadFilesRow = ({
     formDataNew.append("file", file);
     console.log(formDataNew);
     try {
+      // Ensure localStorage is accessed only on the client side
+      const accessToken =
+        typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/`,
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           body: formDataNew,
         }
