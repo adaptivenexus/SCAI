@@ -86,8 +86,10 @@ const DashboardPage = () => {
     return uploadedDate >= thirtyDaysAgo;
   });
 
-  // Retrieve last login date from localStorage
-  const lastLogin = localStorage.getItem("lastLogin");
+  // Ensure localStorage is accessed only on the client side
+  const lastLogin =
+  typeof window !== "undefined" ? localStorage.getItem("lastLogin") : null;
+
 
   return (
     <div className="p-8 w-full flex flex-col gap-6">

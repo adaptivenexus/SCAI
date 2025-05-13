@@ -12,7 +12,6 @@ const AddOrManageClient = ({
   oldClient,
   setEditClient,
 }) => {
-  const token = localStorage.getItem("accessToken");
 
   const { fetchClients } = useContext(GlobalContext);
 
@@ -46,6 +45,10 @@ const AddOrManageClient = ({
     startTransition(async () => {
       if (isNew) {
         try {
+            // Ensure localStorage is accessed only on the client side
+            const accessToken =
+            typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+
           console.log(client);
           const response = await fetch(
             `${process.env.NEXT_PUBLIC_SWAGGER_URL}/client/`,
@@ -53,7 +56,7 @@ const AddOrManageClient = ({
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${accessToken}`,
               },
               body: JSON.stringify(client),
             }
@@ -82,13 +85,17 @@ const AddOrManageClient = ({
         }
       } else {
         try {
+          // Ensure localStorage is accessed only on the client side
+          const accessToken =
+          typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+
           const response = await fetch(
             `${process.env.NEXT_PUBLIC_SWAGGER_URL}/client/${oldClient.id}/`,
             {
               method: "PUT",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${accessToken}`,
               },
               body: JSON.stringify(client),
             }
