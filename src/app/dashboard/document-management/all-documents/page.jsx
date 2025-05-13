@@ -22,8 +22,12 @@ const doesDateMatch = (dateString, query) => {
 
     const queryLower = query.toLowerCase().trim();
     const year = date.getFullYear().toString();
-    const monthLong = date.toLocaleString("en-US", { month: "long" }).toLowerCase();
-    const monthShort = date.toLocaleString("en-US", { month: "short" }).toLowerCase();
+    const monthLong = date
+      .toLocaleString("en-US", { month: "long" })
+      .toLowerCase();
+    const monthShort = date
+      .toLocaleString("en-US", { month: "short" })
+      .toLowerCase();
     const monthNum = (date.getMonth() + 1).toString().padStart(2, "0"); // e.g., "05"
     const day = date.getDate().toString().padStart(2, "0"); // e.g., "14"
 
@@ -125,7 +129,9 @@ const AllDocumentPage = () => {
         setParsedDataMap(newParsedDataMap);
       } catch (error) {
         console.error("Error in fetchAllParsedData:", error);
-        toast.error("Failed to load document data. Please try refreshing the page.");
+        toast.error(
+          "Failed to load document data. Please try refreshing the page."
+        );
       }
     };
 
@@ -148,10 +154,7 @@ const AllDocumentPage = () => {
       ) {
         setShowDocumentDatePicker(false);
       }
-      if (
-        statusRef.current &&
-        !statusRef.current.contains(event.target)
-      ) {
+      if (statusRef.current && !statusRef.current.contains(event.target)) {
         setShowStatusDropdown(false);
       }
     };
@@ -269,13 +272,19 @@ const AllDocumentPage = () => {
           .includes(searchQuery.toLowerCase()) ||
         doesDateMatch(doc.uploaded_at, searchQuery) ||
         doesDateMatch(parsedDataMap[doc.id]?.document_date, searchQuery) ||
-        (doc.status || "").toLowerCase().includes(searchQuery.toLowerCase())
-      ) &&
-      (!processDateFilter || doesDateMatch(doc.uploaded_at, processDateFilter)) &&
-      (!documentDateFilter || doesDateMatch(parsedDataMap[doc.id]?.document_date, documentDateFilter)) &&
-      (!statusFilter || 
-        (statusFilter === "verified" && (doc.status || "").toLowerCase() === "verified") ||
-        (statusFilter === "verify_now" && (doc.status || "").toLowerCase() !== "verified"))
+        (doc.status || "").toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (!processDateFilter ||
+        doesDateMatch(doc.uploaded_at, processDateFilter)) &&
+      (!documentDateFilter ||
+        doesDateMatch(
+          parsedDataMap[doc.id]?.document_date,
+          documentDateFilter
+        )) &&
+      (!statusFilter ||
+        (statusFilter === "verified" &&
+          (doc.status || "").toLowerCase() === "verified") ||
+        (statusFilter === "verify_now" &&
+          (doc.status || "").toLowerCase() !== "verified"))
   );
 
   const totalPages = Math.ceil(filteredAndSortedItems.length / itemsPerPage);
@@ -594,7 +603,7 @@ const AllDocumentPage = () => {
               disabled={currentPage === 1}
               className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
             >
-              &lt;&lt;  
+              &lt;&lt;
             </button>
             <button
               onClick={() => setCurrentPage(currentPage - 1)}

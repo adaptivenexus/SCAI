@@ -12,7 +12,7 @@ const AccountDetails = () => {
     firstName: "",
     lastName: "",
     email: "",
-    phoneNumber: "+91 9999777788", // Phone number abhi fix hai, jab API se aaye tab replace karna
+    phoneNumber: "+91 9999777788",
     password: "***************",
   });
 

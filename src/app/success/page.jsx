@@ -196,6 +196,7 @@ const TransactionSuccess = () => {
       console.log(subscription);
     } else if (type === "registration") {
       // Placeholder: Add logic for handling new registration
+      console.log("registration");
       const newSubscription = {
         is_active: true,
         expires_on: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
@@ -208,17 +209,15 @@ const TransactionSuccess = () => {
         agency: subscription.agency,
       };
 
-      const resAddNewSubscription = await authFetch(
+      const resAddNewSubscription = await fetch(
         `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/agency-subscriptions/`,
         {
           method: "POST",
           body: JSON.stringify(newSubscription),
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
-        },
-        refreshTokenFn
+        }
       );
 
       if (!resAddNewSubscription.ok) {

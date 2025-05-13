@@ -47,16 +47,14 @@ export const AuthProvider = ({ children }) => {
 
   const getSubscription = async () => {
     try {
-      const response = await authFetch(
+      const response = await fetch(
         `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/agency-subscriptions/`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
-        },
-        refreshTokenFn
+        }
       );
 
       if (!response.ok) {
@@ -70,6 +68,7 @@ export const AuthProvider = ({ children }) => {
       let subscriptionData = data.find((item) => {
         return item.agency === JSON.parse(agency).id && item.is_active;
       });
+      console.log(subscriptionData);
 
       if (!subscriptionData) {
         subscriptionData = data
@@ -118,12 +117,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    getSubscriptions();
-
-    if (isAuthenticated()) {
-      getSubscription();
-    }
-
     // Check for stored tokens on mount
     const { userData } = getStoredTokens();
     if (userData) {
@@ -133,12 +126,20 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    getSubscriptions();
+
+    if (isAuthenticated()) {
+      getSubscription();
+    }
+  }, [user]);
+
+  useEffect(() => {
     if (subscription && subscription.plan) {
       getSubscriptionDetails(subscription.plan);
     }
   }, [subscription]);
 
-  const login = async (email, password) => {
+  const login = async (email, password, isReg = false) => {
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency/login/`,
@@ -158,16 +159,19 @@ export const AuthProvider = ({ children }) => {
 
       // Store tokens and user data
       storeTokens(tokens.access, tokens.refresh, agency);
-      setUser(agency);
+      setUser({ ...agency, id: 6 });
       localStorage.setItem("lastLogin", new Date().toISOString());
 
-      // Get redirect path from URL or default to dashboard
-      const params = new URLSearchParams(window.location.search);
-      const redirectPath = params.get("redirect") || "/dashboard/overview";
+      if (!isReg) {
+        // Get redirect path from URL or default to dashboard
 
-      // Redirect to the intended destination
-      router.push(redirectPath);
-      return true;
+        const params = new URLSearchParams(window.location.search);
+        const redirectPath = params.get("redirect") || "/dashboard/overview";
+
+        // Redirect to the intended destination
+        router.push(redirectPath);
+        return true;
+      }
     } catch (error) {
       console.error("Login error:", error);
       throw error;

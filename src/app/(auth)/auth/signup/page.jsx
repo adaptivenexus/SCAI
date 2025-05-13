@@ -13,12 +13,14 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { handleCheckout } from "@/utils/paymentGateway";
+import { authFetch } from "@/utils/auth";
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [aggrement, setAggrement] = useState(false);
-  const { subscriptions } = useAuth();
+  const { subscriptions, login, user } = useAuth();
 
   const [formData, setFormData] = useState({
     agency_name: "",
@@ -66,6 +68,38 @@ const SignUp = () => {
         setMessage({ type: "error", text: "Failed to create user" });
         return;
       }
+      // login the user after signup
+      await login(formData.email, formData.password, true);
+
+      // Asign Free Plan
+
+      const newPlan = {
+        is_active: true,
+        expires_on: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .slice(0, 10), // Extracts the date in "YYYY-MM-DD" format
+        plan: 1,
+        used_scans: 0,
+        registered_users_count: 1,
+        used_storage: 0,
+        agency: user.id,
+      };
+
+      const resAssignFreePlan = await authFetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/agency-subscriptions/`,
+        {
+          method: "POST",
+          body: JSON.stringify(newPlan),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        },
+        refreshTokenFn
+      );
+
+      console.log(resAssignFreePlan.json());
+
       // toast.success("User created successfully");
       setMessage({ type: "success", text: "User created successfully" });
 

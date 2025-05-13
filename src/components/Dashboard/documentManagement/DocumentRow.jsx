@@ -10,7 +10,13 @@ import { useAuth } from "@/context/AuthContext";
 import ManageDocument from "../common/ManageDocument";
 import { BiLoaderAlt } from "react-icons/bi";
 
-const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments, isDisabled }) => {
+const DocumentRow = ({
+  doc,
+  isSelected,
+  onSelect,
+  fetchDocuments,
+  isDisabled,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -120,7 +126,11 @@ const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments, isDisabled }) 
   }, [isOpen]);
 
   return (
-    <tr className={`hover:bg-gray-50 ${isDisabled && !isSelected ? "opacity-50" : ""}`}>
+    <tr
+      className={`hover:bg-gray-50 ${
+        isDisabled && !isSelected ? "opacity-50" : ""
+      }`}
+    >
       <td className="px-6 py-4">
         <div className="flex items-center gap-3">
           <input
@@ -182,15 +192,11 @@ const DocumentRow = ({ doc, isSelected, onSelect, fetchDocuments, isDisabled }) 
       </td>
       <td className="px-6 py-4">
         {!parsedData.suggested_title ? (
-          <span
-            className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800"
-          >
+          <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
             Processing <BiLoaderAlt className="animate-spin inline-block" />
           </span>
         ) : doc.status === "Verified" ? (
-          <span
-            className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800"
-          >
+          <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
             {doc?.status}
           </span>
         ) : (
