@@ -22,6 +22,7 @@ import {
 
 const DashboardPage = () => {
   const { clients, documents } = useContext(GlobalContext);
+  const [lastLogin, setLastLogin] = useState();
 
   const [jantojune, setJantojune] = useState([
     { name: "Jan", documents: 0 },
@@ -87,9 +88,12 @@ const DashboardPage = () => {
   });
 
   // Ensure localStorage is accessed only on the client side
-  const lastLogin =
-  typeof window !== "undefined" ? localStorage.getItem("lastLogin") : null;
 
+  useEffect(() => {
+    typeof window !== "undefined"
+      ? setLastLogin(localStorage.getItem("lastLogin"))
+      : null;
+  }, []);
 
   return (
     <div className="p-8 w-full flex flex-col gap-6">
@@ -287,6 +291,5 @@ const DashboardPage = () => {
   );
 };
 export default DashboardPage;
-
 
 // info@unitedhealth.com

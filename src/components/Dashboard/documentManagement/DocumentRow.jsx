@@ -32,12 +32,12 @@ const DocumentRow = ({
   };
 
   const type = getFileType(extractFilenameFromUrl(doc.file));
+  const accessToken =
+    typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
 
   const handleDelete = async () => {
     try {
       // Ensure localStorage is accessed only on the client side
-      const accessToken =
-        typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
 
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${doc.id}`,
