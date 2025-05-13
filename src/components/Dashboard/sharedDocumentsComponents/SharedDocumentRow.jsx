@@ -83,7 +83,7 @@ const SharedDocumentRow = ({ doc }) => {
         {new Date(doc.expires_at).toLocaleDateString()}
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-        {doc.access_password}
+        {doc.otp}
       </td>
     </tr>
   );

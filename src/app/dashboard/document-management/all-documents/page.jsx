@@ -82,7 +82,6 @@ const AllDocumentPage = () => {
 
   const fetchParsedData = async (docId) => {
     try {
-
        // Ensure localStorage is accessed only on the client side
        const accessToken =
        typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
@@ -609,14 +608,14 @@ const AllDocumentPage = () => {
               disabled={currentPage === 1}
               className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
             >
-              &lt;&lt;
+              {/* << */}
             </button>
             <button
               onClick={() => setCurrentPage(currentPage - 1)}
               disabled={currentPage === 1}
               className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
             >
-              &lt;
+              {/* < */}
             </button>
             {getVisiblePageNumbers().map((pageNum, index) => (
               <button
@@ -640,14 +639,14 @@ const AllDocumentPage = () => {
               disabled={currentPage === totalPages}
               className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
             >
-              &gt;
+              {/* > */}
             </button>
             <button
               onClick={() => setCurrentPage(totalPages)}
               disabled={currentPage === totalPages}
               className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
             >
-              &gt;&gt;
+              {/* >> */}
             </button>
           </div>
           <div className="text-sm text-foreground">

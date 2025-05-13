@@ -19,15 +19,15 @@ const SharedDocuments = () => {
         typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
 
       const res = await authFetch(
-        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/shares/shares/`,
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/api/v1/shares/history/`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
           },
-          refreshTokenFn,
-        }
+        },
+        refreshTokenFn
       );
       const data = await res.json();
       if (res.ok) {
@@ -76,7 +76,7 @@ const SharedDocuments = () => {
                 Expiry Date
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                Password
+                OTP
               </th>
             </tr>
           </thead>
