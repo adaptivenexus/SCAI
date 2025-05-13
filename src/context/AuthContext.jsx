@@ -163,7 +163,7 @@ export const AuthProvider = ({ children }) => {
 
       // Store tokens and user data
       storeTokens(tokens.access, tokens.refresh, agency);
-      setUser({ ...agency, id: 6 });
+      setUser({ ...agency, id: 54 });
       localStorage.setItem("lastLogin", new Date().toISOString());
 
       if (!isReg) {

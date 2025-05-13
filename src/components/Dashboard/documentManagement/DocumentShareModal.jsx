@@ -34,12 +34,10 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
   const { user, refreshTokenFn } = useAuth();
   const { clients } = useContext(GlobalContext);
   const [formData, setFormData] = useState({
-    access_password: "",
     expired_at: addHoursToCurrentTime(1),
     shared_by_agency: user.id,
     client_email: "",
   });
-  const [passwordError, setPasswordError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [loading, startTransition] = useTransition();
   const [parsedDataMap, setParsedDataMap] = useState({});
@@ -52,15 +50,12 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
     return email === client.email;
   }).id;
 
-  // console.log(clientEmail);
   // Fetch parsed data for each document
   const fetchParsedData = async (docId) => {
     try {
-
       // Ensure localStorage is accessed only on the client side
       const accessToken =
         typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
-
 
       const response = await authFetch(
         `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${docId}/parsed-data/`,
@@ -138,31 +133,6 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
     }
   };
 
-  const validatePassword = (password) => {
-    const minLength = password.length >= 8;
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasLowerCase = /[a-z]/.test(password);
-    const hasNumber = /[0-9]/.test(password);
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-
-    if (!minLength) {
-      return "Password must be at least 8 characters long.";
-    }
-    if (!hasUpperCase) {
-      return "Password must contain at least one uppercase letter.";
-    }
-    if (!hasLowerCase) {
-      return "Password must contain at least one lowercase letter.";
-    }
-    if (!hasNumber) {
-      return "Password must contain at least one number.";
-    }
-    if (!hasSpecialChar) {
-      return "Password must contain at least one special character.";
-    }
-    return "";
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     startTransition(() => {
@@ -179,14 +149,6 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
         return;
       }
 
-      // Validate password
-      const passwordErr = validatePassword(formData.access_password);
-      if (passwordErr) {
-        setPasswordError(passwordErr);
-        toast.error(passwordErr);
-        return;
-      }
-
       if (typeof window === "undefined") {
         toast.error("Cannot share document on server side.");
         return;
@@ -194,44 +156,43 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
 
       try {
         // Ensure localStorage is accessed only on the client side
-      const accessToken =
-      typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+        const accessToken =
+          typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
 
-      
-        docs.forEach(async (doc) => {
-          const shareDoc = {
-            document: doc.id,
-            client: clientId,
-            access_password: formData.access_password,
-            expires_at: formData.expired_at,
-            shared_by_agency: formData.shared_by_agency,
-          };
+        const shareDoc = {
+          document_ids: docs.map(doc => doc.id), // Send array of document IDs
+          client_id: clientId,
+          agency_id: 54,
+        };
 
-          const res = await authFetch(
-            `${process.env.NEXT_PUBLIC_SWAGGER_URL}/shares/shares/`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${accessToken}`,
-              },
-              body: JSON.stringify(shareDoc),
+        authFetch(
+          `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document-share/generate-batch-link/`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
             },
-            refreshTokenFn
-          );
+            body: JSON.stringify(shareDoc),
+          },
+          refreshTokenFn
+        ).then(res => {
           if (!res.ok) {
-            toast.error("Failed to share document. Please try again.");
-            throw new Error("Failed to share document");
+            toast.error("Failed to share documents.");
+            throw new Error("Failed to share documents");
           }
+          return res.json();
+        }).then(data => {
+          toast.success(`Documents shared! Link: ${data.shareable_url}, OTP: ${data.otp}`);
+          setIsShareDocumentOpen(false);
+          handleReset();
+        }).catch(error => {
+          console.error("Error:", error);
+          toast.error("Something went wrong");
         });
-
-        setIsShareDocumentOpen(false);
-        handleReset();
-        toast.success("Document shared successfully");
-        // window.location.href = "/dashboard/shared-doc"; // Fixed URL to /shared-doc
       } catch (error) {
         console.log("Something Went Wrong: " + error);
-        return;
+        toast.error("Something went wrong");
       }
     });
   };
@@ -275,30 +236,6 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
               />
               {emailError && (
                 <p className="text-red-500 text-sm mt-1">{emailError}</p>
-              )}
-            </div>
-            <div className="flex flex-col gap-1">
-              <label htmlFor="access_password" className="font-medium">
-                Access Password <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="access_password"
-                id="access_password"
-                className="border rounded-lg p-3 w-full outline-none"
-                value={formData.access_password}
-                placeholder="Enter access password"
-                required
-                onChange={(e) => {
-                  setFormData({
-                    ...formData,
-                    access_password: e.target.value,
-                  });
-                  setPasswordError("");
-                }}
-              />
-              {passwordError && (
-                <p className="text-red-500 text-sm mt-1">{passwordError}</p>
               )}
             </div>
             <button
