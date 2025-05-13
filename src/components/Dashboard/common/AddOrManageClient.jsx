@@ -85,13 +85,17 @@ const AddOrManageClient = ({
         }
       } else {
         try {
+          // Ensure localStorage is accessed only on the client side
+          const accessToken =
+          typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+
           const response = await fetch(
             `${process.env.NEXT_PUBLIC_SWAGGER_URL}/client/${oldClient.id}/`,
             {
               method: "PUT",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${accessToken}`,
               },
               body: JSON.stringify(client),
             }
