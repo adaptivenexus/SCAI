@@ -9,7 +9,11 @@ const SharedUserDocuments = () => {
   const [documents, setDocuments] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const { id } = useParams(); // Extract batch_id from URL
+  const { batchid } = useParams();
+
+  useEffect(() => {
+    console.log(batchid);
+  }, [batchid]);
 
   const handleVerify = async (e) => {
     e.preventDefault();
@@ -20,23 +24,30 @@ const SharedUserDocuments = () => {
 
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_SWAGGER_URL}/batch-access/${id}/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ otp }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document-share/batch-access/${batchid}/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ otp }),
+        }
+      );
       const data = await res.json();
       if (!res.ok) {
         throw new Error(data.error || "Invalid OTP");
       }
-      // Check if any document is already accessed
-      if (data.documents.some(doc => doc.access_count > 0 || doc.last_accessed_at)) {
-        setError("Documents already accessed.");
-        toast.error("Documents no longer available.");
-        return;
-      }
+      // // Check if any document is already accessed
+      // if (
+      //   data.documents.some(
+      //     (doc) => doc.access_count > 0 || doc.last_accessed_at
+      //   )
+      // ) {
+      //   setError("Documents already accessed.");
+      //   toast.error("Documents no longer available.");
+      //   return;
+      // }
       setDocuments(data.documents);
       toast.success("Documents accessed successfully!");
     } catch (error) {
@@ -46,6 +57,7 @@ const SharedUserDocuments = () => {
       setLoading(false);
     }
   };
+  // 973508
 
   return (
     <div className="p-6">
@@ -72,7 +84,9 @@ const SharedUserDocuments = () => {
             </div>
             <button
               type="submit"
-              className={`primary-btn ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+              className={`primary-btn ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
               disabled={loading}
             >
               {loading ? "Verifying..." : "Verify OTP"}
@@ -112,7 +126,9 @@ const SharedUserDocuments = () => {
                     {doc.access_count}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                    {doc.last_accessed_at ? new Date(doc.last_accessed_at).toLocaleDateString() : "Not accessed"}
+                    {doc.last_accessed_at
+                      ? new Date(doc.last_accessed_at).toLocaleDateString()
+                      : "Not accessed"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                     <a
