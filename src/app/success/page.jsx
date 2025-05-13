@@ -136,104 +136,69 @@ const TransactionSuccess = () => {
   }, [countdown, status, router]);
 
   const updatePlan = async () => {
+    // Ensure localStorage is accessed only on the client side
+    const accessToken =
+      typeof window !== "undefined"
+        ? localStorage.getItem("accessToken")
+        : null;
 
-     // Ensure localStorage is accessed only on the client side
-     const accessToken =
-     typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+    // Placeholder: Add logic for handling plan upgrade
+    const currentPlan = {
+      is_active: false,
+      expires_on: subscription.expires_on,
+      plan: subscription.plan,
+      agency: subscription.agency,
+      used_scans: subscription.used_scans,
+      registered_users_count: subscription.registered_users_count,
+      used_storage: subscription.used_storage,
+    };
 
-     
-    if (type === "upgrade") {
-      // Placeholder: Add logic for handling plan upgrade
-      const currentPlan = {
-        is_active: false,
-        expires_on: subscription.expires_on,
-        plan: subscription.plan,
-        agency: subscription.agency,
-        used_scans: subscription.used_scans,
-        registered_users_count: subscription.registered_users_count,
-        used_storage: subscription.used_storage,
-      };
-
-      const resUpdateCurrentPlan = await authFetch(
-        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/agency-subscriptions/${subscription.id}/`,
-        {
-          method: "PUT",
-          body: JSON.stringify(currentPlan),
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
+    const resUpdateCurrentPlan = await authFetch(
+      `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/agency-subscriptions/${subscription.id}/`,
+      {
+        method: "PUT",
+        body: JSON.stringify(currentPlan),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
-        refreshTokenFn
-      );
-      if (!resUpdateCurrentPlan.ok) {
-        setStatus("error");
-        setError("Failed to update plan");
-      }
-
-      const newPlan = {
-        is_active: true,
-        expires_on: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-          .toISOString()
-          .slice(0, 10), // Extracts the date in "YYYY-MM-DD" format
-        plan: plan,
-        used_scans: 0,
-        registered_users_count: currentPlan.registered_users_count,
-        used_storage: currentPlan.used_storage,
-        agency: subscription.agency,
-      };
-      const resAddNewPlan = await authFetch(
-        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/agency-subscriptions/`,
-        {
-          method: "POST",
-          body: JSON.stringify(newPlan),
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
-        refreshTokenFn
-      );
-      if (!resAddNewPlan.ok) {
-        setStatus("error");
-        setError("Failed to add new plan");
-      }
-      getSubscription();
-      console.log(subscription);
-    } else if (type === "registration") {
-      // Placeholder: Add logic for handling new registration
-      console.log("registration");
-      const newSubscription = {
-        is_active: true,
-        expires_on: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-          .toISOString()
-          .slice(0, 10), // Extracts the date in "YYYY-MM-DD" format
-        plan: plan,
-        used_scans: 0,
-        registered_users_count: 0,
-        used_storage: 0,
-        agency: subscription.agency,
-      };
-
-      const resAddNewSubscription = await fetch(
-        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/agency-subscriptions/`,
-        {
-          method: "POST",
-          body: JSON.stringify(newSubscription),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!resAddNewSubscription.ok) {
-        setStatus("error");
-        setError("Failed to add new subscription");
-      }
-
-      getSubscription();
-      console.log(subscription);
+      },
+      refreshTokenFn
+    );
+    if (!resUpdateCurrentPlan.ok) {
+      setStatus("error");
+      setError("Failed to update plan");
     }
+
+    const newPlan = {
+      is_active: true,
+      expires_on: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .slice(0, 10), // Extracts the date in "YYYY-MM-DD" format
+      plan: plan,
+      used_scans: 0,
+      registered_users_count: currentPlan.registered_users_count,
+      used_storage: currentPlan.used_storage,
+      agency: subscription.agency,
+    };
+    const resAddNewPlan = await authFetch(
+      `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/agency-subscriptions/`,
+      {
+        method: "POST",
+        body: JSON.stringify(newPlan),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+      refreshTokenFn
+    );
+    if (!resAddNewPlan.ok) {
+      setStatus("error");
+      setError("Failed to add new plan");
+    }
+    getSubscription();
+    console.log(subscription);
   };
 
   useEffect(() => {

@@ -20,7 +20,8 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [aggrement, setAggrement] = useState(false);
-  const { subscriptions, login, user } = useAuth();
+  const { subscriptions, login, user, getSubscription, refreshTokenFn } =
+    useAuth();
 
   const [formData, setFormData] = useState({
     agency_name: "",
@@ -85,7 +86,7 @@ const SignUp = () => {
         agency: user.id,
       };
 
-      const resAssignFreePlan = await authFetch(
+      await authFetch(
         `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/agency-subscriptions/`,
         {
           method: "POST",
@@ -98,7 +99,7 @@ const SignUp = () => {
         refreshTokenFn
       );
 
-      console.log(resAssignFreePlan.json());
+      getSubscription();
 
       // toast.success("User created successfully");
       setMessage({ type: "success", text: "User created successfully" });
