@@ -38,21 +38,11 @@ const SharedUserDocuments = () => {
       if (!res.ok) {
         throw new Error(data.error || "Invalid OTP");
       }
-      // // Check if any document is already accessed
-      // if (
-      //   data.documents.some(
-      //     (doc) => doc.access_count > 0 || doc.last_accessed_at
-      //   )
-      // ) {
-      //   setError("Documents already accessed.");
-      //   toast.error("Documents no longer available.");
-      //   return;
-      // }
       setDocuments(data.documents);
       toast.success("Documents accessed successfully!");
     } catch (error) {
       setError(error.message);
-      toast.error(error.message);
+      toast.error("Wrong OTP");
     } finally {
       setLoading(false);
     }
@@ -62,10 +52,10 @@ const SharedUserDocuments = () => {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="heading-5">Access Shared Documents</h2>
+        <h2 className="heading-5">Shared Documents</h2>
       </div>
 
-      {!documents.length && !error ? (
+      {documents.length === 0 && (
         <form onSubmit={handleVerify} className="mb-6">
           <div className="flex flex-col gap-4 max-w-md">
             <div className="flex flex-col gap-1">
@@ -93,11 +83,9 @@ const SharedUserDocuments = () => {
             </button>
           </div>
         </form>
-      ) : null}
+      )}
 
-      {error ? (
-        <p className="text-red-500">{error}</p>
-      ) : documents.length > 0 ? (
+      {documents.length > 0 ? (
         <div className="bg-white rounded-lg border border-gray-200">
           <table className="w-full">
             <thead className="bg-accent-primary">
