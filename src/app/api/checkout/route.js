@@ -7,13 +7,23 @@ export async function POST(req) {
   try {
     const { plan, isNewRegistration } = await req.json();
 
-    const fetchedPlanDetails = await fetch(
+    const response = await fetch(
       `${process.env.NEXT_PUBLIC_SWAGGER_URL}/subscription_plan/list/`
     );
-    console.log(fetchedPlanDetails);
-    const planDetails = (await fetchedPlanDetails.json()).find(
-      (item) => item.id === plan
-    );
+    if (!response.ok) {
+      throw new Error(`Failed to fetch plan list: ${response.status}`);
+    }
+    const data = await response.json();
+    let planDetails;
+    if (Array.isArray(data)) {
+      planDetails = data.find((item) => item.id == plan); // loose equality for type safety
+    } else {
+      throw new Error("Plan list response is not an array");
+    }
+    if (!planDetails) {
+      throw new Error(`Plan with id ${plan} not found`);
+    }
+
     console.log(planDetails);
 
     const sessionConfig = {

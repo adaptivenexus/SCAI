@@ -69,14 +69,34 @@ export const AuthProvider = ({ children }) => {
       let subscriptionData = data.find((item) => {
         return item.agency === JSON.parse(agency).id && item.is_active;
       });
-      console.log(subscriptionData);
 
       if (!subscriptionData) {
-        subscriptionData = data
-          .filter((item) => item.agency === JSON.parse(agency).id)
-          .sort(
-            (a, b) => new Date(b.subscribed_on) - new Date(a.subscribed_on)
-          )[0];
+        const newPlan = {
+          is_active: true,
+          expires_on: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .slice(0, 10), // Extracts the date in "YYYY-MM-DD" format
+          plan: 1,
+          used_scans: 0,
+          registered_users_count: 1,
+          used_storage: 0,
+          agency: user.id,
+        };
+
+        await authFetch(
+          `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/add/`,
+          {
+            method: "POST",
+            body: JSON.stringify(newPlan),
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          },
+          refreshTokenFn
+        );
+
+        return getSubscription();
       }
 
       setSubscription(subscriptionData || {});
@@ -125,7 +145,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     getSubscriptions();
 
-    if (isAuthenticated()) {
+    if (isAuthenticated() && user) {
       getSubscription();
     }
   }, [user]);
