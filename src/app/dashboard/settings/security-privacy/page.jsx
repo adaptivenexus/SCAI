@@ -1,6 +1,78 @@
 "use client";
 
+import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { authFetch } from "@/utils/auth";
+import { toast } from "react-toastify";
+
 const SecurityPrivacyPage = () => {
+  const { user, refreshTokenFn } = useAuth();
+  const [formData, setFormData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      if (formData.newPassword !== formData.confirmPassword) {
+        toast.error("New password and confirm password do not match");
+        return;
+      }
+
+      const payload = {
+        old_password: formData.currentPassword,
+        new_password: formData.newPassword,
+      };
+
+      const res = await authFetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency/change-password/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          body: JSON.stringify(payload),
+        },
+        refreshTokenFn
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to update password");
+      }
+
+      toast.success("Password updated successfully!");
+      setFormData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } catch (error) {
+      console.error("Error updating password:", error);
+      toast.error("Failed to update password");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReset = () => {
+    setFormData({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-2">
@@ -11,7 +83,7 @@ const SecurityPrivacyPage = () => {
         </p>
       </div>
       <form
-        onSubmit={() => {}}
+        onSubmit={handlePasswordSubmit}
         className="w-full p-6 bg-white shadow-lg space-y-6 rounded-xl border"
       >
         <div className="space-y-2">
@@ -22,6 +94,8 @@ const SecurityPrivacyPage = () => {
             type="password"
             name="currentPassword"
             id="currentPassword"
+            value={formData.currentPassword}
+            onChange={handleInputChange}
             className="py-3 px-2 rounded-xl bg-slate-100 w-full outline-none border disabled:opacity-70"
             placeholder="Enter your current password"
           />
@@ -35,6 +109,8 @@ const SecurityPrivacyPage = () => {
               type="password"
               name="newPassword"
               id="newPassword"
+              value={formData.newPassword}
+              onChange={handleInputChange}
               className="py-3 px-2 rounded-xl bg-slate-100 w-full outline-none border disabled:opacity-70"
               placeholder="Enter your new password"
             />
@@ -47,20 +123,32 @@ const SecurityPrivacyPage = () => {
               type="password"
               name="confirmPassword"
               id="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
               className="py-3 px-2 rounded-xl bg-slate-100 w-full outline-none border disabled:opacity-70"
               placeholder="Re-enter your new password"
             />
           </div>
         </div>
         <div className="space-x-4">
-          <button type="button" className="secondary-btn px-8">
+          <button
+            type="button"
+            onClick={handleReset}
+            className="secondary-btn px-8"
+            disabled={loading}
+          >
             Reset
           </button>
-          <button type="submit" className="primary-btn px-8">
-            Submit
+          <button
+            type="submit"
+            className="primary-btn px-8"
+            disabled={loading}
+          >
+            {loading ? "Submitting..." : "Submit"}
           </button>
         </div>
       </form>
+
       <div className="p-6 bg-white shadow-lg rounded-xl border flex items-center justify-between">
         <div className="space-y-2">
           <h5 className="heading-5">Two-Factor Authentication</h5>
