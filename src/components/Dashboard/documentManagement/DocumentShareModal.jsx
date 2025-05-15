@@ -55,7 +55,9 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
     try {
       // Ensure localStorage is accessed only on the client side
       const accessToken =
-        typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+        typeof window !== "undefined"
+          ? localStorage.getItem("accessToken")
+          : null;
 
       const response = await authFetch(
         `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${docId}/parsed-data/`,
@@ -157,12 +159,14 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
       try {
         // Ensure localStorage is accessed only on the client side
         const accessToken =
-          typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+          typeof window !== "undefined"
+            ? localStorage.getItem("accessToken")
+            : null;
 
         const shareDoc = {
-          document_ids: docs.map(doc => doc.id), // Send array of document IDs
+          document_ids: docs.map((doc) => doc.id), // Send array of document IDs
           client_id: clientId,
-          agency_id: 54,
+          agency_id: user.id,
         };
 
         authFetch(
@@ -176,20 +180,25 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
             body: JSON.stringify(shareDoc),
           },
           refreshTokenFn
-        ).then(res => {
-          if (!res.ok) {
-            toast.error("Failed to share documents.");
-            throw new Error("Failed to share documents");
-          }
-          return res.json();
-        }).then(data => {
-          toast.success(`Documents shared! Link: ${data.shareable_url}, OTP: ${data.otp}`);
-          setIsShareDocumentOpen(false);
-          handleReset();
-        }).catch(error => {
-          console.error("Error:", error);
-          toast.error("Something went wrong");
-        });
+        )
+          .then((res) => {
+            if (!res.ok) {
+              toast.error("Failed to share documents.");
+              throw new Error("Failed to share documents");
+            }
+            return res.json();
+          })
+          .then((data) => {
+            toast.success(
+              `Documents shared! Link: ${data.shareable_url}, OTP: ${data.otp}`
+            );
+            setIsShareDocumentOpen(false);
+            handleReset();
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            toast.error("Something went wrong");
+          });
       } catch (error) {
         console.log("Something Went Wrong: " + error);
         toast.error("Something went wrong");

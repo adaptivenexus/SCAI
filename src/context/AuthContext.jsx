@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
   const getSubscriptions = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/subscription_plan/plans/`,
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/subscription_plan/list/`,
         {
           method: "GET",
           headers: {
@@ -48,11 +48,12 @@ export const AuthProvider = ({ children }) => {
   const getSubscription = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/agency-subscriptions/`,
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/subscriptions/`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
         }
       );
@@ -99,24 +100,14 @@ export const AuthProvider = ({ children }) => {
           ? localStorage.getItem("accessToken")
           : null;
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/subscription_plan/plans/${id}/`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      const response = subscriptions.find((item) => item.id === id);
 
-      if (!response.ok) {
+      if (!response) {
         throw new Error("Failed to fetch subscription");
       }
 
-      const data = await response.json();
-      setSubscriptionDetails(data);
-      console.log(data);
+      setSubscriptionDetails(response);
+      console.log(response);
     } catch (error) {
       console.error("Error fetching subscription:", error);
     }
@@ -165,7 +156,7 @@ export const AuthProvider = ({ children }) => {
 
       // Store tokens and user data
       storeTokens(tokens.access, tokens.refresh, agency);
-      setUser({ ...agency, id: 54 });
+      setUser(agency);
       localStorage.setItem("lastLogin", new Date().toISOString());
 
       if (!isReg) {

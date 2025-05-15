@@ -16,7 +16,6 @@ export const storeTokens = (accessToken, refreshToken, userData) => {
   if (userData) {
     // Store user data in localStorage
     // alter user data to add hardcoded agency id
-    userData.id = 54; // for temporary testing
 
     localStorage.setItem(USER_DATA_KEY, JSON.stringify(userData));
   }

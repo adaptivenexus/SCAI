@@ -87,7 +87,7 @@ const SignUp = () => {
       };
 
       await authFetch(
-        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/agency-subscriptions/`,
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/add/`,
         {
           method: "POST",
           body: JSON.stringify(newPlan),

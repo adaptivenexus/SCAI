@@ -154,7 +154,7 @@ const TransactionSuccess = () => {
     };
 
     const resUpdateCurrentPlan = await authFetch(
-      `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/agency-subscriptions/${subscription.id}/`,
+      `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/update/${subscription.id}/`,
       {
         method: "PUT",
         body: JSON.stringify(currentPlan),
@@ -182,7 +182,7 @@ const TransactionSuccess = () => {
       agency: subscription.agency,
     };
     const resAddNewPlan = await authFetch(
-      `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/agency-subscriptions/`,
+      `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/add/`,
       {
         method: "POST",
         body: JSON.stringify(newPlan),

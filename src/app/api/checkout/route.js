@@ -8,9 +8,13 @@ export async function POST(req) {
     const { plan, isNewRegistration } = await req.json();
 
     const fetchedPlanDetails = await fetch(
-      `${process.env.NEXT_PUBLIC_SWAGGER_URL}/subscription_plan/plans/${plan}/`
+      `${process.env.NEXT_PUBLIC_SWAGGER_URL}/subscription_plan/list/`
     );
-    const planDetails = await fetchedPlanDetails.json();
+    console.log(fetchedPlanDetails);
+    const planDetails = (await fetchedPlanDetails.json()).find(
+      (item) => item.id === plan
+    );
+    console.log(planDetails);
 
     const sessionConfig = {
       payment_method_types: ["card"],
