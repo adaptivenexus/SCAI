@@ -17,7 +17,7 @@ const UpgradePlanPage = () => {
         "Smart Scan 25 pages",
         "FAQ support",
         "No customization",
-        "No API access",
+        "1 GB storage",
       ],
     },
     {
@@ -26,8 +26,8 @@ const UpgradePlanPage = () => {
         "Smart Scan 100 pages",
         "Email Support",
         "Limited customization",
-        "No API access",
-        "API access",
+        "5 GB storage",
+        "Smart Dashboard",
       ],
     },
     {
@@ -37,7 +37,8 @@ const UpgradePlanPage = () => {
         "Priority support",
         "Modrate customization",
         "API access",
-        "Custom integration",
+        "10 GB storage",
+        "Smart Dashboard",
       ],
     },
     {
@@ -47,8 +48,8 @@ const UpgradePlanPage = () => {
         "24/7 dedicated support",
         "Extensive customization",
         "API access",
-        "Custom integration",
-        "Custom pricing",
+        "50 GB storage",
+        "Smart Dashboard",
       ],
     },
   ];
@@ -114,7 +115,7 @@ const UpgradePlanPage = () => {
                 disabled={subscription.plan === sub.id && sub.id === 0}
                 className="bg-primary text-white rounded-md py-2 mt-auto"
               >
-                Get Started
+                Upgrade Plan
               </button>
             )}
           </div>
