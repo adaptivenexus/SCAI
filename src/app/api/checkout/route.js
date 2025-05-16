@@ -10,6 +10,7 @@ export async function POST(req) {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SWAGGER_URL}/subscription_plan/list/`
     );
+
     if (!response.ok) {
       throw new Error(`Failed to fetch plan list: ${response.status}`);
     }

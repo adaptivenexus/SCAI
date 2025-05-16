@@ -114,13 +114,8 @@ export const AuthProvider = ({ children }) => {
 
   const getSubscriptionDetails = async (id) => {
     try {
-      // Ensure localStorage is accessed only on the client side
-      const accessToken =
-        typeof window !== "undefined"
-          ? localStorage.getItem("accessToken")
-          : null;
-
       const response = subscriptions.find((item) => item.id === id);
+      console.log(response);
 
       if (!response) {
         throw new Error("Failed to fetch subscription");
@@ -151,10 +146,10 @@ export const AuthProvider = ({ children }) => {
   }, [user]);
 
   useEffect(() => {
-    if (subscription && subscription.plan) {
+    if (subscription && subscription.plan && user) {
       getSubscriptionDetails(subscription.plan);
     }
-  }, [subscription]);
+  }, [subscription, user]);
 
   const login = async (email, password, isReg = false) => {
     try {
