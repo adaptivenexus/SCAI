@@ -106,7 +106,6 @@ export const AuthProvider = ({ children }) => {
         .sort((a, b) => new Date(b.subscribed_on) - new Date(a.subscribed_on));
 
       setPreviousSubscriptions(previousSubscriptionData);
-      console.log(data);
     } catch (error) {
       console.error("Error fetching subscription:", error);
     }
@@ -115,14 +114,12 @@ export const AuthProvider = ({ children }) => {
   const getSubscriptionDetails = async (id) => {
     try {
       const response = subscriptions.find((item) => item.id === id);
-      console.log(response);
 
       if (!response) {
         throw new Error("Failed to fetch subscription");
       }
 
       setSubscriptionDetails(response);
-      console.log(response);
     } catch (error) {
       console.error("Error fetching subscription:", error);
     }

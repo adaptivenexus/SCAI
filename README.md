@@ -1,9 +1,8 @@
-agency:6
-expires_on:"2025-05-30"
-id:2
-is_active:true
-plan:1
-registered_users_count:1
-subscribed_on:"2025-05-02T12:27:11.183120Z"
-used_scans:0
-used_storage:0
+{
+  "email": "member1@unaicc.net",
+  "password": "United@1234",
+  "password2": "United@1234",
+  "member_name": "Member 1",
+  "phone_number": "9292929292",
+  "agency": 6
+}

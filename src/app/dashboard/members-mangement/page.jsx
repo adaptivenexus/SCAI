@@ -1,16 +1,25 @@
-'use client';
+"use client";
 import { HiChevronUpDown } from "react-icons/hi2";
 import { HiOutlineEllipsisVertical } from "react-icons/hi2";
 import { IoFilterSharp } from "react-icons/io5";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
+import { authFetch } from "@/utils/auth";
+import { useAuth } from "@/context/AuthContext";
 
 // Main component for managing agency members
 const MembersManagementPage = () => {
+  const { refreshTokenFn } = useAuth();
+
   // State for members list (will come from API later)
+
   const [members, setMembers] = useState([]);
   // State for modal (open/close, edit mode, form data)
-  const [modal, setModal] = useState({ isOpen: false, isEditMode: false, editId: null });
+  const [modal, setModal] = useState({
+    isOpen: false,
+    isEditMode: false,
+    editId: null,
+  });
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -34,18 +43,49 @@ const MembersManagementPage = () => {
       member.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       member.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
+  const fetchMembers = async () => {
+    try {
+      const res = await authFetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency-member/members/`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        },
+        refreshTokenFn
+      );
+      const data = await res.json();
+      if (Array.isArray(data.agency_members)) {
+        setMembers(
+          data.agency_members.map((m) => ({
+            id: m.id,
+            fullName: m.member_name,
+            email: m.email,
+            phoneNumber: m.phone_number,
+            added: new Date(m.created_at).toLocaleDateString(),
+            lastActive: m.is_active ? "Active" : "Inactive",
+            role: "Member", // Default role, adjust if API provides role
+          }))
+        );
+      }
+    } catch (err) {
+      setMessage({ type: "error", text: "Failed to fetch members." });
+    }
+  };
   // Fetch members on component mount (API integration point)
   useEffect(() => {
-    // TODO: Replace this with API call to fetch members
-    // Example: fetch('/api/members').then(res => res.json()).then(data => setMembers(data));
-    // For now, keeping members empty initially
+    fetchMembers();
   }, []);
 
   // Close actions dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (actionsDropdownRef.current && !actionsDropdownRef.current.contains(event.target)) {
+      if (
+        actionsDropdownRef.current &&
+        !actionsDropdownRef.current.contains(event.target)
+      ) {
         setActionsIndex(null);
       }
     };
@@ -55,11 +95,22 @@ const MembersManagementPage = () => {
 
   // Open modal for adding/editing members
   const openModal = (editMode = false, member = null) => {
-    setModal({ isOpen: true, isEditMode: editMode, editId: member?.id || null });
+    setModal({
+      isOpen: true,
+      isEditMode: editMode,
+      editId: member?.id || null,
+    });
     setFormData(
       editMode
         ? { ...member, password: "", confirmPassword: "" }
-        : { fullName: "", email: "", phoneNumber: "", password: "", confirmPassword: "", role: "Administrator" }
+        : {
+            fullName: "",
+            email: "",
+            phoneNumber: "",
+            password: "",
+            confirmPassword: "",
+            role: "Administrator",
+          }
     );
     setMessage({ type: "", text: "" });
   };
@@ -67,7 +118,14 @@ const MembersManagementPage = () => {
   // Close modal and reset form
   const closeModal = () => {
     setModal({ isOpen: false, isEditMode: false, editId: null });
-    setFormData({ fullName: "", email: "", phoneNumber: "", password: "", confirmPassword: "", role: "Administrator" });
+    setFormData({
+      fullName: "",
+      email: "",
+      phoneNumber: "",
+      password: "",
+      confirmPassword: "",
+      role: "Administrator",
+    });
     setMessage({ type: "", text: "" });
   };
 
@@ -80,48 +138,55 @@ const MembersManagementPage = () => {
   // Validate form inputs before saving
   const validateForm = () => {
     if (!formData.fullName) return "Full Name is required.";
-    if (!formData.email || !formData.email.includes("@")) return "Please enter a valid email.";
-    if (!formData.phoneNumber || formData.phoneNumber.length < 10) return "Please enter a valid phone number.";
+    if (!formData.email || !formData.email.includes("@"))
+      return "Please enter a valid email.";
+    if (!formData.phoneNumber || formData.phoneNumber.length < 10)
+      return "Please enter a valid phone number.";
     if (!modal.isEditMode) {
-      if (!formData.password || formData.password.length < 8) return "Password must be at least 8 characters.";
-      if (formData.password !== formData.confirmPassword) return "Passwords do not match.";
+      if (!formData.password || formData.password.length < 8)
+        return "Password must be at least 8 characters.";
+      if (formData.password !== formData.confirmPassword)
+        return "Passwords do not match.";
     }
     return "";
   };
 
   // Save member (add or edit)
-  const handleSave = () => {
+  const handleSave = async () => {
     const validationError = validateForm();
     if (validationError) {
       setMessage({ type: "error", text: validationError });
       return;
     }
 
-    const timestamp = new Date().toLocaleTimeString();
-    if (modal.isEditMode) {
-      // TODO: Replace this with API call to update member
-      // Example: fetch(`/api/members/${modal.editId}`, { method: 'PUT', body: JSON.stringify(formData) });
-      setMembers(
-        members.map((member) =>
-          member.id === modal.editId
-            ? { ...member, ...formData, lastActive: timestamp }
-            : member
-        )
+    // Add member via API
+    try {
+      const res = await authFetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency-member/add/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+            password2: formData.confirmPassword,
+            member_name: formData.fullName,
+            phone_number: formData.phoneNumber,
+            agency: 0, // TODO: Replace with actual agency ID if available
+          }),
+        },
+        refreshTokenFn
       );
-      setMessage({ type: "success", text: "Member updated successfully!" });
-    } else {
-      // TODO: Replace this with API call to add member
-      // Example: fetch('/api/members', { method: 'POST', body: JSON.stringify(formData) });
-      const newMember = {
-        id: Date.now(), // Temporary ID, should come from API
-        ...formData,
-        added: timestamp,
-        lastActive: "Not yet",
-      };
-      setMembers([...members, newMember]);
+      if (!res.ok) throw new Error("Failed to add member");
       setMessage({ type: "success", text: "Member added successfully!" });
+      fetchMembers(); // Refresh list
+      setTimeout(closeModal, 1000);
+    } catch (err) {
+      setMessage({ type: "error", text: "Failed to add member." });
     }
-    setTimeout(closeModal, 1000);
   };
 
   // Remove member
@@ -142,7 +207,9 @@ const MembersManagementPage = () => {
     <div className="p-6">
       {/* Header Section */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-800">Members Management</h1>
+        <h1 className="text-2xl font-semibold text-gray-800">
+          Members Management
+        </h1>
       </div>
 
       {/* Main Container */}
@@ -163,9 +230,13 @@ const MembersManagementPage = () => {
               + Add Members
             </button>
             <div className="flex flex-col items-end mt-4 gap-2">
-              <h2 className="heading-5 text-foreground">{members.length} of 20</h2>
+              <h2 className="heading-5 text-foreground">
+                {members.length} of 20
+              </h2>
               <p className="body-text text-secondary-foreground">User Seats</p>
-              <h2 className="body-text text-secondary-foreground">20 included in plan</h2>
+              <h2 className="body-text text-secondary-foreground">
+                20 included in plan
+              </h2>
               <h2 className="body-text text-primary">Get More Seats</h2>
             </div>
           </div>
@@ -173,14 +244,29 @@ const MembersManagementPage = () => {
 
         {/* Success/Error Messages */}
         {message.text && (
-          <div className={`mb-4 p-3 rounded-lg flex items-center gap-2 ${message.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div
+            className={`mb-4 p-3 rounded-lg flex items-center gap-2 ${
+              message.type === "success"
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+            }`}
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="2"
-                d={message.type === "success" ? "M5 13l4 4L19 7" : "M6 18L18 6M6 6l12 12"}
-              />  
+                d={
+                  message.type === "success"
+                    ? "M5 13l4 4L19 7"
+                    : "M6 18L18 6M6 6l12 12"
+                }
+              />
             </svg>
             {message.text}
           </div>
@@ -240,7 +326,9 @@ const MembersManagementPage = () => {
                   </td>
                   <td className="text-forground label-text">{member.role}</td>
                   <td className="text-forground label-text">{member.added}</td>
-                  <td className="text-forground label-text">{member.lastActive}</td>
+                  <td className="text-forground label-text">
+                    {member.lastActive}
+                  </td>
                   <td>
                     <div className="relative flex items-center justify-center gap-1">
                       <button
@@ -285,13 +373,28 @@ const MembersManagementPage = () => {
               {modal.isEditMode ? "Edit Member" : "Add New Member"}
             </h2>
             {message.text && (
-              <div className={`mb-4 p-3 rounded-lg flex items-center gap-2 ${message.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div
+                className={`mb-4 p-3 rounded-lg flex items-center gap-2 ${
+                  message.type === "success"
+                    ? "bg-green-100 text-green-800"
+                    : "bg-red-100 text-red-800"
+                }`}
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
-                    d={message.type === "success" ? "M5 13l4 4L19 7" : "M6 18L18 6M6 6l12 12"}
+                    d={
+                      message.type === "success"
+                        ? "M5 13l4 4L19 7"
+                        : "M6 18L18 6M6 6l12 12"
+                    }
                   />
                 </svg>
                 {message.text}
@@ -299,7 +402,9 @@ const MembersManagementPage = () => {
             )}
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Full Name
+                </label>
                 <input
                   type="text"
                   name="fullName"
@@ -310,7 +415,9 @@ const MembersManagementPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Email</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Email
+                </label>
                 <input
                   type="email"
                   name="email"
@@ -321,7 +428,9 @@ const MembersManagementPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Phone Number
+                </label>
                 <input
                   type="text"
                   name="phoneNumber"
@@ -341,12 +450,16 @@ const MembersManagementPage = () => {
                   value={formData.password}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border rounded-md focus:outline-primary"
-                  placeholder={modal.isEditMode ? "Set new password" : "Enter password"}
+                  placeholder={
+                    modal.isEditMode ? "Set new password" : "Enter password"
+                  }
                 />
               </div>
               {!modal.isEditMode && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Confirm Password
+                  </label>
                   <input
                     type="password"
                     name="confirmPassword"
@@ -358,7 +471,9 @@ const MembersManagementPage = () => {
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-700">Role</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Role
+                </label>
                 <select
                   name="role"
                   value={formData.role}

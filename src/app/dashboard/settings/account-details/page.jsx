@@ -6,7 +6,6 @@ import { useAuth } from "@/context/AuthContext";
 import { authFetch } from "@/utils/auth";
 import { toast } from "react-toastify";
 
-
 const AccountDetails = () => {
   const { user, refreshTokenFn } = useAuth();
 
@@ -31,6 +30,7 @@ const AccountDetails = () => {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
           },
           refreshTokenFn
@@ -85,7 +85,7 @@ const AccountDetails = () => {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization : `Bearer ${localStorage.getItem("accessToken")}`,
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
           body: JSON.stringify(payload),
         },

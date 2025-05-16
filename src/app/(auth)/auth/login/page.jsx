@@ -21,6 +21,7 @@ const Login = () => {
     email: "",
     password: "",
   });
+  const [activeTab, setActiveTab] = useState("agency"); // "agency" or "member"
 
   // Redirect to dashboard if already logged in
   useEffect(() => {
@@ -59,23 +60,40 @@ const Login = () => {
   return (
     <section className="h-screen w-screen flex items-center justify-center">
       <div className="space-y-8 bg-white p-4 md:p-10 lg:p-20 rounded-2xl shadow-lg max-lg:w-full mx-4">
-        <div>
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="flex gap-2 items-center bg-slate-50 rounded-full w-max px-4 py-1 border"
-          >
-            <FaArrowLeft />
-            <span>Back</span>
-          </button>
-        </div>
         <div className="flex gap-10">
           <div className="flex-1 space-y-6">
             <div className="space-y-3">
-              <h3 className="heading-3">Login</h3>
+              <h3 className="heading-3">
+                {activeTab === "agency" ? "Agency Login" : "Member Login"}
+              </h3>
               <p className="subtitle-text text-secondary-foreground">
                 Login to access your account
               </p>
+            </div>
+            {/* Tabs for Agency and Member Login - moved above input fields */}
+            <div className="flex justify-center mb-4">
+              <button
+                type="button"
+                className={`px-6 py-2 rounded-t-lg font-semibold border-b-2 transition-colors duration-200 ${
+                  activeTab === "agency"
+                    ? "border-primary text-primary"
+                    : "border-transparent text-gray-500"
+                }`}
+                onClick={() => setActiveTab("agency")}
+              >
+                Agency Login
+              </button>
+              <button
+                type="button"
+                className={`px-6 py-2 rounded-t-lg font-semibold border-b-2 transition-colors duration-200 ${
+                  activeTab === "member"
+                    ? "border-primary text-primary"
+                    : "border-transparent text-gray-500"
+                }`}
+                onClick={() => setActiveTab("member")}
+              >
+                Member Login
+              </button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-7">
               <div className="space-y-4">
