@@ -30,11 +30,11 @@ const DashboardLayout = ({ children }) => {
   return (
     <GlobalDashboardProvider>
       <div className="flex min-h-screen bg-white">
-        <div className="sticky top-0 left-0 h-screen z-40">
+        <div className="sticky top-0 left-0 h-screen">
           <Sidebar />
         </div>
         <main className="flex-1 min-w-0 flex flex-col transition-[margin] duration-300 ease-in-out">
-          <header className="py-4 px-6 bg-white shadow-md z-30">
+          <header className="py-4 px-6 bg-white shadow-md">
             <div className="flex items-center justify-between">
               <div
                 ref={dropdownRef}
