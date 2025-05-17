@@ -82,9 +82,11 @@ const AllDocumentPage = () => {
 
   const fetchParsedData = async (docId) => {
     try {
-       // Ensure localStorage is accessed only on the client side
-       const accessToken =
-       typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+      // Ensure localStorage is accessed only on the client side
+      const accessToken =
+        typeof window !== "undefined"
+          ? localStorage.getItem("accessToken")
+          : null;
 
       // Fetch parsed data for the document
       const response = await authFetch(
@@ -343,330 +345,326 @@ const AllDocumentPage = () => {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="heading-5">All Documents</h2>
-        <div className="flex gap-2">
-          {selectedDocuments.size > 0 && (
-            <>
-              <button
-                className="primary-btn bg-red-500 hover:bg-red-600"
-                onClick={handleDelete}
-              >
-                Delete
-              </button>
-              <button
-                className="primary-btn"
-                onClick={() => setIsShareDocumentOpen(true)}
-              >
-                Share
-              </button>
-              <button className="primary-btn" onClick={handleReset}>
-                Reset
-              </button>
-            </>
-          )}
-          <Link
-            className="primary-btn"
-            href={"/dashboard/document-management/add-documents"}
-          >
-            Add Document
-          </Link>
-        </div>
-      </div>
-
-      <div className="flex justify-between items-center mb-6 gap-4">
-        <div className="relative flex-1">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search by client, document, category, date, or status"
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-blue-500"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          </div>
-        </div>
-        <button
-          onClick={() => {
-            window.location.reload();
-          }}
-          className="px-4 py-2 rounded-lg border border-gray-200 flex items-center gap-2 hover:bg-gray-50"
-        >
-          <IoIosRefresh />
-          Refresh
-        </button>
-        <button className="px-4 py-2 rounded-lg border border-gray-200 flex items-center gap-2 hover:bg-gray-50">
-          <FiDownload />
-          Export
-        </button>
-      </div>
-
-      <div className="bg-white rounded-lg border border-gray-200">
-        <table className="w-full">
-          <thead className="bg-accent-primary">
-            <tr>
-              <th
-                className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
-                onClick={() => handleSort("client")}
-              >
-                Associated To
-                {sortConfig.key === "client" && (
-                  <span className="ml-1">
-                    {sortConfig.direction === "asc" ? "↑" : "↓"}
-                  </span>
-                )}
-              </th>
-              <th
-                className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
-                onClick={() => handleSort("file")}
-              >
-                Document
-                {sortConfig.key === "file" && (
-                  <span className="ml-1">
-                    {sortConfig.direction === "asc" ? "↑" : "↓"}
-                  </span>
-                )}
-              </th>
-              <th
-                className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
-                onClick={() => handleSort("category")}
-              >
-                Category
-                {sortConfig.key === "category" && (
-                  <span className="ml-1">
-                    {sortConfig.direction === "asc" ? "↑" : "↓"}
-                  </span>
-                )}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                <div className="relative" ref={processDateRef}>
-                  <div
-                    className="flex items-center gap-2 cursor-pointer"
-                    onClick={() =>
-                      setShowProcessDatePicker(!showProcessDatePicker)
-                    }
-                  >
-                    <span>Process Date</span>
-                    <svg
-                      className={`w-4 h-4 transition-transform ${
-                        showProcessDatePicker ? "rotate-180" : ""
-                      }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </div>
-                  {showProcessDatePicker && (
-                    <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
-                      <input
-                        type="date"
-                        className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
-                        value={processDateFilter}
-                        onChange={(e) => setProcessDateFilter(e.target.value)}
-                      />
-                      {processDateFilter && (
-                        <button
-                          onClick={() => setProcessDateFilter("")}
-                          className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
-                        >
-                          Clear
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                <div className="relative" ref={documentDateRef}>
-                  <div
-                    className="flex items-center gap-2 cursor-pointer"
-                    onClick={() =>
-                      setShowDocumentDatePicker(!showDocumentDatePicker)
-                    }
-                  >
-                    <span>Document Date</span>
-                    <svg
-                      className={`w-4 h-4 transition-transform ${
-                        showDocumentDatePicker ? "rotate-180" : ""
-                      }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </div>
-                  {showDocumentDatePicker && (
-                    <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
-                      <input
-                        type="date"
-                        className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
-                        value={documentDateFilter}
-                        onChange={(e) => setDocumentDateFilter(e.target.value)}
-                      />
-                      {documentDateFilter && (
-                        <button
-                          onClick={() => setDocumentDateFilter("")}
-                          className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
-                        >
-                          Clear
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                <div className="relative" ref={statusRef}>
-                  <div
-                    className="flex items-center gap-2 cursor-pointer"
-                    onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-                  >
-                    <span>Status</span>
-                    <svg
-                      className={`w-4 h-4 transition-transform ${
-                        showStatusDropdown ? "rotate-180" : ""
-                      }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </div>
-                  {showStatusDropdown && (
-                    <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
-                      <select
-                        className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
-                        value={statusFilter}
-                        onChange={(e) => {
-                          setStatusFilter(e.target.value);
-                          setShowStatusDropdown(false);
-                        }}
-                      >
-                        <option value="">All</option>
-                        <option value="verified">Verified</option>
-                        <option value="verify_now">Verify Now</option>
-                      </select>
-                      {statusFilter && (
-                        <button
-                          onClick={() => {
-                            setStatusFilter("");
-                            setShowStatusDropdown(false);
-                          }}
-                          className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
-                        >
-                          Clear
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {currentItems.map((doc) => (
-              <DocumentRow
-                key={doc.id}
-                doc={doc}
-                isSelected={selectedDocuments.has(doc.id)}
-                onSelect={handleSelectDocument}
-                fetchDocuments={fetchDocuments}
-                isDisabled={isRowDisabled(doc.client)}
-              />
-            ))}
-          </tbody>
-        </table>
-
-        <div className="flex justify-between items-center p-4 border-t border-gray-200">
+    <div className="p-6 flex-1 min-w-0">
+      <div className="flex flex-col h-full">
+        {/* Top buttons and search */}
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="heading-5">All Documents</h2>
           <div className="flex gap-2">
-            <button
-              onClick={() => setCurrentPage(1)}
-              disabled={currentPage === 1}
-              className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
+            {selectedDocuments.size > 0 && (
+              <>
+                <button
+                  className="primary-btn bg-red-500 hover:bg-red-600"
+                  onClick={handleDelete}
+                >
+                  Delete
+                </button>
+                <button
+                  className="primary-btn"
+                  onClick={() => setIsShareDocumentOpen(true)}
+                >
+                  Share
+                </button>
+                <button className="primary-btn" onClick={handleReset}>
+                  Reset
+                </button>
+              </>
+            )}
+            <Link
+              className="primary-btn"
+              href={"/dashboard/document-management/add-documents"}
             >
-              {/* << */}
-            </button>
-            <button
-              onClick={() => setCurrentPage(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
-            >
-              {/* < */}
-            </button>
-            {getVisiblePageNumbers().map((pageNum, index) => (
-              <button
-                key={index}
-                onClick={() =>
-                  typeof pageNum === "number" && setCurrentPage(pageNum)
-                }
-                className={`px-3 py-1 rounded border ${
-                  currentPage === pageNum
-                    ? "bg-blue-500 text-white"
-                    : pageNum === "..."
-                    ? "border-transparent cursor-default"
-                    : "border-gray-200 hover:bg-gray-50"
-                }`}
-              >
-                {pageNum}
-              </button>
-            ))}
-            <button
-              onClick={() => setCurrentPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
-            >
-              {/* > */}
-            </button>
-            <button
-              onClick={() => setCurrentPage(totalPages)}
-              disabled={currentPage === totalPages}
-              className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
-            >
-              {/* >> */}
-            </button>
-          </div>
-          <div className="text-sm text-foreground">
-            Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-            {Math.min(
-              currentPage * itemsPerPage,
-              filteredAndSortedItems.length
-            )}{" "}
-            of {filteredAndSortedItems.length} entries
+              Add Document
+            </Link>
           </div>
         </div>
-      </div>
 
-      {isShareDocumentOpen && selectedDocs.length > 0 && (
-        <DocumentShareModal
-          setIsShareDocumentOpen={setIsShareDocumentOpen}
-          docs={selectedDocs}
-          handleReset={handleReset}
-        />
-      )}
+        {/* Search and filters */}
+        <div className="flex justify-between items-center mb-6 gap-4">
+          <div className="relative flex-1">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search by client, document, category, date, or status"
+                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-blue-500"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              window.location.reload();
+            }}
+            className="px-4 py-2 rounded-lg border border-gray-200 flex items-center gap-2 hover:bg-gray-50"
+          >
+            <IoIosRefresh />
+            Refresh
+          </button>
+          <button className="px-4 py-2 rounded-lg border border-gray-200 flex items-center gap-2 hover:bg-gray-50">
+            <FiDownload />
+            Export
+          </button>
+        </div>
+
+        {/* Table with horizontal scroll */}
+        <div className="bg-white rounded-lg border border-gray-200 overflow-auto">
+          <div className="min-w-[1200px]">
+            <table className="w-full">
+              <thead className="bg-accent-primary">
+                <tr>
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
+                    onClick={() => handleSort("client")}
+                  >
+                    Associated To
+                    {sortConfig.key === "client" && (
+                      <span className="ml-1">
+                        {sortConfig.direction === "asc" ? "↑" : "↓"}
+                      </span>
+                    )}
+                  </th>
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
+                    onClick={() => handleSort("file")}
+                  >
+                    Document
+                    {sortConfig.key === "file" && (
+                      <span className="ml-1">
+                        {sortConfig.direction === "asc" ? "↑" : "↓"}
+                      </span>
+                    )}
+                  </th>
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
+                    onClick={() => handleSort("category")}
+                  >
+                    Category
+                    {sortConfig.key === "category" && (
+                      <span className="ml-1">
+                        {sortConfig.direction === "asc" ? "↑" : "↓"}
+                      </span>
+                    )}
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
+                    <div className="relative" ref={processDateRef}>
+                      <div
+                        className="flex items-center gap-2 cursor-pointer"
+                        onClick={() =>
+                          setShowProcessDatePicker(!showProcessDatePicker)
+                        }
+                      >
+                        <span>Process Date</span>
+                        <svg
+                          className={`w-4 h-4 transition-transform ${
+                            showProcessDatePicker ? "rotate-180" : ""
+                          }`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </div>
+                      {showProcessDatePicker && (
+                        <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
+                          <input
+                            type="date"
+                            className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
+                            value={processDateFilter}
+                            onChange={(e) =>
+                              setProcessDateFilter(e.target.value)
+                            }
+                          />
+                          {processDateFilter && (
+                            <button
+                              onClick={() => setProcessDateFilter("")}
+                              className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
+                            >
+                              Clear
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
+                    <div className="relative" ref={documentDateRef}>
+                      <div
+                        className="flex items-center gap-2 cursor-pointer"
+                        onClick={() =>
+                          setShowDocumentDatePicker(!showDocumentDatePicker)
+                        }
+                      >
+                        <span>Document Date</span>
+                        <svg
+                          className={`w-4 h-4 transition-transform ${
+                            showDocumentDatePicker ? "rotate-180" : ""
+                          }`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </div>
+                      {showDocumentDatePicker && (
+                        <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
+                          <input
+                            type="date"
+                            className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
+                            value={documentDateFilter}
+                            onChange={(e) =>
+                              setDocumentDateFilter(e.target.value)
+                            }
+                          />
+                          {documentDateFilter && (
+                            <button
+                              onClick={() => setDocumentDateFilter("")}
+                              className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
+                            >
+                              Clear
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
+                    <div className="relative" ref={statusRef}>
+                      <div
+                        className="flex items-center gap-2 cursor-pointer"
+                        onClick={() =>
+                          setShowStatusDropdown(!showStatusDropdown)
+                        }
+                      >
+                        <span>Status</span>
+                        <svg
+                          className={`w-4 h-4 transition-transform ${
+                            showStatusDropdown ? "rotate-180" : ""
+                          }`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </div>
+                      {showStatusDropdown && (
+                        <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
+                          <select
+                            className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
+                            value={statusFilter}
+                            onChange={(e) => {
+                              setStatusFilter(e.target.value);
+                              setShowStatusDropdown(false);
+                            }}
+                          >
+                            <option value="">All</option>
+                            <option value="verified">Verified</option>
+                            <option value="verify_now">Verify Now</option>
+                          </select>
+                          {statusFilter && (
+                            <button
+                              onClick={() => {
+                                setStatusFilter("");
+                                setShowStatusDropdown(false);
+                              }}
+                              className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
+                            >
+                              Clear
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
+                    Action
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {currentItems.map((doc) => (
+                  <DocumentRow
+                    key={doc.id}
+                    doc={doc}
+                    isSelected={selectedDocuments.has(doc.id)}
+                    onSelect={handleSelectDocument}
+                    fetchDocuments={fetchDocuments}
+                    isDisabled={isRowDisabled(doc.client)}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex justify-start items-center gap-2 mt-6">
+            <button
+              className="px-3 py-1 rounded border text-sm disabled:opacity-50"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            {getVisiblePageNumbers().map((page, idx) =>
+              page === "..." ? (
+                <span key={"dots-" + idx} className="px-2 text-gray-400">
+                  ...
+                </span>
+              ) : (
+                <button
+                  key={page}
+                  className={`px-3 py-1 rounded border text-sm ${
+                    currentPage === page
+                      ? "bg-primary text-white border-primary"
+                      : "hover:bg-gray-100"
+                  }`}
+                  onClick={() => setCurrentPage(page)}
+                  disabled={currentPage === page}
+                >
+                  {page}
+                </button>
+              )
+            )}
+            <button
+              className="px-3 py-1 rounded border text-sm disabled:opacity-50"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
+        )}
+
+        {/* Modal */}
+        {isShareDocumentOpen && selectedDocs.length > 0 && (
+          <DocumentShareModal
+            setIsShareDocumentOpen={setIsShareDocumentOpen}
+            docs={selectedDocs}
+            handleReset={handleReset}
+          />
+        )}
+      </div>
     </div>
   );
 };

@@ -15,8 +15,12 @@ const doesDateMatch = (dateString, query) => {
 
   const queryLower = query.toLowerCase().trim();
   const year = date.getFullYear().toString();
-  const monthLong = date.toLocaleString("en-US", { month: "long" }).toLowerCase();
-  const monthShort = date.toLocaleString("en-US", { month: "short" }).toLowerCase();
+  const monthLong = date
+    .toLocaleString("en-US", { month: "long" })
+    .toLowerCase();
+  const monthShort = date
+    .toLocaleString("en-US", { month: "short" })
+    .toLowerCase();
   const monthNum = (date.getMonth() + 1).toString().padStart(2, "0"); // e.g., "05"
   const day = date.getDate().toString().padStart(2, "0"); // e.g., "14"
 
@@ -80,10 +84,7 @@ const ClientListPage = () => {
       ) {
         setShowCreationDatePicker(false);
       }
-      if (
-        statusRef.current &&
-        !statusRef.current.contains(event.target)
-      ) {
+      if (statusRef.current && !statusRef.current.contains(event.target)) {
         setShowStatusDropdown(false);
       }
     };
@@ -112,7 +113,7 @@ const ClientListPage = () => {
       sorted.sort((a, b) => {
         let aValue = a[sortConfig.key] || "";
         let bValue = b[sortConfig.key] || "";
-        
+
         // Handle numeric sorting for DOCUMENTS
         if (sortConfig.key === "DOCUMENTS") {
           aValue = parseInt(aValue, 10) || 0;
@@ -142,23 +143,30 @@ const ClientListPage = () => {
     const normalizedPhone = (client.phone || "")
       .replace(/[\s\-\(\)\+]/g, "")
       .toLowerCase();
-    const queryNormalized = searchQuery.toLowerCase().replace(/[\s\-\(\)\+]/g, "");
+    const queryNormalized = searchQuery
+      .toLowerCase()
+      .replace(/[\s\-\(\)\+]/g, "");
 
     const matchesSearch =
-      (client.business_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (client.business_name || "")
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
       (client.email || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       normalizedPhone.includes(queryNormalized) ||
       (client.DOCUMENTS || "").toString().includes(searchQuery.toLowerCase()) ||
       doesDateMatch(client.created_at, searchQuery) ||
       (client.status || "").toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesStatus = 
+    const matchesStatus =
       !filterStatus ||
-      (filterStatus === "verified" && (client.status || "").toLowerCase() === "verified") ||
-      (filterStatus === "verify_now" && (client.status || "").toLowerCase() !== "verified");
+      (filterStatus === "verified" &&
+        (client.status || "").toLowerCase() === "verified") ||
+      (filterStatus === "verify_now" &&
+        (client.status || "").toLowerCase() !== "verified");
 
-    const matchesCreationDate = 
-      !creationDateFilter || doesDateMatch(client.created_at, creationDateFilter);
+    const matchesCreationDate =
+      !creationDateFilter ||
+      doesDateMatch(client.created_at, creationDateFilter);
 
     return matchesSearch && matchesStatus && matchesCreationDate;
   });
@@ -234,224 +242,228 @@ const ClientListPage = () => {
       </div>
 
       {/* Client Table */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <table className="w-full">
-          <thead className="bg-accent-primary">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                <input type="checkbox" className="rounded" />
-              </th>
-              <th
-                className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
-                onClick={() => handleSort("business_name")}
-              >
-                Client Name
-                {sortConfig.key === "business_name" && (
-                  <span className="ml-1">
-                    {sortConfig.direction === "asc" ? "↑" : "↓"}
-                  </span>
-                )}
-              </th>
-              <th
-                className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
-                onClick={() => handleSort("email")}
-              >
-                Email
-                {sortConfig.key === "email" && (
-                  <span className="ml-1">
-                    {sortConfig.direction === "asc" ? "↑" : "↓"}
-                  </span>
-                )}
-              </th>
-              <th
-                className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
-                onClick={() => handleSort("phone")}
-              >
-                Phone
-                {sortConfig.key === "phone" && (
-                  <span className="ml-1">
-                    {sortConfig.direction === "asc" ? "↑" : "↓"}
-                  </span>
-                )}
-              </th>
-              <th
-                className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
-                onClick={() => handleSort("DOCUMENTS")}
-              >
-                Documents
-                {sortConfig.key === "DOCUMENTS" && (
-                  <span className="ml-1">
-                    {sortConfig.direction === "asc" ? "↑" : "↓"}
-                  </span>
-                )}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                <div className="relative" ref={creationDateRef}>
-                  <div
-                    className="flex items-center gap-2 cursor-pointer"
-                    onClick={() =>
-                      setShowCreationDatePicker(!showCreationDatePicker)
-                    }
-                  >
-                    <span>Creation Date</span>
-                    <svg
-                      className={`w-4 h-4 transition-transform ${
-                        showCreationDatePicker ? "rotate-180" : ""
-                      }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </div>
-                  {showCreationDatePicker && (
-                    <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
-                      <input
-                        type="date"
-                        className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
-                        value={creationDateFilter}
-                        onChange={(e) => setCreationDateFilter(e.target.value)}
-                      />
-                      {creationDateFilter && (
-                        <button
-                          onClick={() => setCreationDateFilter("")}
-                          className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
-                        >
-                          Clear
-                        </button>
-                      )}
-                    </div>
+      <div className="bg-white rounded-lg border border-gray-200 overflow-auto">
+        <div className="min-w-[1200px]">
+          <table className="w-full">
+            <thead className="bg-accent-primary">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
+                  <input type="checkbox" className="rounded" />
+                </th>
+                <th
+                  className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
+                  onClick={() => handleSort("business_name")}
+                >
+                  Client Name
+                  {sortConfig.key === "business_name" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
                   )}
-                </div>
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                <div className="relative" ref={statusRef}>
-                  <div
-                    className="flex items-center gap-2 cursor-pointer"
-                    onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-                  >
-                    <span>Status</span>
-                    <svg
-                      className={`w-4 h-4 transition-transform ${
-                        showStatusDropdown ? "rotate-180" : ""
-                      }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                </th>
+                <th
+                  className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
+                  onClick={() => handleSort("email")}
+                >
+                  Email
+                  {sortConfig.key === "email" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </th>
+                <th
+                  className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
+                  onClick={() => handleSort("phone")}
+                >
+                  Phone
+                  {sortConfig.key === "phone" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </th>
+                <th
+                  className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
+                  onClick={() => handleSort("DOCUMENTS")}
+                >
+                  Documents
+                  {sortConfig.key === "DOCUMENTS" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
+                  <div className="relative" ref={creationDateRef}>
+                    <div
+                      className="flex items-center gap-2 cursor-pointer"
+                      onClick={() =>
+                        setShowCreationDatePicker(!showCreationDatePicker)
+                      }
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </div>
-                  {showStatusDropdown && (
-                    <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
-                      <select
-                        className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
-                        value={filterStatus}
-                        onChange={(e) => {
-                          setFilterStatus(e.target.value);
-                          setShowStatusDropdown(false);
-                        }}
+                      <span>Creation Date</span>
+                      <svg
+                        className={`w-4 h-4 transition-transform ${
+                          showCreationDatePicker ? "rotate-180" : ""
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
                       >
-                        <option value="">All</option>
-                        <option value="verified">Verified</option>
-                        <option value="verify_now">Verify Now</option>
-                      </select>
-                      {filterStatus && (
-                        <button
-                          onClick={() => {
-                            setFilterStatus("");
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </div>
+                    {showCreationDatePicker && (
+                      <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
+                        <input
+                          type="date"
+                          className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
+                          value={creationDateFilter}
+                          onChange={(e) =>
+                            setCreationDateFilter(e.target.value)
+                          }
+                        />
+                        {creationDateFilter && (
+                          <button
+                            onClick={() => setCreationDateFilter("")}
+                            className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
+                          >
+                            Clear
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
+                  <div className="relative" ref={statusRef}>
+                    <div
+                      className="flex items-center gap-2 cursor-pointer"
+                      onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+                    >
+                      <span>Status</span>
+                      <svg
+                        className={`w-4 h-4 transition-transform ${
+                          showStatusDropdown ? "rotate-180" : ""
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </div>
+                    {showStatusDropdown && (
+                      <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
+                        <select
+                          className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
+                          value={filterStatus}
+                          onChange={(e) => {
+                            setFilterStatus(e.target.value);
                             setShowStatusDropdown(false);
                           }}
-                          className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
                         >
-                          Clear
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {currentItems.map((client) => (
-              <UserRow
-                key={client.id}
-                client={client}
-                setEditClient={setEditClient}
-                setIsEditClientOpen={setIsEditClientOpen}
-              />
-            ))}
-          </tbody>
-        </table>
+                          <option value="">All</option>
+                          <option value="verified">Verified</option>
+                          <option value="verify_now">Verify Now</option>
+                        </select>
+                        {filterStatus && (
+                          <button
+                            onClick={() => {
+                              setFilterStatus("");
+                              setShowStatusDropdown(false);
+                            }}
+                            className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
+                          >
+                            Clear
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {currentItems.map((client) => (
+                <UserRow
+                  key={client.id}
+                  client={client}
+                  setEditClient={setEditClient}
+                  setIsEditClientOpen={setIsEditClientOpen}
+                />
+              ))}
+            </tbody>
+          </table>
 
-        {/* Pagination */}
-        <div className="flex justify-between items-center p-4 border-t border-gray-200">
-          <div className="flex gap-2">
-            <button
-              onClick={() => setCurrentPage(1)}
-              disabled={currentPage === 1}
-              className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
-            >
-              &lt;&lt;
-            </button>
-            <button
-              onClick={() => setCurrentPage(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
-            >
-              &lt;
-            </button>
-            {getVisiblePageNumbers().map((pageNum, index) => (
+          {/* Pagination */}
+          <div className="flex justify-between items-center p-4 border-t border-gray-200">
+            <div className="flex gap-2">
               <button
-                key={index}
-                onClick={() =>
-                  typeof pageNum === "number" && setCurrentPage(pageNum)
-                }
-                className={`px-3 py-1 rounded border ${
-                  currentPage === pageNum
-                    ? "bg-blue-500 text-white"
-                    : pageNum === "..."
-                    ? "border-transparent cursor-default"
-                    : "border-gray-200 hover:bg-gray-50"
-                }`}
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+                className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
               >
-                {pageNum}
+                &lt;&lt;
               </button>
-            ))}
-            <button
-              onClick={() => setCurrentPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
-            >
-              &gt;
-            </button>
-            <button
-              onClick={() => setCurrentPage(totalPages)}
-              disabled={currentPage === totalPages}
-              className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
-            >
-              &gt;&gt;
-            </button>
-          </div>
-          <div className="text-sm text-foreground">
-            Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-            {Math.min(currentPage * itemsPerPage, filteredClients.length)} of{" "}
-            {filteredClients.length} entries
+              <button
+                onClick={() => setCurrentPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
+              >
+                &lt;
+              </button>
+              {getVisiblePageNumbers().map((pageNum, index) => (
+                <button
+                  key={index}
+                  onClick={() =>
+                    typeof pageNum === "number" && setCurrentPage(pageNum)
+                  }
+                  className={`px-3 py-1 rounded border ${
+                    currentPage === pageNum
+                      ? "bg-blue-500 text-white"
+                      : pageNum === "..."
+                      ? "border-transparent cursor-default"
+                      : "border-gray-200 hover:bg-gray-50"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              ))}
+              <button
+                onClick={() => setCurrentPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
+              >
+                &gt;
+              </button>
+              <button
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
+              >
+                &gt;&gt;
+              </button>
+            </div>
+            <div className="text-sm text-foreground">
+              Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+              {Math.min(currentPage * itemsPerPage, filteredClients.length)} of{" "}
+              {filteredClients.length} entries
+            </div>
           </div>
         </div>
       </div>

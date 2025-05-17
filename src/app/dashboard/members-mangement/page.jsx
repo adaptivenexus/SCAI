@@ -1,5 +1,4 @@
 "use client";
-import { HiChevronUpDown } from "react-icons/hi2";
 import { HiOutlineEllipsisVertical } from "react-icons/hi2";
 import { IoFilterSharp } from "react-icons/io5";
 import Image from "next/image";

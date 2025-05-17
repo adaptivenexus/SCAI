@@ -32,7 +32,7 @@ const Sidebar = () => {
 
   return (
     <motion.div
-      className="bg-secondary h-screen sticky top-0 overflow-hidden"
+      className="bg-secondary h-screen overflow-y-auto overflow-x-hidden w-[90px] lg:w-auto"
       initial="closed"
       animate={isOpen ? "open" : "closed"}
       variants={sidebarVariants}
@@ -43,7 +43,7 @@ const Sidebar = () => {
         setIsDocumentsOpen(false);
       }}
     >
-      <div className="p-4 min-w-[90px]">
+      <div className="sticky top-0 p-4 min-w-[90px] bg-secondary">
         <Link href={"/"} className="text-background text-center text-2xl block">
           SCANDOQ.
         </Link>
