@@ -20,8 +20,7 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [aggrement, setAggrement] = useState(false);
-  const { subscriptions, login, user, getSubscription, refreshTokenFn } =
-    useAuth();
+  const { subscriptions, login } = useAuth();
 
   const [formData, setFormData] = useState({
     agency_name: "",
