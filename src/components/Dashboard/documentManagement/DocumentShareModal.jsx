@@ -46,6 +46,8 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
   const [isFetching, setIsFetching] = useState(false);
 
   const clientEmail = extractEmail(docs[0].client);
+  // Extract client name from "Name (email)" format
+  const clientName = docs[0]?.client?.replace(/\s*\(.*?\)\s*$/, "") || "N/A";
 
   const clientId = clients.find((client) => {
     const email = clientEmail;
@@ -138,7 +140,8 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    startTransition(async () => { // ✅ Made async for better error handling
+    startTransition(async () => {
+      // ✅ Made async for better error handling
       if (!docs || docs.length === 0) {
         toast.error("No documents selected to share.");
         return;
@@ -189,7 +192,32 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
         }
 
         const data = await res.json();
-        toast.success(`Document shared successfully to ${docs[0]?.client || "Client"}`); // ✅ Updated success message, removed link and OTP
+
+        const urlParts = data.shareable_url.split("/");
+        const sharedID = urlParts[urlParts.length - 2];
+        const sharedLink = `${process.env.NEXT_PUBLIC_BASE_URL}/shared-documents/${sharedID}`;
+
+        const sendEmail = await fetch(`/api/share-document-email`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: clientName,
+            email: formData.client_email,
+            url: sharedLink,
+            otp: data.otp, // Replace with actual OTP generation logic
+          }),
+        });
+
+        if (!sendEmail.ok) {
+          toast.error("Failed to send email.");
+          return; // ✅ Prevent error page by stopping execution
+        }
+
+        toast.success(
+          `Document shared successfully to ${docs[0]?.client || "Client"}`
+        ); // ✅ Updated success message, removed link and OTP
 
         setIsShareDocumentOpen(false);
         handleReset();
@@ -204,6 +232,13 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
       }
     });
   };
+
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      client_email: clientEmail,
+    }));
+  }, [clientEmail]);
 
   return (
     <div
@@ -220,7 +255,7 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
           <div className="w-1/2 flex flex-col gap-4">
             <div className="flex flex-col gap-1">
               <label className="font-medium">Client Name:</label>
-              <span>{docs[0]?.client || "N/A"}</span>
+              <span>{clientName || "N/A"}</span>
             </div>
             <div className="flex flex-col gap-1">
               <label htmlFor="client_email" className="font-medium">

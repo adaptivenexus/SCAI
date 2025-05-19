@@ -122,8 +122,14 @@ const ClientListPage = () => {
           bValue = parseInt(bValue, 10) || 0;
         }
 
-        // Handle string sorting for other fields (business_name, email, phone)
-        if (typeof aValue === "string") {
+        // Handle phone number sorting by normalized digits
+        if (sortConfig.key === "phone") {
+          aValue = (a.mobile_number || "").replace(/[^0-9]/g, "");
+          bValue = (b.mobile_number || "").replace(/[^0-9]/g, "");
+        }
+
+        // Handle string sorting for other fields (business_name, email, etc)
+        if (typeof aValue === "string" && sortConfig.key !== "phone") {
           aValue = aValue.toLowerCase();
           bValue = bValue.toLowerCase();
         }
@@ -141,23 +147,26 @@ const ClientListPage = () => {
   }, [clients, sortConfig]);
 
   const filteredClients = sortedClients.filter((client) => {
-    // Normalize phone number for search by removing spaces, dashes, and other characters
-    const normalizedPhone = (client.phone || "")
-      .replace(/[\s\-\(\)\+]/g, "")
-      .toLowerCase();
-    const queryNormalized = searchQuery
-      .toLowerCase()
-      .replace(/[\s\-\(\)\+]/g, "");
+    const phone = (client.mobile_number || "").toLowerCase();
+    const normalizedPhone = phone.replace(/[^0-9]/g, "");
+    const query = searchQuery.toLowerCase();
+    const queryNormalized = query.replace(/[^0-9]/g, "");
+
+    // If the search query is all digits, match against normalized phone
+    let phoneMatch = false;
+    if (queryNormalized && /^\d+$/.test(queryNormalized)) {
+      phoneMatch = normalizedPhone.includes(queryNormalized);
+    } else if (query) {
+      phoneMatch = phone.includes(query);
+    }
 
     const matchesSearch =
-      (client.business_name || "")
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      (client.email || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      normalizedPhone.includes(queryNormalized) ||
-      (client.DOCUMENTS || "").toString().includes(searchQuery.toLowerCase()) ||
+      (client.business_name || "").toLowerCase().includes(query) ||
+      (client.email || "").toLowerCase().includes(query) ||
+      phoneMatch ||
+      (client.DOCUMENTS || "").toString().includes(query) ||
       doesDateMatch(client.created_at, searchQuery) ||
-      (client.status || "").toLowerCase().includes(searchQuery.toLowerCase());
+      (client.status || "").toLowerCase().includes(query);
 
     const matchesStatus =
       !filterStatus ||
