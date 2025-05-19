@@ -46,11 +46,11 @@ const SignUp = () => {
       return;
     }
 
-    // TODO: Add API call to create user
     if (!aggrement) {
       toast.error("Please agree to the terms and conditions");
       return;
     }
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency/register/`,
@@ -63,36 +63,51 @@ const SignUp = () => {
         }
       );
 
+      const data = await response.json();
+
       if (!response.ok) {
-        toast.error("Failed to create user");
-        setMessage({ type: "error", text: "Failed to create user" });
+        let errorMessage = "Failed to create user";
+        if (data.message) {
+          errorMessage = data.message;
+        } else if (data.email && Array.isArray(data.email) && data.email.length > 0) {
+          // Extract the 'string' field from ErrorDetail object
+          const errorDetail = data.email[0];
+          errorMessage = errorDetail.string || "Email validation failed"; // Fallback if string field is missing
+        } else if (typeof data === "object") {
+          const firstError = Object.values(data)[0];
+          errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+          // If it's an ErrorDetail object, extract the string field
+          errorMessage = errorMessage.string || errorMessage || "Unknown error";
+        }
+
+        toast.error(errorMessage);
+        setMessage({ type: "error", text: errorMessage });
         return;
       }
-      // login the user after signup
+
       await login(formData.email, formData.password, true);
 
-      // toast.success("User created successfully");
       setMessage({ type: "success", text: "User created successfully" });
 
       if (formData.plan !== 0) {
         await handleCheckout(formData.plan, true);
       }
     } catch (error) {
-      setMessage({ type: "error", text: "error" });
+      const errorMessage = "An unexpected error occurred";
+      setMessage({ type: "error", text: errorMessage });
       console.error(error);
+      toast.error(errorMessage);
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
-    // Clear error immediately when user fixes field
     setMessage({ type: "", text: "" });
   };
 
   const validateForm = () => {
-    console.log("Form svalidation in progress");
+    console.log("Form validation in progress");
 
     if (!formData.agency_name) {
       return "Agency Name is required";
@@ -102,14 +117,11 @@ const SignUp = () => {
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       return "Invalid email address";
     }
-    // Phone validation
     if (!formData.phone_number) {
       return "Phone number is required";
     } else if (!/^\d{10}$/.test(formData.phone_number)) {
       return "Phone number must be exactly 10 digits";
     }
-
-    // Password validation
     if (!formData.password) {
       return "Password is required";
     } else if (
@@ -119,17 +131,11 @@ const SignUp = () => {
     ) {
       return "Password must be at least 8 characters, include uppercase, lowercase, number, and special character";
     }
-
-    // Confirm Password validation
     if (!formData.password2) {
       return "Please re-enter password";
     } else if (formData.password !== formData.password2) {
       return "Passwords do not match";
     }
-
-    //setErrors(newErrors);
-
-    //return Object.keys(newErrors).length === 0;
 
     return "";
   };
@@ -151,7 +157,6 @@ const SignUp = () => {
           <div className="flex-1 space-y-6">
             <div className="space-y-3">
               <h3 className="heading-3">Signup</h3>
-              {/* Success/Error Messages */}
               {message.text && (
                 <div
                   className={`mb-4 p-3 rounded-lg flex items-center gap-2 ${
@@ -181,13 +186,13 @@ const SignUp = () => {
                 </div>
               )}
               <p className="subtitle-text text-secondary-foreground">
-                Let’s get you all st up so you can access your personal account.
+                Let’s get you all set up so you can access your personal account.
               </p>
             </div>
             <form onSubmit={handleSubmit} className="space-y-7">
               <div className="space-y-4">
                 <div className="flex gap-4">
-                  <fieldset className="border border-[#79747E]  pb-2 px-4 rounded-md flex-1">
+                  <fieldset className="border border-[#79747E] pb-2 px-4 rounded-md flex-1">
                     <legend className="px-1">
                       Agency Name<span className="text-red-500">*</span>
                     </legend>
@@ -203,7 +208,7 @@ const SignUp = () => {
                   </fieldset>
                 </div>
                 <div className="flex gap-4 flex-col md:flex-row">
-                  <fieldset className="border border-[#79747E]  pb-2 px-4 rounded-md flex-1">
+                  <fieldset className="border border-[#79747E] pb-2 px-4 rounded-md flex-1">
                     <legend className="px-1">
                       Email<span className="text-red-500">*</span>
                     </legend>
@@ -217,7 +222,7 @@ const SignUp = () => {
                       onChange={handleChange}
                     />
                   </fieldset>
-                  <fieldset className="border border-[#79747E]  pb-2 px-4 rounded-md flex-1">
+                  <fieldset className="border border-[#79747E] pb-2 px-4 rounded-md flex-1">
                     <legend className="px-1">
                       Phone Number<span className="text-red-500">*</span>
                     </legend>
@@ -232,7 +237,7 @@ const SignUp = () => {
                     />
                   </fieldset>
                 </div>
-                <fieldset className="border border-[#79747E]  pb-2 px-4 rounded-md flex items-center justify-between">
+                <fieldset className="border border-[#79747E] pb-2 px-4 rounded-md flex items-center justify-between">
                   <legend className="px-1">
                     Password<span className="text-red-500">*</span>
                   </legend>
@@ -256,7 +261,7 @@ const SignUp = () => {
                     )}
                   </button>
                 </fieldset>
-                <fieldset className="border border-[#79747E]  pb-2 px-4 rounded-md flex items-center justify-between">
+                <fieldset className="border border-[#79747E] pb-2 px-4 rounded-md flex items-center justify-between">
                   <legend className="px-1">
                     Confirm Password<span className="text-red-500">*</span>
                   </legend>
@@ -291,7 +296,7 @@ const SignUp = () => {
                   >
                     {subscriptions.map((subscription) => (
                       <option key={subscription.id} value={subscription.id}>
-                        {subscription.name} - ${subscription.price}{" "}
+                        {subscription.name} - ${subscription.price}
                       </option>
                     ))}
                   </select>
@@ -377,4 +382,5 @@ const SignUp = () => {
     </section>
   );
 };
+
 export default SignUp;
