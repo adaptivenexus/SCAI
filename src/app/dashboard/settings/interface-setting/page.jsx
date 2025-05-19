@@ -9,36 +9,44 @@ const InterfaceSettingsPage = () => {
   const [currency, setCurrency] = useState("");
 
   useEffect(() => {
-    const userRegion = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    setRegion(userRegion);
-    console.log(userRegion);
+    // Detect user's time zone
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    console.log("Detected Time Zone:", userTimeZone);
 
-    // Set default values based on region
-    if (userRegion.includes("Calcutta") || userRegion.includes("India")) {
+    // Map time zone to region, time zone, language, and currency
+    if (userTimeZone.includes("Calcutta") || userTimeZone.includes("India")) {
+      setRegion("Asia / India");
       setTimeZone("GMT+5:30 (India Standard Time)");
       setLanguage("English (US)");
       setCurrency("INR ₹");
-    } else if (userRegion.includes("Europe")) {
+    } else if (userTimeZone.includes("Europe")) {
+      setRegion("Europe / Germany");
       setTimeZone("GMT+1:00 (Central European Time)");
       setLanguage("English (UK)");
       setCurrency("EUR €");
-    } else if (userRegion.includes("America/New_York")) {
+    } else if (userTimeZone.includes("America/New_York")) {
+      setRegion("America / USA");
       setTimeZone("GMT-5:00 (Eastern Standard Time)");
       setLanguage("English (US)");
       setCurrency("USD $");
-    } else if (userRegion.includes("Asia/Tokyo")) {
+    } else if (userTimeZone.includes("Asia/Tokyo")) {
+      setRegion("Asia / Japan");
       setTimeZone("GMT+9:00 (Japan Standard Time)");
       setLanguage("Japanese");
       setCurrency("JPY ¥");
-    } else if (userRegion.includes("Australia/Sydney")) {
+    } else if (userTimeZone.includes("Australia/Sydney")) {
+      setRegion("Australia / Sydney");
       setTimeZone("GMT+10:00 (Australian Eastern Standard Time)");
       setLanguage("English (AU)");
       setCurrency("AUD $");
-    } else if (userRegion.includes("Africa/Johannesburg")) {
+    } else if (userTimeZone.includes("Africa/Johannesburg")) {
+      setRegion("Africa / Johannesburg");
       setTimeZone("GMT+2:00 (South Africa Standard Time)");
       setLanguage("English (ZA)");
       setCurrency("ZAR R");
     } else {
+      // Default fallback
+      setRegion("Unknown");
       setTimeZone("GMT+0:00 (UTC)");
       setLanguage("English (US)");
       setCurrency("USD $");
@@ -57,7 +65,7 @@ const InterfaceSettingsPage = () => {
         {/* Time Zone */}
         <div className="space-y-2">
           <label className="subtitle-text font-semibold block">
-            Time zone:
+            Time Zone:
           </label>
           <select
             className="w-full p-4 border rounded-xl outline-none bg-slate-50"
@@ -65,12 +73,12 @@ const InterfaceSettingsPage = () => {
             onChange={(e) => setTimeZone(e.target.value)}
           >
             <option>GMT+5:30 (India Standard Time)</option>
-            <option>GMT+0:00 (UTC)</option>
             <option>GMT-5:00 (Eastern Standard Time)</option>
             <option>GMT+1:00 (Central European Time)</option>
             <option>GMT+9:00 (Japan Standard Time)</option>
             <option>GMT+10:00 (Australian Eastern Standard Time)</option>
             <option>GMT+2:00 (South Africa Standard Time)</option>
+            <option>GMT+0:00 (UTC)</option>
           </select>
         </div>
         {/* Region */}
@@ -82,11 +90,12 @@ const InterfaceSettingsPage = () => {
             onChange={(e) => setRegion(e.target.value)}
           >
             <option>Asia / India</option>
-            <option>Europe / Germany</option>
             <option>America / USA</option>
+            <option>Europe / Germany</option>
             <option>Asia / Japan</option>
             <option>Australia / Sydney</option>
             <option>Africa / Johannesburg</option>
+            <option>Unknown</option>
           </select>
         </div>
         {/* Language */}
@@ -98,12 +107,12 @@ const InterfaceSettingsPage = () => {
             onChange={(e) => setLanguage(e.target.value)}
           >
             <option>English (US)</option>
-            <option>Hindi</option>
-            <option>Spanish</option>
             <option>English (UK)</option>
-            <option>Japanese</option>
             <option>English (AU)</option>
             <option>English (ZA)</option>
+            <option>Hindi</option>
+            <option>Spanish</option>
+            <option>Japanese</option>
           </select>
         </div>
         {/* Currency */}
@@ -114,8 +123,8 @@ const InterfaceSettingsPage = () => {
             value={currency}
             onChange={(e) => setCurrency(e.target.value)}
           >
-            <option>USD $</option>
             <option>INR ₹</option>
+            <option>USD $</option>
             <option>EUR €</option>
             <option>JPY ¥</option>
             <option>AUD $</option>

@@ -25,7 +25,7 @@ const AccountDetails = () => {
     const fetchProfile = async () => {
       try {
         const res = await authFetch(
-          `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency/profile/`, // ✅ Fixed URL
+          `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency/profile/`,
           {
             method: "GET",
             headers: {
@@ -80,7 +80,7 @@ const AccountDetails = () => {
       };
 
       const res = await authFetch(
-        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency/profile/`, // ✅ Fixed URL
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency/profile/`,
         {
           method: "PUT",
           headers: {
@@ -105,27 +105,47 @@ const AccountDetails = () => {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <h4 className="heading-4">Account Details</h4>
-        <p className="text-secondary-foreground subtitle-text">
-          Manage your personal info like name, email, and contact preferences.
-        </p>
-      </div>
-      <div className="bg-white rounded-lg shadow-md overflow-hidden space-y-6">
-        <div className="bg-primary-gradient h-20"></div>
-        <div className="p-6 space-y-4">
-          <div className="flex justify-end">
-            <button
-              onClick={handleEditToggle}
-              className="ml-auto bg-primary text-white px-8 py-2 rounded hover:opacity-80 transition duration-200"
-            >
-              {isEditing ? "Cancel" : "Edit"}
-            </button>
+    <div className="space-y-6">
+      <div className="bg-white rounded-xl shadow-xl overflow-hidden space-y-6">
+        <div className="bg-primary-gradient h-20 flex items-center justify-between px-6">
+          {/* Left Side: Account Details Label */}
+          <h4 className="heading-4 text-white font-bold drop-shadow-md">
+            Account Details
+          </h4>
+          {/* Right Side: Short Description and Buttons */}
+          <div className="flex items-center space-x-4">
+            <p className="text-gray-100 text-sm max-w-xs">
+              Manage your personal info like name, email, and contact preferences.
+            </p>
+            <div className="flex space-x-2">
+              <Link
+                href={"/dashboard/settings/security-privacy"}
+                className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition duration-200"
+              >
+                Change Password
+              </Link>
+              <button
+                onClick={handleEditToggle}
+                className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition duration-200"
+              >
+                {isEditing ? "Cancel" : "Edit"}
+              </button>
+              {isEditing && (
+                <button
+                  onClick={handleSave}
+                  className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg font-medium hover:from-green-600 hover:to-green-700 transition duration-200"
+                >
+                  Save
+                </button>
+              )}
+            </div>
           </div>
-          <form className="grid grid-cols-2 gap-4">
+        </div>
+        <div className="p-8 space-y-6">
+          <form className="grid grid-cols-2 gap-6">
+            {/* Agency Name */}
             <div className="space-y-2">
-              <label htmlFor="agencyName" className="block subtitle-text">
+              <label htmlFor="agencyName" className="block text-sm uppercase font-semibold text-gray-700">
                 Agency Name
               </label>
               <input
@@ -135,26 +155,12 @@ const AccountDetails = () => {
                 value={formData.agencyName}
                 onChange={handleInputChange}
                 disabled={!isEditing}
-                className="py-3 px-2 rounded-xl bg-slate-100 w-full outline-none border disabled:opacity-70"
+                className="py-3 px-4 rounded-xl bg-slate-100 w-full outline-none border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 disabled:bg-gray-200 disabled:cursor-not-allowed"
               />
             </div>
-
+            {/* Email */}
             <div className="space-y-2">
-              <label htmlFor="phoneNumber" className="block subtitle-text">
-                Phone Number
-              </label>
-              <input
-                type="text"
-                name="phoneNumber"
-                id="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                className="py-3 px-2 rounded-xl bg-slate-100 w-full outline-none border disabled:opacity-70"
-              />
-            </div>
-            <div className="space-y-2 col-span-2">
-              <label htmlFor="email" className="block subtitle-text">
+              <label htmlFor="email" className="block text-sm uppercase font-semibold text-gray-700">
                 Email
               </label>
               <input
@@ -164,11 +170,27 @@ const AccountDetails = () => {
                 value={formData.email}
                 onChange={handleInputChange}
                 disabled={true}
-                className="py-3 px-2 rounded-xl bg-slate-100 w-full outline-none border disabled:opacity-70"
+                className="py-3 px-4 rounded-xl bg-slate-100 w-full outline-none border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 disabled:bg-gray-200 disabled:cursor-not-allowed"
               />
             </div>
+            {/* Phone Number */}
+            <div className="space-y-2">
+              <label htmlFor="phoneNumber" className="block text-sm uppercase font-semibold text-gray-700">
+                Phone Number
+              </label>
+              <input
+                type="text"
+                name="phoneNumber"
+                id="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                className="py-3 px-4 rounded-xl bg-slate-100 w-full outline-none border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 disabled:bg-gray-200 disabled:cursor-not-allowed"
+              />
+            </div>
+            {/* Address */}
             <div className="space-y-2 col-span-2">
-              <label htmlFor="address" className="block subtitle-text">
+              <label htmlFor="address" className="block text-sm uppercase font-semibold text-gray-700">
                 Address
               </label>
               <input
@@ -178,11 +200,12 @@ const AccountDetails = () => {
                 value={formData.address}
                 onChange={handleInputChange}
                 disabled={!isEditing}
-                className="py-3 px-2 rounded-xl bg-slate-100 w-full outline-none border disabled:opacity-70"
+                className="py-3 px-4 rounded-xl bg-slate-100 w-full outline-none border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 disabled:bg-gray-200 disabled:cursor-not-allowed"
               />
             </div>
+            {/* City */}
             <div className="space-y-2">
-              <label htmlFor="city" className="block subtitle-text">
+              <label htmlFor="city" className="block text-sm uppercase font-semibold text-gray-700">
                 City
               </label>
               <input
@@ -192,41 +215,10 @@ const AccountDetails = () => {
                 value={formData.city}
                 onChange={handleInputChange}
                 disabled={!isEditing}
-                className="py-3 px-2 rounded-xl bg-slate-100 w-full outline-none border disabled:opacity-70"
+                className="py-3 px-4 rounded-xl bg-slate-100 w-full outline-none border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 disabled:bg-gray-200 disabled:cursor-not-allowed"
               />
             </div>
-            {/* <div className="space-y-2">
-              <label htmlFor="country" className="block subtitle-text">
-                Country
-              </label>
-              <input
-                type="text"
-                name="country"
-                id="country"
-                value={formData.country}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                className="py-3 px-2 rounded-xl bg-slate-100 w-full outline-none border disabled:opacity-70"
-              />
-            </div> */}
-            <Link
-              href={"/dashboard/settings/security-privacy"}
-              className="primary-btn w-max py-3 rounded-xl text-center mt-3 block h-max"
-            >
-              Change Password
-            </Link>
           </form>
-
-          {isEditing && (
-            <div className="flex justify-end">
-              <button
-                onClick={handleSave}
-                className="bg-green-500 text-white px-8 py-2 rounded hover:bg-green-600"
-              >
-                Save
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </div>
