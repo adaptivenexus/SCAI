@@ -1,13 +1,15 @@
 "use client";
 
-import { formatDate } from "@/utils";
+import { extractEmail, formatDate } from "@/utils";
 import Image from "next/image";
 import { FiMoreVertical } from "react-icons/fi";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
+import { GlobalContext } from "@/context/GlobalProvider";
 
 const UserRow = ({ client, setEditClient, setIsEditClientOpen }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const { documents } = useContext(GlobalContext);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -24,6 +26,12 @@ const UserRow = ({ client, setEditClient, setIsEditClientOpen }) => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen]);
+
+  const documentCount = documents.filter((doc) => {
+    // Extract email from doc.name, e.g., "Jerusalem Market (info@jerusalem.com)"
+    const docEmail = extractEmail(doc.client);
+    return docEmail === client.email;
+  }).length;
 
   return (
     <tr className="hover:bg-black/10 cursor-pointer">
@@ -48,7 +56,7 @@ const UserRow = ({ client, setEditClient, setIsEditClientOpen }) => {
       <td className="px-6 py-4 text-sm text-foreground">
         {client.mobile_number}
       </td>
-      <td className="px-6 py-4 text-sm text-foreground">0</td>
+      <td className="px-6 py-4 text-sm text-foreground">{documentCount}</td>
       <td className="px-6 py-4 text-sm text-foreground">
         {formatDate(client.created_at)}
       </td>
