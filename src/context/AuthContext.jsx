@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
 
   const getSubscription = async () => {
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/subscriptions/`,
         {
           method: "GET",
@@ -55,7 +55,8 @@ export const AuthProvider = ({ children }) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
-        }
+        },
+        refreshTokenFn
       );
 
       if (!response.ok) {

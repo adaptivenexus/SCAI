@@ -9,11 +9,14 @@ import { PiUserCircleFill } from "react-icons/pi";
 import { MdDataUsage, MdLogout, MdOutlinePayment } from "react-icons/md";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { IoMenu, IoClose } from "react-icons/io5";
 
 const DashboardLayout = ({ children }) => {
   const { user, logout } = useAuth();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [isMobileNavVisible, setIsMobileNavVisible] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -27,15 +30,34 @@ const DashboardLayout = ({ children }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (isMobileNavOpen) {
+      setIsMobileNavVisible(true);
+    } else if (isMobileNavVisible) {
+      // Wait for animation to finish before hiding
+      const timeout = setTimeout(() => setIsMobileNavVisible(false), 300);
+      return () => clearTimeout(timeout);
+    }
+  }, [isMobileNavOpen, isMobileNavVisible]);
+
   return (
     <GlobalDashboardProvider>
       <div className="flex min-h-screen bg-white">
-        <div className="sticky top-0 left-0 h-screen">
+        {/* Sidebar: hidden on mobile when mobile nav is open */}
+        <div className="sticky top-0 left-0 h-screen hidden lg:block">
           <Sidebar />
         </div>
         <main className="flex-1 min-w-0 flex flex-col transition-[margin] duration-300 ease-in-out">
-          <header className="py-4 px-6 bg-white shadow-md">
-            <div className="flex items-center justify-between">
+          <header className="py-4 px-6 bg-white shadow-md flex items-center justify-between sticky top-0  lg:static">
+            {/* Hamburger for mobile */}
+            <button
+              className="lg:hidden mr-4"
+              onClick={() => setIsMobileNavOpen(true)}
+              aria-label="Open navigation menu"
+            >
+              <IoMenu size={32} />
+            </button>
+            <div className="flex items-center justify-between w-full">
               <div
                 ref={dropdownRef}
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -124,8 +146,8 @@ const DashboardLayout = ({ children }) => {
                   </div>
                 )}
               </div>
-              <div className="flex gap-6 items-center flex-1 justify-end">
-                <div className="bg-white w-full max-w-[400px] rounded-full py-4 px-6 flex items-center border">
+              <div className="flex-1 flex justify-end items-center">
+                <div className="bg-white w-full max-w-[400px] rounded-full py-4 px-6 md:flex items-center border hidden">
                   <input
                     type="text"
                     name="search"
@@ -145,6 +167,84 @@ const DashboardLayout = ({ children }) => {
               </div>
             </div>
           </header>
+          {/* Mobile Nav Overlay */}
+          <div
+            className={`fixed inset-0 z-50 flex lg:hidden transition-opacity duration-300 ${
+              isMobileNavOpen || isMobileNavVisible
+                ? "opacity-100 pointer-events-auto"
+                : "opacity-0 pointer-events-none"
+            }`}
+          >
+            {/* Overlay */}
+            <div
+              className={`absolute inset-0  bg-black/30 transition-opacity duration-300 ${
+                isMobileNavOpen ? "opacity-100" : "opacity-0"
+              }`}
+              onClick={() => setIsMobileNavOpen(false)}
+            />
+            {/* Sidebar */}
+            <div
+              className={`relative bg-secondary text-background h-full w-4/5 max-w-xs shadow-xl transform transition-transform duration-300 ease-in-out ${
+                isMobileNavOpen ? "translate-x-0" : "-translate-x-full"
+              }`}
+            >
+              <div className="flex items-center justify-between p-4 border-b">
+                <span className="text-xl font-bold">SCANDOQ.</span>
+                <button
+                  onClick={() => setIsMobileNavOpen(false)}
+                  aria-label="Close navigation menu"
+                >
+                  <IoClose size={32} />
+                </button>
+              </div>
+              <nav className="flex flex-col gap-4 p-6">
+                <Link
+                  href="/dashboard/overview"
+                  onClick={() => setIsMobileNavOpen(false)}
+                  className="text-lg font-medium"
+                >
+                  Overview
+                </Link>
+                <Link
+                  href="/dashboard/client-management/client-list"
+                  onClick={() => setIsMobileNavOpen(false)}
+                  className="text-lg font-medium"
+                >
+                  Clients
+                </Link>
+                <Link
+                  href="/dashboard/document-management/all-documents"
+                  onClick={() => setIsMobileNavOpen(false)}
+                  className="text-lg font-medium"
+                >
+                  Documents
+                </Link>
+                <Link
+                  href="/dashboard/members-mangement"
+                  onClick={() => setIsMobileNavOpen(false)}
+                  className="text-lg font-medium"
+                >
+                  Members
+                </Link>
+                <Link
+                  href="/dashboard/settings/account-details"
+                  onClick={() => setIsMobileNavOpen(false)}
+                  className="text-lg font-medium"
+                >
+                  Settings
+                </Link>
+                <button
+                  onClick={() => {
+                    logout();
+                    setIsMobileNavOpen(false);
+                  }}
+                  className="text-lg font-medium text-red-500 text-left"
+                >
+                  Logout
+                </button>
+              </nav>
+            </div>
+          </div>
           {children}
         </main>
       </div>
