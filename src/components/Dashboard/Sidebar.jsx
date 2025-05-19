@@ -16,9 +16,6 @@ const Sidebar = () => {
   const [isUsersOpen, setIsUsersOpen] = useState(false);
   const [isDocumentsOpen, setIsDocumentsOpen] = useState(false);
 
-  const { setIsAddClientOpen, setIsAddDocumentOpen } =
-    useContext(GlobalContext);
-
   const sidebarVariants = {
     open: {
       width: "340px",
@@ -166,7 +163,7 @@ const Sidebar = () => {
                         </AnimatePresence>
                       </Link>
                     </li>
-                    <li className="flex items-center justify-center ">
+                    {/* <li className="flex items-center justify-center ">
                       <button
                         type="button"
                         onClick={() => {
@@ -189,7 +186,7 @@ const Sidebar = () => {
                           )}
                         </AnimatePresence>
                       </button>
-                    </li>
+                    </li> */}
                   </ul>
                 </div>
               )}
@@ -225,7 +222,7 @@ const Sidebar = () => {
               {isDocumentsOpen && (
                 <div className="text-background ml-12">
                   <ul>
-                    <li className="flex items-center justify-center ">
+                    {/* <li className="flex items-center justify-center ">
                       <Link
                         href="/dashboard/document-management/add-documents"
                         className="p-2 flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200 w-full"
@@ -245,7 +242,7 @@ const Sidebar = () => {
                           )}
                         </AnimatePresence>
                       </Link>
-                    </li>
+                    </li> */}
                     {/* <li className="flex items-center justify-center ">
                       <Link
                         href="/dashboard/document-management/manual-document-upload"

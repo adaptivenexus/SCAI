@@ -75,6 +75,8 @@ const ClientListPage = () => {
   const statusRef = useRef(null); // Ref for status dropdown
   const itemsPerPage = 10;
 
+  const { setIsAddClientOpen } = useContext(GlobalContext);
+
   // Handle click outside to close the date picker and status dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -219,6 +221,12 @@ const ClientListPage = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold text-gray-800">Client List</h1>
+        <button
+          className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+          onClick={() => setIsAddClientOpen(true)}
+        >
+          Add Client
+        </button>
       </div>
 
       <div className="flex justify-between items-center mb-6 gap-4">
@@ -409,72 +417,65 @@ const ClientListPage = () => {
               ))}
             </tbody>
           </table>
-
-          {/* Pagination */}
-          <div className="flex justify-between items-center p-4 border-t border-gray-200">
-            <div className="flex gap-2">
-              <button
-                onClick={() => setCurrentPage(1)}
-                disabled={currentPage === 1}
-                className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
-              >
-                &lt;&lt;
-              </button>
-              <button
-                onClick={() => setCurrentPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
-              >
-                &lt;
-              </button>
-              {getVisiblePageNumbers().map((pageNum, index) => (
-                <button
-                  key={index}
-                  onClick={() =>
-                    typeof pageNum === "number" && setCurrentPage(pageNum)
-                  }
-                  className={`px-3 py-1 rounded border ${
-                    currentPage === pageNum
-                      ? "bg-blue-500 text-white"
-                      : pageNum === "..."
-                      ? "border-transparent cursor-default"
-                      : "border-gray-200 hover:bg-gray-50"
-                  }`}
-                >
-                  {pageNum}
-                </button>
-              ))}
-              <button
-                onClick={() => setCurrentPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
-              >
-                &gt;
-              </button>
-              <button
-                onClick={() => setCurrentPage(totalPages)}
-                disabled={currentPage === totalPages}
-                className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
-              >
-                &gt;&gt;
-              </button>
-            </div>
-            <div className="text-sm text-foreground">
-              Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-              {Math.min(currentPage * itemsPerPage, filteredClients.length)} of{" "}
-              {filteredClients.length} entries
-            </div>
-          </div>
         </div>
       </div>
-      {isEditClientOpen && (
-        <AddOrManageClient
-          oldClient={editClient}
-          isNew={false}
-          setIsAddClientOpen={setIsEditClientOpen}
-          setEditClient={setEditClient}
-        />
-      )}
+      {/* Pagination - moved outside scrollable container */}
+      <div className="flex justify-between items-center p-4 border-t border-gray-200 bg-white rounded-b-lg">
+        <div className="flex gap-2">
+          <button
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+            className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
+          >
+            &lt;&lt;
+          </button>
+          <button
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
+          >
+            &lt;
+          </button>
+          {getVisiblePageNumbers().map((pageNum, index) =>
+            typeof pageNum === "number" ? (
+              <button
+                key={index}
+                onClick={() => setCurrentPage(pageNum)}
+                className={`px-3 py-1 rounded border ${
+                  currentPage === pageNum
+                    ? "bg-blue-500 text-white"
+                    : "border-gray-200 hover:bg-gray-50"
+                }`}
+              >
+                {pageNum}
+              </button>
+            ) : (
+              <span key={index} className="px-3 py-1">
+                ...
+              </span>
+            )
+          )}
+          <button
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
+          >
+            &gt;
+          </button>
+          <button
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
+          >
+            &gt;&gt;
+          </button>
+        </div>
+        <div className="text-sm text-foreground">
+          Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+          {Math.min(currentPage * itemsPerPage, filteredClients.length)} of{" "}
+          {filteredClients.length} entries
+        </div>
+      </div>
     </div>
   );
 };
