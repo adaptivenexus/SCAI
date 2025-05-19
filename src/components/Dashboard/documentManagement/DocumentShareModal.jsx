@@ -1,8 +1,9 @@
 "use client";
 
+import { useContext, useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation"; // ✅ Added for redirect
 import { useAuth } from "@/context/AuthContext";
 import { GlobalContext } from "@/context/GlobalProvider";
-import { useContext, useEffect, useState, useTransition } from "react";
 import { toast } from "react-toastify";
 import { authFetch } from "@/utils/auth";
 import { extractEmail } from "@/utils";
@@ -33,6 +34,7 @@ const validateEmail = (email) => {
 const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
   const { user, refreshTokenFn } = useAuth();
   const { clients } = useContext(GlobalContext);
+  const router = useRouter(); // ✅ Added for redirect
   const [formData, setFormData] = useState({
     expired_at: addHoursToCurrentTime(1),
     shared_by_agency: user.id,
@@ -53,7 +55,6 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
   // Fetch parsed data for each document
   const fetchParsedData = async (docId) => {
     try {
-      // Ensure localStorage is accessed only on the client side
       const accessToken =
         typeof window !== "undefined"
           ? localStorage.getItem("accessToken")
@@ -137,7 +138,7 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    startTransition(() => {
+    startTransition(async () => { // ✅ Made async for better error handling
       if (!docs || docs.length === 0) {
         toast.error("No documents selected to share.");
         return;
@@ -157,19 +158,18 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
       }
 
       try {
-        // Ensure localStorage is accessed only on the client side
         const accessToken =
           typeof window !== "undefined"
             ? localStorage.getItem("accessToken")
             : null;
 
         const shareDoc = {
-          document_ids: docs.map((doc) => doc.id), // Send array of document IDs
+          document_ids: docs.map((doc) => doc.id),
           client_id: clientId,
           agency_id: user.id,
         };
 
-        authFetch(
+        const res = await authFetch(
           `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document-share/generate-batch-link/`,
           {
             method: "POST",
@@ -180,28 +180,27 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
             body: JSON.stringify(shareDoc),
           },
           refreshTokenFn
-        )
-          .then((res) => {
-            if (!res.ok) {
-              toast.error("Failed to share documents.");
-              throw new Error("Failed to share documents");
-            }
-            return res.json();
-          })
-          .then((data) => {
-            toast.success(
-              `Documents shared! Link: ${data.shareable_url}, OTP: ${data.otp}`
-            );
-            setIsShareDocumentOpen(false);
-            handleReset();
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-            toast.error("Something went wrong");
-          });
+        );
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          toast.error(errorData.message || "Failed to share documents.");
+          return; // ✅ Prevent error page by stopping execution
+        }
+
+        const data = await res.json();
+        toast.success(`Document shared successfully to ${docs[0]?.client || "Client"}`); // ✅ Updated success message, removed link and OTP
+
+        setIsShareDocumentOpen(false);
+        handleReset();
+
+        // Redirect to shared documents page after 2 seconds
+        setTimeout(() => {
+          router.push("/dashboard/shared-doc"); // ✅ Added redirect
+        }, 2000);
       } catch (error) {
-        console.log("Something Went Wrong: " + error);
-        toast.error("Something went wrong");
+        console.error("Error sharing documents:", error);
+        toast.error("Something went wrong while sharing documents.");
       }
     });
   };
