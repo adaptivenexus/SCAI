@@ -69,15 +69,34 @@ const SignUp = () => {
         let errorMessage = "Failed to create user";
         if (data.message) {
           errorMessage = data.message;
-        } else if (data.email && Array.isArray(data.email) && data.email.length > 0) {
-          // Extract the 'string' field from ErrorDetail object
-          const errorDetail = data.email[0];
-          errorMessage = errorDetail.string || "Email validation failed"; // Fallback if string field is missing
-        } else if (typeof data === "object") {
           const firstError = Object.values(data)[0];
-          errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
-          // If it's an ErrorDetail object, extract the string field
-          errorMessage = errorMessage.string || errorMessage || "Unknown error";
+          if (Array.isArray(firstError)) {
+            if (
+              firstError[0] &&
+              typeof firstError[0] === "object" &&
+              firstError[0].string
+            ) {
+              errorMessage = firstError[0].string;
+            } else {
+              errorMessage = firstError[0] || "Unknown error";
+            }
+          } else if (
+            firstError &&
+            typeof firstError === "object" &&
+            firstError.string
+          ) {
+            errorMessage = firstError.string;
+          } else {
+            errorMessage = firstError || "Unknown error";
+          }
+        } else if (data.error && typeof data.error === "string") {
+          // Try to extract string='...' from the error string
+          const match = data.error.match(/string='([^']+)'/);
+          if (match && match[1]) {
+            errorMessage = match[1];
+          } else {
+            errorMessage = data.error;
+          }
         }
 
         toast.error(errorMessage);
@@ -186,7 +205,8 @@ const SignUp = () => {
                 </div>
               )}
               <p className="subtitle-text text-secondary-foreground">
-                Let’s get you all set up so you can access your personal account.
+                Let’s get you all set up so you can access your personal
+                account.
               </p>
             </div>
             <form onSubmit={handleSubmit} className="space-y-7">
