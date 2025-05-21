@@ -1,7 +1,7 @@
 "use client";
 import { IoMdArrowRoundBack, IoIosCloseCircle } from "react-icons/io";
 import { FaCheckCircle } from "react-icons/fa";
-
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
@@ -53,6 +53,7 @@ const PricingPage = () => {
       ],
     },
   ];
+
   return (
     <div className="p-10 flex flex-col gap-6">
       <div className="flex justify-between items-center">
@@ -69,12 +70,11 @@ const PricingPage = () => {
       </div>
 
       {/* Cards */}
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {mapSubscriptions.map((sub, index) => (
           <div
             key={index}
-            className={`bg-white rounded-xl shadow-md  p-6 flex flex-col justify-between border`}
+            className={`bg-white rounded-xl shadow-md p-6 flex flex-col justify-between border`}
           >
             <div>
               <h3 className="font-bold text-lg text-forground">{sub.name}</h3>
@@ -96,21 +96,20 @@ const PricingPage = () => {
               </ul>
             </div>
 
-            <button
-              onClick={() => {}}
-              type="button"
-              className="bg-primary text-white rounded-md py-2 mt-auto disabled:opacity-50"
+            <Link
+              href={`/auth/signup?plan=${sub.id}`} // Plan ID URL mein pass karo
+              className="bg-primary text-white rounded-md py-2 mt-auto text-center disabled:opacity-50"
             >
-              {"Get Started"}
-            </button>
+              Get Started
+            </Link>
           </div>
         ))}
       </div>
 
-      {/* Table */}
+      {/* Table (No changes needed here) */}
       <section>
         <div>
-          <div className="hidden md:grid grid-cols-10 gap-5 p-4 rounded-3xl ">
+          <div className="hidden md:grid grid-cols-10 gap-5 p-4 rounded-3xl">
             <div className="col-span-3 px-4">
               <table className="w-full text-Black h-full table-fixed">
                 <thead>

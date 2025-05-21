@@ -129,7 +129,7 @@ const TransactionSuccess = () => {
   useEffect(() => {
     if (status === "success" && countdown === 0) {
       const redirect = () => {
-        router.push("/dashboard/overview");
+        router.push("/dashboard/settings/billing");
       };
       redirect();
     }
@@ -253,10 +253,10 @@ const TransactionSuccess = () => {
               </p>
             </div>
             <Link
-              href="/dashboard/overview"
+              href="/dashboard/settings/billing"
               className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium shadow-sm hover:shadow-md"
             >
-              Go to Dashboard
+             Go to Billing
             </Link>
             <p className="text-sm text-gray-500 mt-4">
               Redirecting in {countdown} seconds...
@@ -283,10 +283,10 @@ const TransactionSuccess = () => {
                 Try Again
               </Link>
               <Link
-                href="/dashboard/overview"
+                href="/dashboard/settings/billing"
                 className="px-6 py-3 border border-primary text-primary rounded-lg hover:bg-gray-50 transition-colors font-medium"
               >
-                Go to Dashboard
+               Go to Billing
               </Link>
             </div>
           </div>
@@ -308,10 +308,10 @@ const TransactionSuccess = () => {
               </p>
             </div>
             <Link
-              href="/dashboard/overview"
+              href="/dashboard/settings/billing"
               className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium shadow-sm hover:shadow-md"
             >
-              Go to Dashboard
+              Go to Billing
             </Link>
           </div>
         );
@@ -336,10 +336,10 @@ const TransactionSuccess = () => {
                 Try Again
               </Link>
               <Link
-                href="/dashboard/overview"
+                href="/dashboard/settings/billing"
                 className="px-6 py-3 border border-primary text-primary rounded-lg hover:bg-gray-50 transition-colors font-medium"
               >
-                Go to Dashboard
+                Go to Billing
               </Link>
             </div>
           </div>

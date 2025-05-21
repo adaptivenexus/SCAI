@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation"; // Import useSearchParams to read URL query params
 
 // icons
 import { IoIosEye, IoMdArrowDropdown } from "react-icons/io";
@@ -22,18 +23,31 @@ const SignUp = () => {
   const [aggrement, setAggrement] = useState(false);
   const { subscriptions, login } = useAuth();
 
+  const searchParams = useSearchParams(); // Get URL query params
+  const selectedPlan = searchParams.get("plan"); // Get the "plan" query param (e.g., "1" for Basic)
+
   const [formData, setFormData] = useState({
     agency_name: "",
     phone_number: "",
     email: "",
     password: "",
     password2: "",
-    plan: 0,
+    plan: selectedPlan ? parseInt(selectedPlan) : 0, // Set default plan based on URL param, fallback to 0 (Free)
   });
 
   const [message, setMessage] = useState({ type: "", text: "" });
 
   const router = useRouter();
+
+  // Ensure the plan is updated if the URL param changes (optional, for safety)
+  useEffect(() => {
+    if (selectedPlan) {
+      setFormData((prev) => ({
+        ...prev,
+        plan: parseInt(selectedPlan),
+      }));
+    }
+  }, [selectedPlan]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -90,7 +104,6 @@ const SignUp = () => {
             errorMessage = firstError || "Unknown error";
           }
         } else if (data.error && typeof data.error === "string") {
-          // Try to extract string='...' from the error string
           const match = data.error.match(/string='([^']+)'/);
           if (match && match[1]) {
             errorMessage = match[1];
