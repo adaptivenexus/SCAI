@@ -131,7 +131,7 @@ const BillingPage = () => {
               <h5 className="heading-5">Next Billing Date</h5>
               <div className="space-y-0.5">
                 <p className="subtitle-text text-secondary-foreground">
-                  {formatDate(subscriptionDetails.end_date)}
+                  {formatDate(subscription.expires_on)}
                 </p>
                 <p className="subtitle-text text-primary">
                   (Auto-renewal enabled)
@@ -139,8 +139,7 @@ const BillingPage = () => {
               </div>
             </div>
             <p className="label-text text-[#DF5753]">
-              Expiring Soon: Renew before{" "}
-              {formatDate(subscriptionDetails.end_date)}.
+              Expiring Soon: Renew before {formatDate(subscription.expires_on)}.
             </p>
           </div>
         </div>
