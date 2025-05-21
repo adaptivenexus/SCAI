@@ -91,7 +91,7 @@ const UserRow = ({ client, setEditClient, setIsEditClientOpen }) => {
         {isOpen && (
           <div
             ref={dropdownRef}
-            className="absolute bg-white rounded-lg shadow-lg z-10 overflow-hidden"
+            className="fixed bg-white rounded-lg shadow-lg overflow-hidden"
           >
             <button
               type="button"
