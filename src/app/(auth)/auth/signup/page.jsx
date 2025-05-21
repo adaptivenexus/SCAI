@@ -2,9 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation"; // Import useSearchParams to read URL query params
-
-// icons
+import { useRouter } from "next/navigation";
 import { IoIosEye, IoMdArrowDropdown } from "react-icons/io";
 import { IoIosEyeOff } from "react-icons/io";
 import { FaArrowLeft, FaFacebook } from "react-icons/fa";
@@ -12,10 +10,8 @@ import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
 import Image from "next/image";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { handleCheckout } from "@/utils/paymentGateway";
-import { authFetch } from "@/utils/auth";
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -23,31 +19,32 @@ const SignUp = () => {
   const [aggrement, setAggrement] = useState(false);
   const { subscriptions, login } = useAuth();
 
-  const searchParams = useSearchParams(); // Get URL query params
-  const selectedPlan = searchParams.get("plan"); // Get the "plan" query param (e.g., "1" for Basic)
-
   const [formData, setFormData] = useState({
     agency_name: "",
     phone_number: "",
     email: "",
     password: "",
     password2: "",
-    plan: selectedPlan ? parseInt(selectedPlan) : 0, // Set default plan based on URL param, fallback to 0 (Free)
+    plan: 0, // Default to 0, update in useEffect if needed
   });
 
   const [message, setMessage] = useState({ type: "", text: "" });
 
   const router = useRouter();
 
-  // Ensure the plan is updated if the URL param changes (optional, for safety)
+  // Use useEffect to update plan from URL param on client only
   useEffect(() => {
-    if (selectedPlan) {
-      setFormData((prev) => ({
-        ...prev,
-        plan: parseInt(selectedPlan),
-      }));
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const selectedPlan = params.get("plan");
+      if (selectedPlan) {
+        setFormData((prev) => ({
+          ...prev,
+          plan: parseInt(selectedPlan),
+        }));
+      }
     }
-  }, [selectedPlan]);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

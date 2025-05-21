@@ -6,8 +6,56 @@ import { MdOutlinePhoneInTalk } from "react-icons/md";
 
 const ContactUs = () => {
   const [subject, setSubject] = useState("general");
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    message: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [resultMsg, setResultMsg] = useState("");
 
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setForm((prev) => ({ ...prev, [id]: value }));
+    setResultMsg("");
+  };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setResultMsg("");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          subject,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setResultMsg("Your message has been sent successfully!");
+        setForm({
+          firstName: "",
+          lastName: "",
+          email: "",
+          phoneNumber: "",
+          message: "",
+        });
+      } else {
+        setResultMsg(
+          data.message || "Failed to send message. Please try again."
+        );
+      }
+    } catch (err) {
+      setResultMsg("Something went wrong. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <section className="min-h-screen text-black mt-8">
@@ -21,7 +69,7 @@ const ContactUs = () => {
         <div className="flex gap-10 flex-col lg:flex-row ">
           <div className="flex gap-8 rounded-2xl overflow-hidden p-4 bg-secondary-gradient shadow-xl flex-1">
             <div className="flex-1 p-4 md:p-8">
-              <form className="space-y-6">
+              <form className="space-y-6" onSubmit={handleSubmit}>
                 <div className="flex gap-4 flex-col md:flex-row">
                   <div className="flex flex-col flex-1 gap-2">
                     <label htmlFor="firstName">First Name</label>
@@ -30,6 +78,9 @@ const ContactUs = () => {
                       id="firstName"
                       placeholder="Enter your first name "
                       className="outline-none border border-[#D1D1D1] font-medium rounded-md py-2 px-4"
+                      value={form.firstName}
+                      onChange={handleInputChange}
+                      required
                     />
                   </div>
                   <div className="flex flex-col flex-1 gap-2">
@@ -39,26 +90,35 @@ const ContactUs = () => {
                       id="lastName"
                       placeholder="Enter your last name"
                       className="outline-none border border-[#D1D1D1] font-medium rounded-md py-2 px-4"
+                      value={form.lastName}
+                      onChange={handleInputChange}
+                      required
                     />
                   </div>
                 </div>
                 <div className="flex gap-4 flex-col md:flex-row">
                   <div className="flex flex-col flex-1 gap-2">
-                    <label htmlFor="firstName">Email</label>
+                    <label htmlFor="email">Email</label>
                     <input
                       type="email"
                       id="email"
                       placeholder="Enter your Email"
                       className="outline-none border border-[#D1D1D1] font-medium rounded-md py-2 px-4"
+                      value={form.email}
+                      onChange={handleInputChange}
+                      required
                     />
                   </div>
                   <div className="flex flex-col flex-1 gap-2">
-                    <label htmlFor="lastName">Phone Number</label>
+                    <label htmlFor="phoneNumber">Phone Number</label>
                     <input
                       type="text"
                       id="phoneNumber"
                       placeholder="+1 234-567-890"
                       className="outline-none border border-[#D1D1D1] font-medium rounded-md py-2 px-4"
+                      value={form.phoneNumber}
+                      onChange={handleInputChange}
+                      required
                     />
                   </div>
                 </div>
@@ -86,8 +146,22 @@ const ContactUs = () => {
                     placeholder="Write your message"
                     className="w-full outline-none border border-[#D1D1D1] font-medium rounded-md py-2 px-4"
                     rows={2}
+                    value={form.message}
+                    onChange={handleInputChange}
+                    required
                   ></textarea>
                 </div>
+                {resultMsg && (
+                  <div
+                    className={`rounded-md p-3 text-center ${
+                      resultMsg.includes("success")
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
+                  >
+                    {resultMsg}
+                  </div>
+                )}
                 <p>
                   By submitting your inquiry, you acknowledge and agree to our{" "}
                   <Link href={"/terms-and-conditions"} className="text-primary">
@@ -102,8 +176,9 @@ const ContactUs = () => {
                 <button
                   type="submit"
                   className="block ml-auto w-max py-3 px-6 subtitle-text bg-primary rounded-md hover:opacity-80 transition-all duration-300 text-white"
+                  disabled={loading}
                 >
-                  Send Message
+                  {loading ? "Sending..." : "Send Message"}
                 </button>
               </form>
             </div>
