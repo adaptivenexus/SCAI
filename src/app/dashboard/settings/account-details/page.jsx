@@ -115,37 +115,41 @@ const AccountDetails = () => {
           {/* Right Side: Short Description and Buttons */}
           <div className="flex items-center space-x-4">
             <p className="text-gray-100 text-sm max-w-xs">
-              Manage your personal info like name, email, and contact preferences.
+              Manage your personal info like name, email, and contact
+              preferences.
             </p>
-            <div className="flex space-x-2">
-              <Link
-                href={"/dashboard/settings/security-privacy"}
-                className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition duration-200"
-              >
-                Change Password
-              </Link>
-              <button
-                onClick={handleEditToggle}
-                className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition duration-200"
-              >
-                {isEditing ? "Cancel" : "Edit"}
-              </button>
-              {isEditing && (
-                <button
-                  onClick={handleSave}
-                  className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg font-medium hover:from-green-600 hover:to-green-700 transition duration-200"
-                >
-                  Save
-                </button>
-              )}
-            </div>
           </div>
+        </div>
+        <div className="flex space-x-2 justify-end px-4">
+          <Link
+            href={"/dashboard/settings/security-privacy"}
+            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition duration-200"
+          >
+            Change Password
+          </Link>
+          <button
+            onClick={handleEditToggle}
+            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition duration-200"
+          >
+            {isEditing ? "Cancel" : "Edit"}
+          </button>
+          {isEditing && (
+            <button
+              onClick={handleSave}
+              className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg font-medium hover:from-green-600 hover:to-green-700 transition duration-200"
+            >
+              Save
+            </button>
+          )}
         </div>
         <div className="p-8 space-y-6">
           <form className="grid grid-cols-2 gap-6">
             {/* Agency Name */}
             <div className="space-y-2">
-              <label htmlFor="agencyName" className="block text-sm uppercase font-semibold text-gray-700">
+              <label
+                htmlFor="agencyName"
+                className="block text-sm uppercase font-semibold text-gray-700"
+              >
                 Agency Name
               </label>
               <input
@@ -160,7 +164,10 @@ const AccountDetails = () => {
             </div>
             {/* Email */}
             <div className="space-y-2">
-              <label htmlFor="email" className="block text-sm uppercase font-semibold text-gray-700">
+              <label
+                htmlFor="email"
+                className="block text-sm uppercase font-semibold text-gray-700"
+              >
                 Email
               </label>
               <input
@@ -175,7 +182,10 @@ const AccountDetails = () => {
             </div>
             {/* Phone Number */}
             <div className="space-y-2">
-              <label htmlFor="phoneNumber" className="block text-sm uppercase font-semibold text-gray-700">
+              <label
+                htmlFor="phoneNumber"
+                className="block text-sm uppercase font-semibold text-gray-700"
+              >
                 Phone Number
               </label>
               <input
@@ -188,24 +198,12 @@ const AccountDetails = () => {
                 className="py-3 px-4 rounded-xl bg-slate-100 w-full outline-none border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 disabled:bg-gray-200 disabled:cursor-not-allowed"
               />
             </div>
-            {/* Address */}
-            <div className="space-y-2 col-span-2">
-              <label htmlFor="address" className="block text-sm uppercase font-semibold text-gray-700">
-                Address
-              </label>
-              <input
-                type="text"
-                name="address"
-                id="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                className="py-3 px-4 rounded-xl bg-slate-100 w-full outline-none border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 disabled:bg-gray-200 disabled:cursor-not-allowed"
-              />
-            </div>
             {/* City */}
             <div className="space-y-2">
-              <label htmlFor="city" className="block text-sm uppercase font-semibold text-gray-700">
+              <label
+                htmlFor="city"
+                className="block text-sm uppercase font-semibold text-gray-700"
+              >
                 City
               </label>
               <input
@@ -213,6 +211,24 @@ const AccountDetails = () => {
                 name="city"
                 id="city"
                 value={formData.city}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                className="py-3 px-4 rounded-xl bg-slate-100 w-full outline-none border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 disabled:bg-gray-200 disabled:cursor-not-allowed"
+              />
+            </div>
+            {/* Address */}
+            <div className="space-y-2 col-span-2">
+              <label
+                htmlFor="address"
+                className="block text-sm uppercase font-semibold text-gray-700"
+              >
+                Address
+              </label>
+              <input
+                type="text"
+                name="address"
+                id="address"
+                value={formData.address}
                 onChange={handleInputChange}
                 disabled={!isEditing}
                 className="py-3 px-4 rounded-xl bg-slate-100 w-full outline-none border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 disabled:bg-gray-200 disabled:cursor-not-allowed"

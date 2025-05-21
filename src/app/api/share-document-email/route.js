@@ -34,7 +34,7 @@ export async function POST(req) {
           <div style="font-size: 1.3rem; font-weight: bold; color: #222; letter-spacing: 2px;">${otp}</div>
         </div>
         <p style="color: #444; margin-bottom: 0;">If you have any questions or did not expect this email, please contact us at <a href="mailto:support@adaptivenexus.com" style="color: #6C63FF; text-decoration: underline;">support@adaptivenexus.com</a>.</p>
-        <p style="color: #aaa; font-size: 0.95rem; margin-top: 24px;">&mdash; Adaptive Nexus SCAI Team</p>
+        <p style="color: #aaa; font-size: 0.95rem; margin-top: 24px;">&mdash; SCANDOQ Team</p>
         </div>
       </div>
       </div>
