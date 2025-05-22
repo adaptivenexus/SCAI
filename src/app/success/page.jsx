@@ -215,7 +215,7 @@ const TransactionSuccess = () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        email: "shreenath.jagtap.sj@gmail.com",
+        email: user.email,
         name: user.agency_name,
         plan: plan,
       }),
