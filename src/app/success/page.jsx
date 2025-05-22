@@ -20,8 +20,9 @@ const TransactionSuccess = () => {
   const [startTime] = useState(Math.floor(Date.now() / 1000));
   const [type, setType] = useState("");
   const [plan, setPlan] = useState(null);
+  const [emailSent, setEmailSent] = useState(false);
 
-  const { subscription, refreshTokenFn, getSubscription } = useAuth();
+  const { subscription, refreshTokenFn, getSubscription, user } = useAuth();
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -207,6 +208,27 @@ const TransactionSuccess = () => {
     }
   }, [status]);
 
+  const handleEmail = async () => {
+    await fetch("/api/plan-update-email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: "shreenath.jagtap.sj@gmail.com",
+        name: user.agency_name,
+        plan: plan,
+      }),
+    });
+  };
+
+  useEffect(() => {
+    if (status === "success" && type === "upgrade" && !emailSent) {
+      handleEmail();
+      setEmailSent(true);
+    }
+  }, [status, type, emailSent]);
+
   const renderContent = () => {
     switch (status) {
       case "initializing":
@@ -256,7 +278,7 @@ const TransactionSuccess = () => {
               href="/dashboard/settings/billing"
               className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium shadow-sm hover:shadow-md"
             >
-             Go to Billing
+              Go to Billing
             </Link>
             <p className="text-sm text-gray-500 mt-4">
               Redirecting in {countdown} seconds...
@@ -286,7 +308,7 @@ const TransactionSuccess = () => {
                 href="/dashboard/settings/billing"
                 className="px-6 py-3 border border-primary text-primary rounded-lg hover:bg-gray-50 transition-colors font-medium"
               >
-               Go to Billing
+                Go to Billing
               </Link>
             </div>
           </div>
