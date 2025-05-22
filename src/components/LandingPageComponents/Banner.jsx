@@ -1,3 +1,4 @@
+import Link from "next/link";
 import PrimaryButton from "../CTAs/PrimaryButton";
 
 const Banner = () => {
@@ -12,9 +13,12 @@ const Banner = () => {
             Try it free for 14 days. No credit card required.
           </p>
         </div>
-        <PrimaryButton className={"bg-accent-primary text-foreground px-14"}>
-          Get Started
-        </PrimaryButton>
+        <Link href="/auth/signup">
+        
+            <PrimaryButton className={"bg-accent-primary text-foreground px-14"}>
+              Get Started
+            </PrimaryButton>
+        </Link>
       </div>
     </section>
   );

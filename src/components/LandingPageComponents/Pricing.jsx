@@ -1,11 +1,60 @@
-import { FaCheck, FaCheckCircle } from "react-icons/fa";
+"use client";
+
+import { FaCheckCircle } from "react-icons/fa";
 import Heading from "../AccentComponents/Heading";
-import PrimaryButton from "../CTAs/PrimaryButton";
 import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa6";
-import { IoIosCloseCircle, IoMdCloseCircle } from "react-icons/io";
+import { IoIosCloseCircle } from "react-icons/io";
+import { useAuth } from "@/context/AuthContext";
 
 const Pricing = () => {
+  const { subscriptions } = useAuth();
+
+  // Map subscriptions with features (same as previous PricingPage.jsx)
+  const mapSubscriptions = [
+    {
+      ...subscriptions[0],
+      features: [
+        "Smart Scan 25 pages",
+        "FAQ support",
+        "No customization",
+        "1 GB storage",
+      ],
+    },
+    {
+      ...subscriptions[1],
+      features: [
+        "Smart Scan 100 pages",
+        "Email Support",
+        "Limited customization",
+        "5 GB storage",
+        "Smart Dashboard",
+      ],
+    },
+    {
+      ...subscriptions[2],
+      features: [
+        "Smart Scan 1000 pages",
+        "Priority support",
+        "Moderate customization",
+        "API access",
+        "10 GB storage",
+        "Smart Dashboard",
+      ],
+    },
+    {
+      ...subscriptions[3],
+      features: [
+        "Smart Scan Unlimited pages",
+        "24/7 dedicated support",
+        "Extensive customization",
+        "API access",
+        "50 GB storage",
+        "Smart Dashboard",
+      ],
+    },
+  ];
+
   return (
     <section>
       <div className="xl:max-w-[1280px] px-4 mx-auto space-y-10">
@@ -20,7 +69,7 @@ const Pricing = () => {
             </p>
           </div>
         </div>
-        <div className="grid-cols-1 md:grid-cols-10 gap-5 grid ">
+        <div className="grid-cols-1 md:grid-cols-10 gap-5 grid">
           <div className="py-8 bg-secondary-gradient rounded-xl flex flex-col items-center justify-center space-y-2 md:col-span-3">
             <h4 className="heading-4">Contact us!</h4>
             <Link href={"/contact"} className="flex items-center gap-2">
@@ -28,61 +77,26 @@ const Pricing = () => {
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-2 flex-1 md:col-span-7">
-            <div className="border border-accent-secondary rounded-xl flex flex-col items-center gap-5 p-4">
-              <p className="heading-5">Free</p>
-              <p className="heading-5">
-                $0/
-                <span className="text-secondary-foreground body-text">
-                  Month
-                </span>
-              </p>
-              <button
-                type="button"
-                className="bg-accent-primary text-primary px-4 py-2 rounded-lg"
+            {mapSubscriptions.map((sub, index) => (
+              <div
+                key={index}
+                className="border border-accent-secondary rounded-xl flex flex-col items-center gap-5 p-4"
               >
-                Choose Plan
-              </button>
-            </div>
-            <div className="border border-accent-secondary rounded-xl flex flex-col items-center gap-5 p-4">
-              <p className="heading-5">Basic</p>
-              <p className="heading-5">
-                $19.99/
-                <span className="text-secondary-foreground body-text">
-                  Month
-                </span>
-              </p>
-              <button
-                type="button"
-                className="bg-accent-primary text-primary px-4 py-2 rounded-lg"
-              >
-                Choose Plan
-              </button>
-            </div>
-            <div className="border border-accent-secondary rounded-xl flex flex-col items-center gap-5 p-4">
-              <p className="heading-5">Standard</p>
-              <p className="heading-5">
-                $149.99/
-                <span className="text-secondary-foreground body-text">
-                  Month
-                </span>
-              </p>
-              <button
-                type="button"
-                className="bg-accent-primary text-primary px-4 py-2 rounded-lg"
-              >
-                Choose Plan
-              </button>
-            </div>
-            <div className="border border-accent-secondary rounded-xl flex flex-col items-center gap-5 p-4">
-              <p className="heading-5">Enterprise</p>
-              <p className="heading-5">Custom Pricing</p>
-              <button
-                type="button"
-                className="bg-accent-primary text-primary px-4 py-2 rounded-lg"
-              >
-                Choose Plan
-              </button>
-            </div>
+                <p className="heading-5">{sub.name}</p>
+                <p className="heading-5">
+                  {sub.name === "Enterprise" ? "Custom Pricing" : `$${sub.price}/`}
+                  <span className="text-secondary-foreground body-text">
+                    {sub.name !== "Enterprise" && "Month"}
+                  </span>
+                </p>
+                <Link
+                  href={`/auth/signup?plan=${sub.id}`}
+                  className="bg-accent-primary text-primary px-4 py-2 rounded-lg"
+                >
+                  Choose Plan
+                </Link>
+              </div>
+            ))}
           </div>
         </div>
         <div className="hidden md:grid grid-cols-10 gap-5 p-4 rounded-3xl bg-primary-gradient">
@@ -178,18 +192,14 @@ const Pricing = () => {
             <table className="w-full table-fixed">
               <thead>
                 <tr>
-                  <th className="heading-5 border-b border-[#E1E1E1] py-3 text-center w-full">
-                    Free
-                  </th>
-                  <th className="heading-5 border-b border-[#E1E1E1] py-3 text-center w-full">
-                    Basic
-                  </th>
-                  <th className="heading-5 border-b border-[#E1E1E1] py-3 text-center w-full">
-                    Standard
-                  </th>
-                  <th className="heading-5 border-b border-[#E1E1E1] py-3 text-center w-full">
-                    Enterprise
-                  </th>
+                  {mapSubscriptions.map((sub, index) => (
+                    <th
+                      key={index}
+                      className="heading-5 border-b border-[#E1E1E1] py-3 text-center w-full"
+                    >
+                      {sub.name}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
@@ -477,4 +487,5 @@ const Pricing = () => {
     </section>
   );
 };
+
 export default Pricing;
