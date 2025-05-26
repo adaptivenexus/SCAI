@@ -25,6 +25,7 @@ const Login = () => {
   const [otpStep, setOtpStep] = useState(false);
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   // Redirect to dashboard if already logged in
   useEffect(() => {
@@ -44,11 +45,11 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSubmitting(true);
     try {
       if (!otpStep) {
         // Step 1: Email & Password
         const result = await login(formData.email, formData.password);
-        // If login returns a value indicating OTP is required, or just always go to OTP step on first call
         setOtpStep(true);
       } else {
         // Step 2: OTP
@@ -62,6 +63,9 @@ const Login = () => {
           } else {
             lastError = (result && result.message) || "OTP verification failed";
             attempt++;
+            if (attempt < 3) {
+              await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 second delay
+            }
           }
         }
         if (!success) {
@@ -71,11 +75,13 @@ const Login = () => {
     } catch (error) {
       setError("Something went wrong");
       console.error("Login error:", error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   // Don't render the login form if we're redirecting
-  if (loading || user) {
+  if (loading || user || submitting) {
     return (
       <div className="h-screen w-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
