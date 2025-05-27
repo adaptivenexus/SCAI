@@ -24,6 +24,7 @@ const DocumentRow = ({
   const { refreshTokenFn } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
   const [isManageDocumentOpen, setIsManageDocumentOpen] = useState(false);
+  const [action, setAction] = useState(null);
 
   const getFileType = (filename) => {
     if (!filename) return "unknown";
@@ -37,9 +38,7 @@ const DocumentRow = ({
 
   const handleDelete = async () => {
     try {
-      // Ensure localStorage is accessed only on the client side
-
-      const res = await fetch(
+      const res = await authFetch(
         `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${doc.id}`,
         {
           method: "DELETE",
@@ -47,7 +46,8 @@ const DocumentRow = ({
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
+        refreshTokenFn
       );
       if (res.ok) {
         toast.success("Document deleted successfully");
@@ -208,6 +208,7 @@ const DocumentRow = ({
             type="button"
             className="px-2 py-1 text-xs rounded-full bg-orange-100 text-orange-800"
             onClick={() => {
+              setAction("verify");
               setIsManageDocumentOpen(true);
             }}
           >
@@ -234,6 +235,7 @@ const DocumentRow = ({
                 className="block subtitle-text px-3 py-1 text-foreground hover:opacity-80 hover:bg-black/10 w-full text-start"
                 onClick={() => {
                   setIsOpen(false);
+                  setAction("edit");
                   setIsManageDocumentOpen(true);
                 }}
               >
@@ -251,8 +253,10 @@ const DocumentRow = ({
           {isManageDocumentOpen && (
             <ManageDocument
               setIsManageDocumentOpen={setIsManageDocumentOpen}
-              document={doc}
+              document={{ ...doc, status: doc.status || "Pending" }}
               parsedData={parsedData}
+              action={action}
+              onDocumentUpdate={fetchDocuments} // Pass fetchDocuments to refresh the list
             />
           )}
         </div>

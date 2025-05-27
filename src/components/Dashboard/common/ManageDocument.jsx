@@ -1,19 +1,104 @@
 "use client";
 
 import { GlobalContext } from "@/context/GlobalProvider";
+import { useAuth } from "@/context/AuthContext";
 import { useContext, useEffect, useState } from "react";
 import { IoIosCloseCircle } from "react-icons/io";
 import { toast } from "react-toastify";
+import { authFetch } from "@/utils/auth";
 
-const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData }) => {
+const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData, action, onDocumentUpdate }) => {
   const { clients } = useContext(GlobalContext);
+  const { refreshTokenFn } = useAuth();
   const [categories, setCategories] = useState([]);
   const [editDocument, setEditDocument] = useState(document);
   const [listClients, setListClients] = useState(clients);
   const [searchInputClients, setSearchInputClients] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    // Validation (only for client_id and category_id)
+    if (!editDocument.client?.id || editDocument.client.id === 0) {
+      setError("Client Name is required");
+      setLoading(false);
+      return;
+    }
+    if (!editDocument.category?.id || editDocument.category.id === 0) {
+      setError("Category is required");
+      setLoading(false);
+      return;
+    }
+
+    // Prepare payload for API using application/json
+    const payload = {
+      client_id: editDocument.client.id,
+      category_id: editDocument.category.id,
+    };
+    if (action === "verify") {
+      payload.status = "Verified";
+    }
+
+    try {
+      const accessToken =
+        typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+
+      const response = await authFetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${document.id}/`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify(payload),
+        },
+        refreshTokenFn
+      );
+
+      // Log response details for debugging
+      console.log("Response Status:", response.status);
+      console.log("Response Headers:", response.headers.get("content-type"));
+
+      // Check the content type of the response
+      const contentType = response.headers.get("content-type");
+      let data;
+
+      // Handle cases where the response body might be empty (e.g., 204 No Content)
+      if (response.status === 204) {
+        toast.success(action === "verify" ? "Document verified successfully!" : "Document updated successfully!");
+        setIsManageDocumentOpen(false);
+        onDocumentUpdate(); // Trigger refresh
+        setLoading(false);
+        return;
+      }
+
+      // Check if the response is JSON
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        console.log("Non-JSON Response Body:", text);
+        throw new Error(`Expected JSON response, but got: ${text.slice(0, 100)}...`);
+      }
+
+      if (response.ok) {
+        toast.success(action === "verify" ? "Document verified successfully!" : "Document updated successfully!");
+        setIsManageDocumentOpen(false);
+        onDocumentUpdate(); // Trigger refresh
+      } else {
+        setError(data.message || data.error || "Failed to update document");
+      }
+    } catch (error) {
+      console.error("Error in handleSubmit:", error);
+      setError(error.message || "An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -29,16 +114,14 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData }) => {
     } else {
       setListClients([]);
     }
-  }, [searchInputClients]);
+  }, [searchInputClients, clients]);
 
   const fetchCategory = async () => {
     try {
-      // Ensure localStorage is accessed only on the client side
       const accessToken =
         typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
 
-
-      const response = await fetch(
+      const response = await authFetch(
         `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/categories/`,
         {
           method: "GET",
@@ -46,7 +129,8 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData }) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
+        refreshTokenFn
       );
       if (response.ok) {
         const data = await response.json();
@@ -65,17 +149,14 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData }) => {
 
   useEffect(() => {
     if (document?.client) {
-      // Extract email from the client name string
       const emailMatch = document.client.match(/\(([^)]+)\)/);
       const email = emailMatch ? emailMatch[1] : null;
 
       if (email) {
-        // Find the client in the global state using the extracted email
         const matchedClient = clients.find(
           (client) => client.email.toLowerCase() === email.toLowerCase()
         );
         if (matchedClient) {
-          // Update the editDocument state with the matched client
           setSearchInputClients("");
           setEditDocument((prev) => ({
             ...prev,
@@ -87,9 +168,16 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData }) => {
   }, [document, clients]);
 
   const formatDateForInput = (dateString) => {
-    const date = new Date(dateString);
+    if (!dateString) return "";
+    let date;
+    if (dateString.includes(",")) {
+      date = new Date(dateString); // Parse "April 14, 2025" format
+    } else {
+      date = new Date(dateString); // Parse ISO format
+    }
+    if (isNaN(date.getTime())) return "";
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+    const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
@@ -103,7 +191,25 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData }) => {
         className="bg-white rounded-lg space-y-4 p-10 max-w-[1300px] w-full relative"
         onClick={(e) => e.stopPropagation()}
       >
-        <h5 className="heading-5 font-bold">Edit Document</h5>
+        <h5 className="heading-5 font-bold">{action === "verify" ? "Verify Document" : "Edit Document"}</h5>
+        {error && (
+          <div className="bg-red-100 text-red-800 p-3 rounded-lg flex items-center gap-2">
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+            {error}
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="flex flex-col justify-between">
           <div className="flex gap-6">
             <div className="flex-1 space-y-4">
@@ -184,7 +290,6 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData }) => {
                   <label htmlFor="category_id">
                     Category <span className="text-red-500">*</span>
                   </label>
-
                   <select
                     name="category"
                     id="category"
@@ -203,6 +308,7 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData }) => {
                         },
                       });
                     }}
+                    disabled={loading}
                   >
                     <option value="">Select Category</option>
                     {categories.map((category) => (
@@ -214,28 +320,25 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData }) => {
                 </div>
               </div>
               <div className="flex flex-col flex-1 gap-1">
-                <label htmlFor="documentName">
-                  Document Name <span className="text-red-500">*</span>
-                </label>
+                <label htmlFor="documentName">Document Name</label>
                 <input
                   type="text"
                   name="documentName"
                   id="documentName"
                   className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
                   placeholder="Enter document name"
-                  value={editDocument.name || parsedData?.suggested_title}
+                  value={editDocument.name || parsedData?.suggested_title || ""}
                   onChange={(e) =>
                     setEditDocument({
                       ...editDocument,
                       name: e.target.value,
                     })
                   }
+                  disabled={loading}
                 />
               </div>
               <div className="flex flex-col flex-1 gap-1">
-                <label htmlFor="documentDate">
-                  Document Date <span className="text-red-500">*</span>
-                </label>
+                <label htmlFor="documentDate">Document Date</label>
                 <input
                   type="date"
                   name="documentDate"
@@ -244,7 +347,8 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData }) => {
                   placeholder="Enter document date"
                   value={
                     editDocument.documentDate ||
-                    formatDateForInput(parsedData?.document_date)
+                    formatDateForInput(parsedData?.document_date) ||
+                    ""
                   }
                   onChange={(e) =>
                     setEditDocument({
@@ -252,65 +356,31 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData }) => {
                       documentDate: e.target.value,
                     })
                   }
+                  disabled={loading}
                 />
               </div>
-
-              {/* <div className="flex flex-col gap-1">
-                <label>Status</label>
-                <div className="flex gap-4">
-                  <label htmlFor="status1" className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="status"
-                      id="status1"
-                      checked={editDocument.status === "Verified"}
-                      onChange={() =>
-                        setEditDocument({
-                          ...editDocument,
-                          status: "Verified",
-                        })
-                      }
-                    />
-                    <span>Verified</span>
-                  </label>
-                  <label htmlFor="status2" className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="status"
-                      id="status2"
-                      checked={editDocument.status === "Not Verified"}
-                      onChange={() =>
-                        setEditDocument({
-                          ...editDocument,
-                          status: "Not Verified",
-                        })
-                      }
-                    />
-                    <span>Not Verified</span>
-                  </label>
-                </div>
-              </div> */}
             </div>
             <div className="flex-1 h-[70vh]">
               <h2 className="text-lg text-center font-medium mb-4">Summary</h2>
-              <p>{parsedData.summary}</p>
+              <p>{parsedData.summary || "No summary available."}</p>
             </div>
           </div>
           <div className="flex gap-2 items-center">
             <button
               type="submit"
-              onClick={() => toast.warn("Api Work in Progress")}
-              className="primary-btn px-6 text-lg"
+              className="primary-btn px-6 text-lg disabled:opacity-50"
+              disabled={loading}
             >
-              Verify
+              {loading ? (action === "verify" ? "Verifying..." : "Saving...") : (action === "verify" ? "Verify" : "Save")}
             </button>
             <button
               type="button"
               onClick={() => {
                 setIsManageDocumentOpen(false);
-                setEditDocument && setEditDocument(null);
+                setEditDocument(null);
               }}
-              className="primary-btn bg-slate-500 px-6 text-lg"
+              className="primary-btn bg-slate-500 px-6 text-lg disabled:opacity-50"
+              disabled={loading}
             >
               Cancel
             </button>
