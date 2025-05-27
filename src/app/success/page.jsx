@@ -216,7 +216,7 @@ const TransactionSuccess = () => {
       },
       body: JSON.stringify({
         email: user.email,
-        name: user.agency_name,
+        name: user.name,
         plan: plan,
       }),
     });

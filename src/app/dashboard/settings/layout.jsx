@@ -3,8 +3,11 @@ import { IoMdArrowRoundBack } from "react-icons/io";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 const SettingsLayout = ({ children }) => {
+  const { user } = useAuth();
+
   const router = useRouter();
   const pathname = usePathname();
   return (
@@ -41,50 +44,56 @@ const SettingsLayout = ({ children }) => {
               >
                 Security & Privacy
               </Link>
-              <Link
-                href={"/dashboard/settings/interface-setting"}
-                className={`subtitle-text hover:bg-slate-100 rounded-lg px-2 py-2 ${
-                  pathname === "/dashboard/settings/interface-settings" &&
-                  "bg-slate-100"
-                }`}
-              >
-                Interface Settings
-              </Link>
-              <Link
-                href={"/dashboard/settings/billing"}
-                className={`subtitle-text hover:bg-slate-100 rounded-lg px-2 py-2 ${
-                  pathname === "/dashboard/settings/billing" && "bg-slate-100"
-                }`}
-              >
-                Plan & Billing
-              </Link>
-              <Link
-                href={"/dashboard/settings/account-controls"}
-                className={`subtitle-text hover:bg-slate-100 rounded-lg px-2 py-2 ${
-                  pathname === "/dashboard/settings/account-controls" &&
-                  "bg-slate-100"
-                }`}
-              >
-                Account Controls
-              </Link>
-              <Link
-                href={"/dashboard/settings/notification-settings"}
-                className={`subtitle-text hover:bg-slate-100 rounded-lg px-2 py-2 ${
-                  pathname === "/dashboard/settings/notification-settings" &&
-                  "bg-slate-100"
-                }`}
-              >
-                Notification Settings
-              </Link>
-              <Link
-                href={"/dashboard/settings/role-mangement"}
-                className={`subtitle-text hover:bg-slate-100 rounded-lg px-2 py-2 ${
-                  pathname === "/dashboard/settings/role-mangement" &&
-                  "bg-slate-100"
-                }`}
-              >
-                Role Mangement
-              </Link>
+              {user?.role === "admin" && (
+                <>
+                  <Link
+                    href={"/dashboard/settings/interface-setting"}
+                    className={`subtitle-text hover:bg-slate-100 rounded-lg px-2 py-2 ${
+                      pathname === "/dashboard/settings/interface-settings" &&
+                      "bg-slate-100"
+                    }`}
+                  >
+                    Interface Settings
+                  </Link>
+                  <Link
+                    href={"/dashboard/settings/billing"}
+                    className={`subtitle-text hover:bg-slate-100 rounded-lg px-2 py-2 ${
+                      pathname === "/dashboard/settings/billing" &&
+                      "bg-slate-100"
+                    }`}
+                  >
+                    Plan & Billing
+                  </Link>
+                  <Link
+                    href={"/dashboard/settings/account-controls"}
+                    className={`subtitle-text hover:bg-slate-100 rounded-lg px-2 py-2 ${
+                      pathname === "/dashboard/settings/account-controls" &&
+                      "bg-slate-100"
+                    }`}
+                  >
+                    Account Controls
+                  </Link>
+                  <Link
+                    href={"/dashboard/settings/notification-settings"}
+                    className={`subtitle-text hover:bg-slate-100 rounded-lg px-2 py-2 ${
+                      pathname ===
+                        "/dashboard/settings/notification-settings" &&
+                      "bg-slate-100"
+                    }`}
+                  >
+                    Notification Settings
+                  </Link>
+                  <Link
+                    href={"/dashboard/settings/role-mangement"}
+                    className={`subtitle-text hover:bg-slate-100 rounded-lg px-2 py-2 ${
+                      pathname === "/dashboard/settings/role-mangement" &&
+                      "bg-slate-100"
+                    }`}
+                  >
+                    Role Mangement
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

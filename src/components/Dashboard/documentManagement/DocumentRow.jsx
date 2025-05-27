@@ -186,7 +186,7 @@ const DocumentRow = ({
         )}
       </td>
       <td className="px-6 py-4 text-sm text-foreground">
-        {parsedData?.document_type}
+        {doc.category.name || parsedData?.document_type}
       </td>
       <td className="px-6 py-4 text-sm text-foreground">
         {formatDate(doc.uploaded_at)}

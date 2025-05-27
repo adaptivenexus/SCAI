@@ -11,7 +11,7 @@ const AccountDetails = () => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    agencyName: "",
+    name: "",
     phoneNumber: "",
     email: "",
     address: "",
@@ -24,30 +24,41 @@ const AccountDetails = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await authFetch(
-          `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency/profile/`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        if (user?.role === "admin") {
+          const res = await authFetch(
+            `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency/profile/`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
             },
-          },
-          refreshTokenFn
-        );
-        const data = await res.json();
-        if (res.ok) {
-          setFormData({
-            agencyName: data.agency_name || "",
-            phoneNumber: data.phone_number || "",
-            email: user.email || "",
-            address: data.address || "",
-            city: data.city || "",
-            country: data.country || "",
-            password: "***************",
-          });
+            refreshTokenFn
+          );
+          const data = await res.json();
+          if (res.ok) {
+            setFormData({
+              name: data.agency_name || "",
+              phoneNumber: data.phone_number || "",
+              email: user.email || "",
+              address: data.address || "",
+              city: data.city || "",
+              country: data.country || "",
+              password: "***************",
+            });
+          } else {
+            throw new Error("Failed to fetch profile details");
+          }
         } else {
-          throw new Error("Failed to fetch profile details");
+          setFormData({
+            name: user.name || "",
+            phoneNumber: user.phone_number || "",
+            email: user.email || "",
+            address: user.address || "",
+            city: user.city || "",
+            country: user.country || "",
+          });
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
@@ -72,7 +83,7 @@ const AccountDetails = () => {
   const handleSave = async () => {
     try {
       const payload = {
-        agency_name: formData.agencyName,
+        agency_name: formData.name,
         phone_number: formData.phoneNumber,
         address: formData.address || null,
         city: formData.city || null,
@@ -129,6 +140,7 @@ const AccountDetails = () => {
           </Link>
           <button
             onClick={handleEditToggle}
+            disabled={user?.role === "member"}
             className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition duration-200"
           >
             {isEditing ? "Cancel" : "Edit"}
@@ -147,16 +159,16 @@ const AccountDetails = () => {
             {/* Agency Name */}
             <div className="space-y-2">
               <label
-                htmlFor="agencyName"
+                htmlFor="name"
                 className="block text-sm uppercase font-semibold text-gray-700"
               >
                 Agency Name
               </label>
               <input
                 type="text"
-                id="agencyName"
-                name="agencyName"
-                value={formData.agencyName}
+                id="name"
+                name="name"
+                value={formData.name}
                 onChange={handleInputChange}
                 disabled={!isEditing}
                 className="py-3 px-4 rounded-xl bg-slate-100 w-full outline-none border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 disabled:bg-gray-200 disabled:cursor-not-allowed"

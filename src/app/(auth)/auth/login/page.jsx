@@ -47,23 +47,35 @@ const Login = () => {
     setError("");
     setSubmitting(true);
     try {
-      if (!otpStep) {
-        // Step 1: Email & Password
+      if (activeTab === "member") {
+        // Member login: direct, no OTP
+        const result = await login(
+          formData.email,
+          formData.password,
+          undefined,
+          false,
+          true
+        );
+        if (result && result.ok === false) {
+          setError("Invalid email or password");
+        }
+      } else if (!otpStep) {
+        // Agency Step 1: Email & Password
         const result = await login(formData.email, formData.password);
         setOtpStep(true);
       } else {
-        // Step 2: OTP
+        // Agency Step 2: OTP
         let attempt = 0;
         let success = false;
         let lastError = null;
-        while (attempt < 3 && !success) {
+        while (attempt < 5 && !success) {
           const result = await login(formData.email, formData.password, otp);
           if (result && result.success) {
             success = true;
           } else {
             lastError = (result && result.message) || "OTP verification failed";
             attempt++;
-            if (attempt < 3) {
+            if (attempt < 5) {
               await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 second delay
             }
           }

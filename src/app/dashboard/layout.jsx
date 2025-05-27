@@ -10,9 +10,19 @@ import { MdDataUsage, MdLogout, MdOutlinePayment } from "react-icons/md";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { IoMenu, IoClose } from "react-icons/io5";
+import { useRouter } from "next/navigation";
 
 const DashboardLayout = ({ children }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
+
+  // call use effect to check authentication and use useRouter hook to redirect to login if not authenticated
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.replace("/auth/login");
+    }
+  }, [isAuthenticated, router]);
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
@@ -75,10 +85,11 @@ const DashboardLayout = ({ children }) => {
                   />
                   <div className="space-y-2">
                     <p className="text-xl text-start font-medium">
-                      {user?.agency_name}
+                      {user?.name}
                     </p>
                     <p className="text-sm text-start text-primary">
-                      Welcome Back
+                      Welcome Back{" "}
+                      <span className="capitalize">{user?.role}</span>
                     </p>
                   </div>
                 </div>
@@ -97,39 +108,43 @@ const DashboardLayout = ({ children }) => {
                             Profile
                           </Link>
                         </li>
-                        <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
-                          <Link
-                            href={"/dashboard/settings/billing"}
-                            className="flex items-center gap-2"
-                          >
-                            <div>
-                              <MdOutlinePayment size={24} />
-                            </div>
-                            Billing
-                          </Link>
-                        </li>
-                        <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
-                          <Link
-                            href={"/dashboard/user/my-usage"}
-                            className="flex items-center gap-2"
-                          >
-                            <div>
-                              <MdDataUsage size={24} />
-                            </div>
-                            My Usage
-                          </Link>
-                        </li>
-                        <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
-                          <Link
-                            href={"/dashboard/user/team-usage"}
-                            className="flex items-center gap-2"
-                          >
-                            <div>
-                              <MdDataUsage size={24} />
-                            </div>
-                            Team Usage
-                          </Link>
-                        </li>
+                        {user.role === "admin" && (
+                          <>
+                            <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
+                              <Link
+                                href={"/dashboard/settings/billing"}
+                                className="flex items-center gap-2"
+                              >
+                                <div>
+                                  <MdOutlinePayment size={24} />
+                                </div>
+                                Billing
+                              </Link>
+                            </li>
+                            <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
+                              <Link
+                                href={"/dashboard/user/my-usage"}
+                                className="flex items-center gap-2"
+                              >
+                                <div>
+                                  <MdDataUsage size={24} />
+                                </div>
+                                My Usage
+                              </Link>
+                            </li>
+                            <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
+                              <Link
+                                href={"/dashboard/user/team-usage"}
+                                className="flex items-center gap-2"
+                              >
+                                <div>
+                                  <MdDataUsage size={24} />
+                                </div>
+                                Team Usage
+                              </Link>
+                            </li>
+                          </>
+                        )}
                         <li className="subtitle-text text-red-500 py-2 px-1 hover:bg-slate-100">
                           <button
                             onClick={() => logout()}

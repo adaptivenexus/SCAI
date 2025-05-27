@@ -5,13 +5,13 @@ import { FaFileAlt, FaRegUser, FaShareAlt, FaUsers } from "react-icons/fa";
 import { RiDashboardFill } from "react-icons/ri";
 import { IoIosCall, IoMdSettings } from "react-icons/io";
 import { motion, AnimatePresence } from "framer-motion";
-import { useContext, useState } from "react";
-import { TbFileUpload } from "react-icons/tb";
+import { useState } from "react";
+
 import { IoDocuments } from "react-icons/io5";
-import { LuUserRoundPlus } from "react-icons/lu";
-import { GlobalContext } from "@/context/GlobalProvider";
+import { useAuth } from "@/context/AuthContext";
 
 const Sidebar = () => {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isUsersOpen, setIsUsersOpen] = useState(false);
   const [isDocumentsOpen, setIsDocumentsOpen] = useState(false);
@@ -68,27 +68,29 @@ const Sidebar = () => {
               </Link>
             </li>
 
-            <li>
-              <Link
-                href={"/dashboard/members-mangement"}
-                className="w-full p-2 rounded-lg text-background flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200"
-              >
-                <FaUsers size={40} className="min-w-[40px]" />
-                <AnimatePresence mode="wait">
-                  {isOpen && (
-                    <motion.span
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden text-ellipsis whitespace-nowrap"
-                    >
-                      Members Mangement
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </Link>
-            </li>
+            {user?.role === "admin" && (
+              <li>
+                <Link
+                  href={"/dashboard/members-mangement"}
+                  className="w-full p-2 rounded-lg text-background flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200"
+                >
+                  <FaUsers size={40} className="min-w-[40px]" />
+                  <AnimatePresence mode="wait">
+                    {isOpen && (
+                      <motion.span
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden text-ellipsis whitespace-nowrap"
+                      >
+                        Members Mangement
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </Link>
+              </li>
+            )}
             <li>
               <Link
                 href={"/dashboard/shared-doc"}

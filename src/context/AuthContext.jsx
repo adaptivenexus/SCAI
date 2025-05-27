@@ -9,7 +9,6 @@ import {
   isAuthenticated,
   authFetch,
 } from "@/utils/auth";
-import { toast } from "react-toastify";
 
 const AuthContext = createContext();
 
@@ -71,34 +70,34 @@ export const AuthProvider = ({ children }) => {
         return item.agency === JSON.parse(agency).id && item.is_active;
       });
 
-      if (!subscriptionData) {
-        const newPlan = {
-          is_active: true,
-          expires_on: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-            .toISOString()
-            .slice(0, 10), // Extracts the date in "YYYY-MM-DD" format
-          plan: 1,
-          used_scans: 0,
-          registered_users_count: 1,
-          used_storage: 0,
-          agency: user.id,
-        };
+      // if (!subscriptionData) {
+      //   const newPlan = {
+      //     is_active: true,
+      //     expires_on: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      //       .toISOString()
+      //       .slice(0, 10), // Extracts the date in "YYYY-MM-DD" format
+      //     plan: 1,
+      //     used_scans: 0,
+      //     registered_users_count: 1,
+      //     used_storage: 0,
+      //     agency: user.id,
+      //   };
 
-        await authFetch(
-          `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/add/`,
-          {
-            method: "POST",
-            body: JSON.stringify(newPlan),
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          },
-          refreshTokenFn
-        );
+      //   await authFetch(
+      //     `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/add/`,
+      //     {
+      //       method: "POST",
+      //       body: JSON.stringify(newPlan),
+      //       headers: {
+      //         "Content-Type": "application/json",
+      //         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      //       },
+      //     },
+      //     refreshTokenFn
+      //   );
 
-        return getSubscription();
-      }
+      //   return getSubscription();
+      // }
 
       setSubscription(subscriptionData || {});
 
@@ -138,56 +137,97 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     getSubscriptions();
 
-    if (isAuthenticated() && user) {
+    if (isAuthenticated() && user?.role === "admin") {
       getSubscription();
     }
   }, [user]);
 
   useEffect(() => {
-    if (subscription && subscription.plan && user) {
+    if (subscription && subscription.plan && user?.role === "admin") {
       getSubscriptionDetails(subscription.plan);
     }
   }, [subscription, user]);
 
-  const login = async (email, password, otp = undefined, isReg = false) => {
+  const login = async (
+    email,
+    password,
+    otp = undefined,
+    isReg = false,
+    isMember = false
+  ) => {
     try {
-      // Prepare request body
+      // Prepare endpoint and request body
+      const endpoint = isMember
+        ? `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency-member/login/`
+        : `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency/login/`;
       const body = otp
         ? JSON.stringify({ email, password, otp })
         : JSON.stringify({ email, password });
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency/login/`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body,
-        }
-      );
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
+      });
 
       if (!response.ok) {
         // toast.error("Invalid email or password");
         return response;
       }
 
-      // If OTP is not provided, just return the response (OTP sent to email)
-      if (!otp) {
-        return response;
+      // For agency_member, or for agency with OTP provided, process tokens and user info
+      if (isMember || otp) {
+        const { tokens, agency_member, agency } = await response.json();
+        // For agency_member login
+        if (isMember) {
+          storeTokens(tokens.access, tokens.refresh, {
+            id: agency_member.id,
+            name: agency_member.member_name,
+            email: agency_member.email,
+            // is_verified: agency_member.is_verified,
+            phone_number: agency_member.phone_number,
+            role: "member",
+            agency: agency_member.agency,
+          });
+          setUser({
+            id: agency_member.id,
+            name: agency_member.member_name,
+            email: agency_member.email,
+            // is_verified: agency_member.is_verified,
+            phone_number: agency_member.phone_number,
+            role: "member",
+            agency: agency_member.agency,
+          });
+        } else {
+          // For agency login with OTP
+          storeTokens(tokens.access, tokens.refresh, {
+            id: agency.id,
+            name: agency.agency_name,
+            email: agency.email,
+            is_verified: agency.is_verified,
+            phone_number: agency.phone_number,
+            role: "admin",
+          });
+          setUser({
+            id: agency.id,
+            name: agency.agency_name,
+            email: agency.email,
+            is_verified: agency.is_verified,
+            phone_number: agency.phone_number,
+            role: "admin",
+          });
+        }
+        localStorage.setItem("lastLogin", new Date().toISOString());
+        if (!isReg) {
+          const params = new URLSearchParams(window.location.search);
+          const redirectPath = params.get("redirect") || "/dashboard/overview";
+          router.push(redirectPath);
+          return true;
+        }
       }
-
-      // If OTP is provided, proceed to store tokens and user info
-      const { tokens, agency } = await response.json();
-      storeTokens(tokens.access, tokens.refresh, agency);
-      setUser(agency);
-      localStorage.setItem("lastLogin", new Date().toISOString());
-
-      if (!isReg) {
-        // Get redirect path from URL or default to dashboard
-        const params = new URLSearchParams(window.location.search);
-        const redirectPath = params.get("redirect") || "/dashboard/overview";
-        // Redirect to the intended destination
-        router.push(redirectPath);
-        return true;
+      // For agency login first step (no OTP), just return the response
+      if (!otp && !isMember) {
+        return response;
       }
     } catch (error) {
       // console.error("Login error:", error);
