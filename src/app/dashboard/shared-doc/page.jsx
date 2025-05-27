@@ -13,17 +13,13 @@ const SharedDocumentsPage = () => {
   const [sharedDocuments, setSharedDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortConfig, setSortConfig] = useState({ key: "shared_date", direction: "desc" });
   const itemsPerPage = 10;
 
   const fetchSharedDocuments = async () => {
     setLoading(true);
     try {
-      const accessToken =
-        typeof window !== "undefined"
-          ? localStorage.getItem("accessToken")
-          : null;
-
-      // TODO: Replace this API with /api/v1/document-share/document-share-audit/ once it's available
+      const accessToken = localStorage.getItem("accessToken");
       const res = await authFetch(
         `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document-share/document-share-audit/`,
         {
@@ -38,7 +34,10 @@ const SharedDocumentsPage = () => {
 
       const data = await res.json();
       if (res.ok) {
-        setSharedDocuments(data);
+        const sortedData = data.sort((a, b) => 
+          new Date(b.shared_date) - new Date(a.shared_date)
+        );
+        setSharedDocuments(sortedData);
       } else {
         setSharedDocuments([]);
         console.log("Error fetching shared documents:", data.message);
@@ -56,9 +55,38 @@ const SharedDocumentsPage = () => {
     }
   }, [user]);
 
-  // Calculate paginated items
-  const totalPages = Math.ceil(sharedDocuments.length / itemsPerPage);
-  const paginatedDocuments = sharedDocuments.slice(
+  const handleSort = (key) => {
+    setSortConfig((prevConfig) => {
+      if (prevConfig.key === key) {
+        if (prevConfig.direction === "desc") {
+          return { key, direction: "asc" };
+        }
+        return { key, direction: "desc" };
+      }
+      return { key, direction: "asc" };
+    });
+  };
+
+  const sortedDocuments = [...sharedDocuments].sort((a, b) => {
+    let aValue, bValue;
+    if (sortConfig.key === "client_name") {
+      aValue = a.client_name || "";
+      bValue = b.client_name || "";
+    } else if (sortConfig.key === "document_name") {
+      aValue = a.document_name || "";
+      bValue = b.document_name || "";
+    } else if (sortConfig.key === "shared_date") {
+      aValue = new Date(a.shared_date);
+      bValue = new Date(b.shared_date);
+    }
+
+    if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+    if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  const totalPages = Math.ceil(sortedDocuments.length / itemsPerPage);
+  const paginatedDocuments = sortedDocuments.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -74,23 +102,41 @@ const SharedDocumentsPage = () => {
       <div className="bg-white rounded-lg border border-gray-200">
         {loading ? (
           <p className="p-6 text-secondary-foreground">Loading...</p>
-        ) : sharedDocuments?.length > 0 ? (
+        ) : sortedDocuments?.length > 0 ? (
           <>
             <table className="w-full">
               <thead className="bg-accent-primary">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                    Client Name
+                  <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10">
+                    <div onClick={() => handleSort("client_name")}>
+                      Client Name
+                      {sortConfig.key === "client_name" && (
+                        <span className="ml-1">
+                          {sortConfig.direction === "asc" ? "↑" : "↓"}
+                        </span>
+                      )}
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                    Document Name
+                  <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10">
+                    <div onClick={() => handleSort("document_name")}>
+                      Document Name
+                      {sortConfig.key === "document_name" && (
+                        <span className="ml-1">
+                          {sortConfig.direction === "asc" ? "↑" : "↓"}
+                        </span>
+                      )}
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                    Shared Date
+                  <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10">
+                    <div onClick={() => handleSort("shared_date")}>
+                      Shared Date
+                      {sortConfig.key === "shared_date" && (
+                        <span className="ml-1">
+                          {sortConfig.direction === "asc" ? "↑" : "↓"}
+                        </span>
+                      )}
+                    </div>
                   </th>
-                  {/* <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                    OTP
-                  </th> */}
                 </tr>
               </thead>
               <tbody>
@@ -99,7 +145,6 @@ const SharedDocumentsPage = () => {
                 ))}
               </tbody>
             </table>
-            {/* Pagination Controls */}
             <div className="flex justify-between items-center p-4 border-t border-gray-200 bg-white rounded-b-lg">
               <div className="flex gap-2">
                 <button
@@ -136,8 +181,8 @@ const SharedDocumentsPage = () => {
               </div>
               <div className="text-sm text-foreground">
                 Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-                {Math.min(currentPage * itemsPerPage, sharedDocuments.length)}{" "}
-                of {sharedDocuments.length} entries
+                {Math.min(currentPage * itemsPerPage, sortedDocuments.length)}{" "}
+                of {sortedDocuments.length} entries
               </div>
             </div>
           </>

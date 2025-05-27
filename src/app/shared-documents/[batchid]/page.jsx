@@ -11,8 +11,36 @@ const SharedUserDocuments = () => {
   const [loading, setLoading] = useState(false);
   const { batchid } = useParams();
 
+  // Trigger OTP generation on page load
   useEffect(() => {
-    console.log(batchid);
+    const triggerOtpGeneration = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document-share/batch-access/${batchid}/`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({}),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          toast.error(errorData.message || "Failed to initiate OTP generation.");
+        } else {
+          toast.success("OTP sent to your registered email.");
+        }
+      } catch (error) {
+        console.error("Error triggering OTP generation:", error);
+        toast.error("Something went wrong while initiating OTP generation.");
+      }
+    };
+
+    if (batchid) {
+      triggerOtpGeneration();
+    }
   }, [batchid]);
 
   const handleVerify = async (e) => {
@@ -47,7 +75,6 @@ const SharedUserDocuments = () => {
       setLoading(false);
     }
   };
-  // 973508
 
   return (
     <div className="p-6">
