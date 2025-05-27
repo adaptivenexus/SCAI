@@ -1,14 +1,13 @@
 "use client";
 
 import { useContext, useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation"; // ✅ Added for redirect
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { GlobalContext } from "@/context/GlobalProvider";
 import { toast } from "react-toastify";
 import { authFetch } from "@/utils/auth";
 import { extractEmail } from "@/utils";
 
-// Utility function to format date to "14 April 2025"
 const formatDate = (dateString) => {
   if (!dateString) return "N/A";
   const date = new Date(dateString);
@@ -19,49 +18,37 @@ const formatDate = (dateString) => {
   });
 };
 
-// Utility function to validate email format
 const validateEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!email) {
-    return "Email is required.";
-  }
-  if (!emailRegex.test(email)) {
-    return "Please enter a valid email address.";
-  }
+  if (!email) return "Email is required.";
+  if (!emailRegex.test(email)) return "Please enter a valid email address.";
   return "";
 };
 
 const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
   const { user, refreshTokenFn } = useAuth();
   const { clients } = useContext(GlobalContext);
-  const router = useRouter(); // ✅ Added for redirect
+  const router = useRouter();
   const [formData, setFormData] = useState({
     expired_at: addHoursToCurrentTime(1),
     shared_by_agency: user.id,
     client_email: "",
+    external_email: "",
   });
   const [emailError, setEmailError] = useState("");
+  const [externalEmailError, setExternalEmailError] = useState("");
   const [loading, startTransition] = useTransition();
   const [parsedDataMap, setParsedDataMap] = useState({});
   const [isFetching, setIsFetching] = useState(false);
+  const [shareToExternal, setShareToExternal] = useState("no");
 
   const clientEmail = extractEmail(docs[0].client);
-  // Extract client name from "Name (email)" format
   const clientName = docs[0]?.client?.replace(/\s*\(.*?\)\s*$/, "") || "N/A";
+  const clientId = clients.find((client) => clientEmail === client.email).id;
 
-  const clientId = clients.find((client) => {
-    const email = clientEmail;
-    return email === client.email;
-  }).id;
-
-  // Fetch parsed data for each document
   const fetchParsedData = async (docId) => {
     try {
-      const accessToken =
-        typeof window !== "undefined"
-          ? localStorage.getItem("accessToken")
-          : null;
-
+      const accessToken = localStorage.getItem("accessToken");
       const response = await authFetch(
         `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${docId}/parsed-data/`,
         {
@@ -99,14 +86,11 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
         acc[id] = parsedData;
         return acc;
       }, {});
-
       setParsedDataMap(parsedDataMap);
       setIsFetching(false);
     };
 
-    if (docs && docs.length > 0) {
-      fetchAllParsedData();
-    }
+    if (docs && docs.length > 0) fetchAllParsedData();
   }, [docs]);
 
   function addHoursToCurrentTime(hours) {
@@ -126,9 +110,7 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
       fileName = fileName.split("?")[0];
       fileName = decodeURIComponent(fileName);
       if (!fileName) {
-        toast.error(
-          "Document file name is invalid. Cannot share this document."
-        );
+        toast.error("Document file name is invalid. Cannot share this document.");
         throw new Error("Document file name is invalid");
       }
       return fileName;
@@ -141,13 +123,11 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     startTransition(async () => {
-      // ✅ Made async for better error handling
       if (!docs || docs.length === 0) {
         toast.error("No documents selected to share.");
         return;
       }
 
-      // Validate email
       const emailErr = validateEmail(formData.client_email);
       if (emailErr) {
         setEmailError(emailErr);
@@ -155,17 +135,17 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
         return;
       }
 
-      if (typeof window === "undefined") {
-        toast.error("Cannot share document on server side.");
-        return;
+      if (shareToExternal === "yes") {
+        const externalEmailErr = validateEmail(formData.external_email);
+        if (externalEmailErr) {
+          setExternalEmailError(externalEmailErr);
+          toast.error(externalEmailErr);
+          return;
+        }
       }
 
       try {
-        const accessToken =
-          typeof window !== "undefined"
-            ? localStorage.getItem("accessToken")
-            : null;
-
+        const accessToken = localStorage.getItem("accessToken");
         const shareDoc = {
           document_ids: docs.map((doc) => doc.id),
           client_id: clientId,
@@ -188,44 +168,52 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
         if (!res.ok) {
           const errorData = await res.json();
           toast.error(errorData.message || "Failed to share documents.");
-          return; // ✅ Prevent error page by stopping execution
+          return;
         }
 
         const data = await res.json();
-
         const urlParts = data.shareable_url.split("/");
         const sharedID = urlParts[urlParts.length - 2];
         const sharedLink = `${process.env.NEXT_PUBLIC_BASE_URL}/shared-documents/${sharedID}`;
 
-        const sendEmail = await fetch(`/api/share-document-email`, {
+        // Send email to client
+        const sendEmailToClient = await fetch(`/api/share-document-email`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: clientName,
             email: formData.client_email,
             url: sharedLink,
-            otp: data.otp, // Replace with actual OTP generation logic
           }),
         });
 
-        if (!sendEmail.ok) {
-          toast.error("Failed to send email.");
-          return; // ✅ Prevent error page by stopping execution
+        if (!sendEmailToClient.ok) {
+          toast.error("Failed to send email to client.");
+          return;
         }
 
-        toast.success(
-          `Document shared successfully to ${docs[0]?.client || "Client"}`
-        ); // ✅ Updated success message, removed link and OTP
+        // Send email to external email if selected
+        if (shareToExternal === "yes") {
+          const sendEmailToExternal = await fetch(`/api/share-document-email`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: "Recipient",
+              email: formData.external_email,
+              url: sharedLink,
+            }),
+          });
 
+          if (!sendEmailToExternal.ok) {
+            toast.error("Failed to send email to external recipient.");
+            return;
+          }
+        }
+
+        toast.success(`Document shared successfully to ${docs[0]?.client || "Client"}`);
         setIsShareDocumentOpen(false);
         handleReset();
-
-        // Redirect to shared documents page after 2 seconds
-        setTimeout(() => {
-          router.push("/dashboard/shared-doc"); // ✅ Added redirect
-        }, 2000);
+        setTimeout(() => router.push("/dashboard/shared-doc"), 2000);
       } catch (error) {
         console.error("Error sharing documents:", error);
         toast.error("Something went wrong while sharing documents.");
@@ -234,10 +222,7 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
   };
 
   useEffect(() => {
-    setFormData((prev) => ({
-      ...prev,
-      client_email: clientEmail,
-    }));
+    setFormData((prev) => ({ ...prev, client_email: clientEmail }));
   }, [clientEmail]);
 
   return (
@@ -251,7 +236,6 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
       >
         <h5 className="heading-5 mb-4">Share Document</h5>
         <div className="flex gap-6">
-          {/* Left Side: Client Name, Inputs, Button */}
           <div className="w-1/2 flex flex-col gap-4">
             <div className="flex flex-col gap-1">
               <label className="font-medium">Client Name:</label>
@@ -270,10 +254,7 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
                 placeholder="Enter client email"
                 required
                 onChange={(e) => {
-                  setFormData({
-                    ...formData,
-                    client_email: e.target.value,
-                  });
+                  setFormData({ ...formData, client_email: e.target.value });
                   setEmailError("");
                 }}
               />
@@ -281,19 +262,69 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
                 <p className="text-red-500 text-sm mt-1">{emailError}</p>
               )}
             </div>
+            <div className="flex flex-col gap-1">
+              <label className="font-medium">
+                Do you want to share documents to any other email?
+              </label>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-1">
+                  <input
+                    type="radio"
+                    name="shareToExternal"
+                    value="yes"
+                    checked={shareToExternal === "yes"}
+                    onChange={() => setShareToExternal("yes")}
+                  />
+                  Yes
+                </label>
+                <label className="flex items-center gap-1">
+                  <input
+                    type="radio"
+                    name="shareToExternal"
+                    value="no"
+                    checked={shareToExternal === "no"}
+                    onChange={() => {
+                      setShareToExternal("no");
+                      setFormData({ ...formData, external_email: "" });
+                      setExternalEmailError("");
+                    }}
+                  />
+                  No
+                </label>
+              </div>
+            </div>
+            {shareToExternal === "yes" && (
+              <div className="flex flex-col gap-1">
+                <label htmlFor="external_email" className="font-medium">
+                  External Email <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  name="external_email"
+                  id="external_email"
+                  className="border rounded-lg p-3 w-full outline-none"
+                  value={formData.external_email}
+                  placeholder="Enter external email"
+                  onChange={(e) => {
+                    setFormData({ ...formData, external_email: e.target.value });
+                    setExternalEmailError("");
+                  }}
+                />
+                {externalEmailError && (
+                  <p className="text-red-500 text-sm mt-1">{externalEmailError}</p>
+                )}
+              </div>
+            )}
             <button
               onClick={handleSubmit}
               className={`primary-btn mt-4 ${
-                !docs || docs.length === 0
-                  ? "opacity-50 cursor-not-allowed"
-                  : ""
+                !docs || docs.length === 0 ? "opacity-50 cursor-not-allowed" : ""
               }`}
               disabled={!docs || docs.length === 0}
             >
               Confirm Share
             </button>
           </div>
-          {/* Right Side: Document List */}
           <div className="w-1/2 flex flex-col gap-1">
             <label className="font-medium">Documents ({docs.length}):</label>
             <div className="max-h-[300px] overflow-y-auto border rounded-lg p-4">
