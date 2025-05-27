@@ -22,6 +22,10 @@ const Login = () => {
     password: "",
   });
   const [activeTab, setActiveTab] = useState("agency"); // "agency" or "member"
+  const [otpStep, setOtpStep] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   // Redirect to dashboard if already logged in
   useEffect(() => {
@@ -40,16 +44,44 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setSubmitting(true);
     try {
-      await login(formData.email, formData.password);
+      if (!otpStep) {
+        // Step 1: Email & Password
+        const result = await login(formData.email, formData.password);
+        setOtpStep(true);
+      } else {
+        // Step 2: OTP
+        let attempt = 0;
+        let success = false;
+        let lastError = null;
+        while (attempt < 3 && !success) {
+          const result = await login(formData.email, formData.password, otp);
+          if (result && result.success) {
+            success = true;
+          } else {
+            lastError = (result && result.message) || "OTP verification failed";
+            attempt++;
+            if (attempt < 3) {
+              await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 second delay
+            }
+          }
+        }
+        if (!success) {
+          setError(lastError);
+        }
+      }
     } catch (error) {
-      // Error handling is done in the login function
+      setError("Something went wrong");
       console.error("Login error:", error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   // Don't render the login form if we're redirecting
-  if (loading || user) {
+  if (loading || user || submitting) {
     return (
       <div className="h-screen w-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -118,6 +150,7 @@ const Login = () => {
                     value={formData.email}
                     onChange={handleChange}
                     required
+                    disabled={otpStep}
                   />
                 </fieldset>
                 <fieldset className="border border-[#79747E]  pb-2 px-4 rounded-md flex items-center justify-between">
@@ -131,6 +164,7 @@ const Login = () => {
                     value={formData.password}
                     onChange={handleChange}
                     required
+                    disabled={otpStep}
                   />
                   <button
                     onClick={() => setShowPassword(!showPassword)}
@@ -143,13 +177,61 @@ const Login = () => {
                     )}
                   </button>
                 </fieldset>
+                {otpStep && (
+                  <>
+                    <fieldset className="border border-[#79747E] pb-2 px-4 rounded-md">
+                      <legend className="px-1">OTP</legend>
+                      <input
+                        type="text"
+                        id="otp"
+                        name="otp"
+                        placeholder="Enter OTP"
+                        className="w-full bg-transparent outline-none"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        required
+                      />
+                    </fieldset>
+                    <button
+                      type="button"
+                      className="text-primary underline text-sm mt-2"
+                      onClick={async () => {
+                        setError("");
+                        try {
+                          const res = await fetch(
+                            `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency/login/`,
+                            {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                email: formData.email,
+                                password: formData.password,
+                              }),
+                            }
+                          );
+                          const data = await res.json();
+                          if (res.ok) {
+                            setError("OTP resent successfully.");
+                          } else {
+                            setError(data.message || "Failed to resend OTP");
+                          }
+                        } catch (err) {
+                          setError("Something went wrong while resending OTP");
+                        }
+                      }}
+                    >
+                      Resend OTP
+                    </button>
+                  </>
+                )}
+                {error && <div className="text-red-500">{error}</div>}
               </div>
               <div className="space-y-5">
                 <button
                   type="submit"
                   className="primary-btn bg-primary-gradient w-full"
                 >
-                  Login
+                  {otpStep ? "Verify OTP" : "Login"}
                 </button>
                 <p className="text-center">
                   Don’t have an account?{" "}

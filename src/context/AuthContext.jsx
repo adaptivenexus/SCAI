@@ -149,41 +149,48 @@ export const AuthProvider = ({ children }) => {
     }
   }, [subscription, user]);
 
-  const login = async (email, password, isReg = false) => {
+  const login = async (email, password, otp = undefined, isReg = false) => {
     try {
+      // Prepare request body
+      const body = otp
+        ? JSON.stringify({ email, password, otp })
+        : JSON.stringify({ email, password });
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency/login/`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
+          body,
         }
       );
 
       if (!response.ok) {
-        toast.error("Invalid email or password");
-        return;
+        // toast.error("Invalid email or password");
+        return response;
       }
 
-      const { tokens, agency } = await response.json();
+      // If OTP is not provided, just return the response (OTP sent to email)
+      if (!otp) {
+        return response;
+      }
 
-      // Store tokens and user data
+      // If OTP is provided, proceed to store tokens and user info
+      const { tokens, agency } = await response.json();
       storeTokens(tokens.access, tokens.refresh, agency);
       setUser(agency);
       localStorage.setItem("lastLogin", new Date().toISOString());
 
       if (!isReg) {
         // Get redirect path from URL or default to dashboard
-
         const params = new URLSearchParams(window.location.search);
         const redirectPath = params.get("redirect") || "/dashboard/overview";
-
         // Redirect to the intended destination
         router.push(redirectPath);
         return true;
       }
     } catch (error) {
-      console.error("Login error:", error);
+      // console.error("Login error:", error);
       throw error;
     }
   };
