@@ -485,6 +485,14 @@ const ClientListPage = () => {
           {filteredClients.length} entries
         </div>
       </div>
+      {isEditClientOpen && (
+        <AddOrManageClient
+          oldClient={editClient}
+          isNew={false}
+          setIsAddClientOpen={setIsEditClientOpen}
+          setEditClient={setEditClient}
+        />
+      )}
     </div>
   );
 };
