@@ -1,4 +1,4 @@
-import SetAPassword from "@/components/Auth/setApassword";
+import SetAPassword from "@/components/Auth/SetAPassword";
 
 export default function ResetPasswordPage() {
   return <SetAPassword />;

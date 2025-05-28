@@ -62,7 +62,16 @@ const Login = () => {
       } else if (!otpStep) {
         // Agency Step 1: Email & Password
         const result = await login(formData.email, formData.password);
-        // setOtpStep(true);
+        if (result && result.ok === false) {
+          setError(result.message || "Invalid email or password");
+        }
+        // else if (result && result.otpRequired) {
+        //   // setOtpStep(true);
+        // } else if (result && result.success) {
+        //   // Successful login, handled by redirect effect
+        // } else {
+        //   // setOtpStep(true); // fallback: assume OTP required if no explicit success
+        // }
       } else {
         // Agency Step 2: OTP
         let attempt = 0;
@@ -189,6 +198,7 @@ const Login = () => {
                     )}
                   </button>
                 </fieldset>
+                {error && <div className="text-red-500">{error}</div>}
                 {/* Forgot Password Link */}
                 <div className="text-right">
                   <Link
@@ -245,7 +255,6 @@ const Login = () => {
                     </button>
                   </>
                 )}
-                {error && <div className="text-red-500">{error}</div>}
               </div>
               <div className="space-y-5">
                 <button

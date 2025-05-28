@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { FaArrowLeft } from "react-icons/fa";
 import { IoIosEye, IoIosEyeOff } from "react-icons/io";
 
@@ -16,6 +16,7 @@ const SetAPassword = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,7 +51,11 @@ const SetAPassword = () => {
         throw new Error(data.message || "Failed to reset password.");
       }
 
-      setMessage("Your password has been reset successfully. Please click here to login.");
+      setMessage(
+        "Your password has been reset successfully. Please click here to login."
+      );
+
+      router.push("/auth/login");
     } catch (err) {
       setError(err.message || "Something went wrong.");
     } finally {
@@ -75,14 +80,15 @@ const SetAPassword = () => {
             <div className="space-y-3">
               <h3 className="heading-3">Set a password</h3>
               <p className="subtitle-text text-secondary-foreground">
-                Your previous password has been reset. Set a new password for your account.
+                Your previous password has been reset. Set a new password for
+                your account.
               </p>
             </div>
             <form onSubmit={handleSubmit} className="space-y-7">
               <div className="space-y-4">
                 <fieldset className="border border-[#79747E] pb-2 px-4 rounded-md flex items-center justify-between">
                   <legend className="px-1">
-                    Password<span className="text-red-500">*</span>
+                    New Password<span className="text-red-500">*</span>
                   </legend>
                   <input
                     type={showPassword ? "text" : "password"}
@@ -107,7 +113,7 @@ const SetAPassword = () => {
                 </fieldset>
                 <fieldset className="border border-[#79747E] pb-2 px-4 rounded-md flex items-center justify-between">
                   <legend className="px-1">
-                    Confirm Password<span className="text-red-500">*</span>
+                    Confirm New Password<span className="text-red-500">*</span>
                   </legend>
                   <input
                     type={showConfirmPassword ? "text" : "password"}
