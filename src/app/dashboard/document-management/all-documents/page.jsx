@@ -9,8 +9,6 @@ import { IoIosRefresh } from "react-icons/io";
 import { BiLoaderAlt } from "react-icons/bi";
 import DocumentShareModal from "@/components/Dashboard/documentManagement/DocumentShareModal";
 import { toast } from "react-toastify";
-import { authFetch } from "@/utils/auth";
-import { useAuth } from "@/context/AuthContext";
 
 // Helper function to check if a date matches the search query or filter
 const doesDateMatch = (dateString, query) => {
@@ -61,7 +59,6 @@ const doesDateMatch = (dateString, query) => {
 
 const AllDocumentPage = () => {
   const { documents, fetchDocuments } = useContext(GlobalContext);
-  const { refreshTokenFn } = useAuth();
   const [selectedDocuments, setSelectedDocuments] = useState(new Set());
   const [selectedClient, setSelectedClient] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -76,76 +73,8 @@ const AllDocumentPage = () => {
   const [isShareDocumentOpen, setIsShareDocumentOpen] = useState(false);
   const processDateRef = useRef(null);
   const documentDateRef = useRef(null);
-  const statusRef = useRef(null); // Ref for status dropdown
+  const statusRef = useRef(null); // Ref for status dropdown  const [isMounted, setIsMounted] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [parsedDataMap, setParsedDataMap] = useState({});
-
-  const fetchParsedData = async (docId) => {
-    try {
-      // Ensure localStorage is accessed only on the client side
-      const accessToken =
-        typeof window !== "undefined"
-          ? localStorage.getItem("accessToken")
-          : null;
-
-      // Fetch parsed data for the document
-      const response = await authFetch(
-        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${docId}/parsed-data/`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
-        refreshTokenFn
-      );
-      if (response.ok) {
-        const data = await response.json();
-        const parsedData = data.parsed_data || {};
-        return parsedData;
-      } else {
-        console.log(
-          "Error fetching parsed data for doc",
-          docId,
-          ":",
-          response.statusText
-        );
-        return {};
-      }
-    } catch (error) {
-      console.error("Error fetching document data for doc", docId, ":", error);
-      return {};
-    }
-  };
-
-  useEffect(() => {
-    const fetchAllParsedData = async () => {
-      try {
-        const parsedDataPromises = documents.map(async (doc) => {
-          const parsedData = await fetchParsedData(doc.id);
-          return { id: doc.id, parsedData };
-        });
-
-        const results = await Promise.all(parsedDataPromises);
-        const newParsedDataMap = results.reduce((acc, { id, parsedData }) => {
-          acc[id] = parsedData;
-          return acc;
-        }, {});
-
-        setParsedDataMap(newParsedDataMap);
-      } catch (error) {
-        console.error("Error in fetchAllParsedData:", error);
-        toast.error(
-          "Failed to load document data. Please try refreshing the page."
-        );
-      }
-    };
-
-    if (documents && documents.length > 0) {
-      fetchAllParsedData();
-    }
-  }, [documents]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -244,7 +173,6 @@ const AllDocumentPage = () => {
   const isRowDisabled = (docClient) => {
     return selectedDocuments.size > 0 && selectedClient !== docClient;
   };
-
   const sortedDocuments = useMemo(() => {
     if (!sortConfig.key) return documents;
 
@@ -257,36 +185,33 @@ const AllDocumentPage = () => {
         aValue = a.file || "";
         bValue = b.file || "";
       } else if (sortConfig.key === "category") {
-        aValue = parsedDataMap[a.id]?.document_type || "";
-        bValue = parsedDataMap[b.id]?.document_type || "";
+        aValue = a.parsed_data?.document_type || "";
+        bValue = b.parsed_data?.document_type || "";
       }
 
       if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
       if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
       return 0;
     });
-  }, [documents, sortConfig, parsedDataMap]);
+  }, [documents, sortConfig]);
 
   const filteredAndSortedItems = sortedDocuments.filter(
     (doc) =>
       ((doc.client || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
         (doc.file || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (parsedDataMap[doc.id]?.suggested_title || "")
+        (doc.parsed_data?.suggested_title || "")
           .toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
-        (parsedDataMap[doc.id]?.document_type || "")
+        (doc.category?.name || "")
           .toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
         doesDateMatch(doc.uploaded_at, searchQuery) ||
-        doesDateMatch(parsedDataMap[doc.id]?.document_date, searchQuery) ||
+        doesDateMatch(doc.parsed_data?.document_date, searchQuery) ||
         (doc.status || "").toLowerCase().includes(searchQuery.toLowerCase())) &&
       (!processDateFilter ||
         doesDateMatch(doc.uploaded_at, processDateFilter)) &&
       (!documentDateFilter ||
-        doesDateMatch(
-          parsedDataMap[doc.id]?.document_date,
-          documentDateFilter
-        )) &&
+        doesDateMatch(doc.parsed_data?.document_date, documentDateFilter)) &&
       (!statusFilter ||
         (statusFilter === "verified" &&
           (doc.status || "").toLowerCase() === "verified") ||
@@ -609,6 +534,7 @@ const AllDocumentPage = () => {
                     onSelect={handleSelectDocument}
                     fetchDocuments={fetchDocuments}
                     isDisabled={isRowDisabled(doc.client)}
+                    parsedData={doc.parsed_data}
                   />
                 ))}
               </tbody>

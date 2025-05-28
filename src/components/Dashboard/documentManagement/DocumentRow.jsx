@@ -16,11 +16,12 @@ const DocumentRow = ({
   onSelect,
   fetchDocuments,
   isDisabled,
+  parsedData = {},
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [parsedData, setParsedData] = useState({});
+  // const [parsedData, setParsedData] = useState({});
   const { refreshTokenFn } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
   const [isManageDocumentOpen, setIsManageDocumentOpen] = useState(false);
@@ -61,57 +62,57 @@ const DocumentRow = ({
     }
   };
 
-  const fetchParsedData = async () => {
-    try {
-      const response = await authFetch(
-        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${doc.id}/parsed-data/`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
-        refreshTokenFn
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setParsedData(data.parsed_data);
-      } else {
-        console.log("Error fetching parsed data:", response.statusText);
-        setParsedData({});
-      }
-    } catch (error) {
-      console.error("Error fetching document data:", error);
-    }
-  };
+  // const fetchParsedData = async () => {
+  //   try {
+  //     const response = await authFetch(
+  //       `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${doc.id}/parsed-data/`,
+  //       {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${accessToken}`,
+  //         },
+  //       },
+  //       refreshTokenFn
+  //     );
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       setParsedData(data.parsed_data);
+  //     } else {
+  //       console.log("Error fetching parsed data:", response.statusText);
+  //       setParsedData({});
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching document data:", error);
+  //   }
+  // };
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (isMounted) {
-      fetchParsedData();
-    }
-  }, [isMounted]);
+  // useEffect(() => {
+  //   if (isMounted) {
+  //     fetchParsedData();
+  //   }
+  // }, [isMounted]);
 
-  useEffect(() => {
-    if (doc) {
-      const interval = setInterval(() => {
-        if (
-          !parsedData?.suggested_title ||
-          Object.keys(parsedData)?.length === 0
-        ) {
-          fetchParsedData();
-        } else {
-          clearInterval(interval);
-        }
-      }, 5000);
+  // useEffect(() => {
+  //   if (doc) {
+  //     const interval = setInterval(() => {
+  //       if (
+  //         !parsedData?.parsed_data?.suggested_title ||
+  //         Object.keys(parsedData)?.length === 0
+  //       ) {
+  //         fetchParsedData();
+  //       } else {
+  //         clearInterval(interval);
+  //       }
+  //     }, 5000);
 
-      return () => clearInterval(interval);
-    }
-  }, [doc, parsedData]);
+  //     return () => clearInterval(interval);
+  //   }
+  // }, [doc, parsedData]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -165,7 +166,8 @@ const DocumentRow = ({
             type="button"
             className="text-primary underline text-start truncate"
           >
-            {parsedData?.suggested_title || extractFilenameFromUrl(doc.file)}
+            {parsedData?.parsed_data?.suggested_title ||
+              extractFilenameFromUrl(doc.file)}
           </button>
         ) : (
           <a
@@ -174,7 +176,8 @@ const DocumentRow = ({
             className="text-primary underline text-start truncate"
             rel="noopener noreferrer"
           >
-            {parsedData?.suggested_title || extractFilenameFromUrl(doc.file)}
+            {parsedData?.parsed_data?.suggested_title ||
+              extractFilenameFromUrl(doc.file)}
           </a>
         )}
         {isPreviewOpen && (
@@ -186,16 +189,16 @@ const DocumentRow = ({
         )}
       </td>
       <td className="px-6 py-4 text-sm text-foreground">
-        {doc.category?.name || parsedData?.document_type}
+        {doc.category?.name || parsedData?.parsed_data?.document_type}
       </td>
       <td className="px-6 py-4 text-sm text-foreground">
         {formatDate(doc.uploaded_at)}
       </td>
       <td className="px-6 py-4 text-sm text-foreground">
-        {parsedData?.document_date}
+        {parsedData?.parsed_data?.document_date}
       </td>
       <td className="px-6 py-4">
-        {!parsedData?.suggested_title ? (
+        {!parsedData?.parsed_data?.suggested_title ? (
           <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
             Processing <BiLoaderAlt className="animate-spin inline-block" />
           </span>
