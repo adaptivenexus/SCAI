@@ -189,6 +189,15 @@ const Login = () => {
                     )}
                   </button>
                 </fieldset>
+                {/* Forgot Password Link */}
+                <div className="text-right">
+                  <Link
+                    href="/auth/forgot-password"
+                    className="text-primary underline text-sm"
+                  >
+                    Forgot Password?
+                  </Link>
+                </div>
                 {otpStep && (
                   <>
                     <fieldset className="border border-[#79747E] pb-2 px-4 rounded-md">
@@ -296,4 +305,5 @@ const Login = () => {
     </section>
   );
 };
+
 export default Login;
