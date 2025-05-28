@@ -143,10 +143,16 @@ export const AuthProvider = ({ children }) => {
   }, [user]);
 
   useEffect(() => {
-    if (subscription && subscription.plan && user?.role === "admin") {
+    if (
+      subscription &&
+      subscription.plan &&
+      user?.role === "admin" &&
+      Array.isArray(subscriptions) &&
+      subscriptions.length > 0
+    ) {
       getSubscriptionDetails(subscription.plan);
     }
-  }, [subscription, user]);
+  }, [subscription, user, subscriptions]);
 
   const login = async (
     email,
@@ -160,14 +166,16 @@ export const AuthProvider = ({ children }) => {
       const endpoint = isMember
         ? `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency-member/login/`
         : `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency/login/`;
-      const body = otp
-        ? JSON.stringify({ email, password, otp })
-        : JSON.stringify({ email, password });
+      // const body = otp
+      //   ? JSON.stringify({ email, password, otp })
+      //   : JSON.stringify({ email, password });
+      const body = JSON.stringify({ email, password });
 
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body,
+        cache: "no-store",
       });
 
       if (!response.ok) {
@@ -176,7 +184,8 @@ export const AuthProvider = ({ children }) => {
       }
 
       // For agency_member, or for agency with OTP provided, process tokens and user info
-      if (isMember || otp) {
+      if (isMember || !otp) {
+        // temporarily changed to !otp for agency login without OTP
         const { tokens, agency_member, agency } = await response.json();
         // For agency_member login
         if (isMember) {
@@ -226,7 +235,7 @@ export const AuthProvider = ({ children }) => {
         }
       }
       // For agency login first step (no OTP), just return the response
-      if (!otp && !isMember) {
+      if (otp && !isMember) {
         return response;
       }
     } catch (error) {

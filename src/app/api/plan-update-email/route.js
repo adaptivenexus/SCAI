@@ -52,7 +52,7 @@ export async function POST(req) {
                 planDetails.price
               } / ${"1 month"}</span></p>
             </div>
-            <p style="color: #444; margin-bottom: 0;">If you have any questions or need help, please contact us at <a href="mailto:support@adaptivenexus.com" style="color: #6C63FF; text-decoration: underline;">support@adaptivenexus.com</a>.</p>
+            <p style="color: #444; margin-bottom: 0;">If you have any questions or need help, please contact us at <a href="mailto:business@adaptivenexus.com" style="color: #6C63FF; text-decoration: underline;">business@adaptivenexus.com</a>.</p>
             <p style="color: #aaa; font-size: 0.95rem; margin-top: 24px;">&mdash; SCANDOQ Team</p>
           </div>
         </div>

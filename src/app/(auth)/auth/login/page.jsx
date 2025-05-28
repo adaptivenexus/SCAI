@@ -62,7 +62,7 @@ const Login = () => {
       } else if (!otpStep) {
         // Agency Step 1: Email & Password
         const result = await login(formData.email, formData.password);
-        setOtpStep(true);
+        // setOtpStep(true);
       } else {
         // Agency Step 2: OTP
         let attempt = 0;

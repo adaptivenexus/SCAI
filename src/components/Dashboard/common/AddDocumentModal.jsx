@@ -15,7 +15,7 @@ const AddNewDocumentModal = ({
   const { clients } = useContext(GlobalContext);
   const [searchInputClients, setSearchInputClients] = useState("");
   const [listClients, setListClients] = useState(clients);
-  const [categories, setCategories] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (searchInputClients.length > 2) {
@@ -36,38 +36,6 @@ const AddNewDocumentModal = ({
     console.log(formData);
   }, [formData]);
 
-  const fetchCategory = async () => {
-    try {
-       // Ensure localStorage is accessed only on the client side
-       const accessToken =
-       typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
-
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/categories/`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setCategories(data.results);
-      } else {
-        setCategories([]);
-      }
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchCategory();
-  }, []);
-
   return (
     <div
       className="flex fixed top-0 inset-0 bg-black bg-opacity-50 !m-0 items-center justify-center"
@@ -79,7 +47,14 @@ const AddNewDocumentModal = ({
       >
         <h5 className="heading-5 font-bold">Add Document</h5>
         <form
-          onSubmit={(e) => handleSubmit(e)}
+          onSubmit={async (e) => {
+            setIsSaving(true);
+            try {
+              await handleSubmit(e);
+            } finally {
+              setIsSaving(false);
+            }
+          }}
           className="flex flex-col justify-between"
         >
           <div className="flex gap-6">
@@ -227,8 +202,38 @@ const AddNewDocumentModal = ({
             </div>
           </div>
           <div className="flex gap-2 items-center">
-            <button type="submit" className="primary-btn px-6 text-lg">
-              Save
+            <button
+              type="submit"
+              className="primary-btn px-6 text-lg"
+              disabled={isSaving}
+            >
+              {isSaving ? (
+                <span className="flex items-center gap-2">
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    ></path>
+                  </svg>
+                  Saving...
+                </span>
+              ) : (
+                "Save"
+              )}
             </button>
             <button
               type="button"
