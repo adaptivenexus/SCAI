@@ -100,8 +100,8 @@ const DocumentRow = ({
     if (doc) {
       const interval = setInterval(() => {
         if (
-          !parsedData.suggested_title ||
-          Object.keys(parsedData).length === 0
+          !parsedData?.suggested_title ||
+          Object.keys(parsedData)?.length === 0
         ) {
           fetchParsedData();
         } else {
@@ -195,7 +195,7 @@ const DocumentRow = ({
         {parsedData?.document_date}
       </td>
       <td className="px-6 py-4">
-        {!parsedData.suggested_title ? (
+        {!parsedData?.suggested_title ? (
           <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
             Processing <BiLoaderAlt className="animate-spin inline-block" />
           </span>
