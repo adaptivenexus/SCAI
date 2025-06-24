@@ -254,13 +254,15 @@ const DocumentRow = ({
             </div>
           )}
           {isManageDocumentOpen && (
-            <ManageDocument
-              setIsManageDocumentOpen={setIsManageDocumentOpen}
-              document={{ ...doc, status: doc.status || "Pending" }}
-              parsedData={parsedData}
-              action={action}
-              onDocumentUpdate={fetchDocuments} // Pass fetchDocuments to refresh the list
-            />
+            <>
+              <ManageDocument
+                setIsManageDocumentOpen={setIsManageDocumentOpen}
+                document={{ ...doc, status: doc.status || "Pending" }}
+                parsedData={parsedData.parsed_data || {}}
+                action={action}
+                onDocumentUpdate={fetchDocuments}
+              />
+            </>
           )}
         </div>
       </td>
