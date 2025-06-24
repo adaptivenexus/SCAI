@@ -5,7 +5,6 @@ import DocumentViewer from "../documentManagement/DocumentViewer";
 import { GlobalContext } from "@/context/GlobalProvider";
 import { IoIosCloseCircle } from "react-icons/io";
 
-
 const AddNewDocumentModal = ({
   file,
   setIsAddDocumentOpen,
