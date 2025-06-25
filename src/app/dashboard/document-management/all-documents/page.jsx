@@ -144,7 +144,7 @@ const AllDocumentPage = () => {
   const handleDelete = async () => {
     try {
       const deletePromises = Array.from(selectedDocuments).map((docId) =>
-        fetch(`${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${docId}`, {
+        fetch(`${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${docId}/`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
