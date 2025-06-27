@@ -40,7 +40,7 @@ const DocumentRow = ({
   const handleDelete = async () => {
     try {
       const res = await authFetch(
-        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${doc.id}`,
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${doc.id}/`,
         {
           method: "DELETE",
           headers: {
