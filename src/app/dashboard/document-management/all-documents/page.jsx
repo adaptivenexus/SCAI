@@ -9,6 +9,7 @@ import { IoIosRefresh } from "react-icons/io";
 import { BiLoaderAlt } from "react-icons/bi";
 import DocumentShareModal from "@/components/Dashboard/documentManagement/DocumentShareModal";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation"; 
 
 // Helper function to check if a date matches the search query or filter
 const doesDateMatch = (dateString, query) => {
@@ -76,6 +77,7 @@ const AllDocumentPage = () => {
   const statusRef = useRef(null); // Ref for status dropdown  const [isMounted, setIsMounted] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
+  const router = useRouter();
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -535,6 +537,7 @@ const AllDocumentPage = () => {
                     fetchDocuments={fetchDocuments}
                     isDisabled={isRowDisabled(doc.client)}
                     parsedData={doc.parsed_data}
+                    onRowClick={() => router.push(`/dashboard/document-management/view-document/${doc.id}`)} 
                   />
                 ))}
               </tbody>

@@ -17,6 +17,7 @@ const DocumentRow = ({
   fetchDocuments,
   isDisabled,
   parsedData = {},
+  onRowClick,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -62,30 +63,30 @@ const DocumentRow = ({
     }
   };
 
-  // const fetchParsedData = async () => {
-  //   try {
-  //     const response = await authFetch(
-  //       `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${doc.id}/parsed-data/`,
-  //       {
-  //         method: "GET",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           Authorization: `Bearer ${accessToken}`,
-  //         },
-  //       },
-  //       refreshTokenFn
-  //     );
-  //     if (response.ok) {
-  //       const data = await response.json();
-  //       setParsedData(data.parsed_data);
-  //     } else {
-  //       console.log("Error fetching parsed data:", response.statusText);
-  //       setParsedData({});
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching document data:", error);
-  //   }
-  // };
+  const fetchParsedData = async () => {
+    try {
+      const response = await authFetch(
+        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${doc.id}/parsed-data/`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+        refreshTokenFn
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setParsedData(data.parsed_data);
+      } else {
+        console.log("Error fetching parsed data:", response.statusText);
+        setParsedData({});
+      }
+    } catch (error) {
+      console.error("Error fetching document data:", error);
+    }
+  };
 
   useEffect(() => {
     setIsMounted(true);
@@ -135,6 +136,18 @@ const DocumentRow = ({
       className={`hover:bg-gray-50 ${
         isDisabled && !isSelected ? "opacity-50" : ""
       }`}
+      onClick={(e) => {
+        // Prevent row click when clicking on checkbox or action buttons
+        if (
+          e.target.tagName === "INPUT" ||
+          e.target.tagName === "BUTTON" ||
+          e.target.closest("button") ||
+          e.target.closest("a")
+        ) {
+          return;
+        }
+        onRowClick && onRowClick(doc);
+      }}
     >
       <td className="px-6 py-4">
         <div className="flex items-center gap-3">
