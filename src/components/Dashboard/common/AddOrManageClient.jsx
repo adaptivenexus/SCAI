@@ -180,9 +180,9 @@ const AddOrManageClient = ({
     // if (client.business_name.match(/\d/)) {
     //   return "Please enter characters only in Business Name, numbers not allowed";
     // }
-    if (!/^[a-zA-Z\s]+$/.test(client.business_name)) {
-      return "Please enter a valid Business Name (letters only).";
-    }
+    // if (!/^[a-zA-Z\s]+$/.test(client.business_name)) {
+    //   return "Please enter a valid Business Name (letters only).";
+    // }
 
     // TIN validation
     if (!client.tin) {
@@ -294,6 +294,56 @@ const AddOrManageClient = ({
           </div>
           <div className="flex gap-2">
             <div className="flex flex-col flex-1 gap-1">
+              <label htmlFor="business_name">
+                Business Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="business_name"
+                id="business_name"
+                className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
+                placeholder="Enter business name"
+                value={client.business_name}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex flex-col flex-1 gap-1">
+              <label htmlFor="business_type">
+                Business Type <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="business_type"
+                id="business_type"
+                className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
+                value={client.business_type}
+                onChange={handleChange}
+              >
+                <option value="">Select Business Type</option>
+                <option value="Retail">Retail</option>
+                <option value="Wholesale">Wholesale</option>
+                <option value="Manufacturing">Manufacturing</option>
+                <option value="Service">Service</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            
+            <div className="flex flex-col flex-1 gap-1">
+              <label htmlFor="email">
+                Email Address <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="email"
+                id="email"
+                className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
+                placeholder="Enter Your Email"
+                value={client.email}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <div className="flex flex-col flex-1 gap-1">
               <label htmlFor="mobile_number">
                 Mobile Number <span className="text-red-500">*</span>
               </label>
@@ -320,22 +370,6 @@ const AddOrManageClient = ({
               />
             </div>
             <div className="flex flex-col flex-1 gap-1">
-              <label htmlFor="email">
-                Email Address <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="email"
-                id="email"
-                className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
-                placeholder="Enter Your Email"
-                value={client.email}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <div className="flex flex-col flex-1 gap-1">
               <label htmlFor="tin">
                 Social Security Number (SSN) / TIN{" "}
                 <span className="text-red-500">*</span>
@@ -350,6 +384,8 @@ const AddOrManageClient = ({
                 onChange={handleChange}
               />
             </div>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
             <div className="flex flex-col flex-1 gap-1">
               <label htmlFor="status">Status</label>
               <select
@@ -359,50 +395,12 @@ const AddOrManageClient = ({
                 value={client.status}
                 onChange={handleChange}
               >
-                <option value="">Select Status</option>
                 <option value="Pending">Pending</option>
                 <option value="Verified">Verified</option>
                 <option value="Rejected">Rejected</option>
                 <option value="Inactive">Inactive</option>
               </select>
             </div>
-            <div className="flex flex-col flex-1 gap-1">
-              <label htmlFor="business_name">
-                Business Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="business_name"
-                id="business_name"
-                className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
-                placeholder="Enter business name"
-                value={client.business_name}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            <div className="flex flex-col flex-1 gap-1">
-              <label htmlFor="business_type">
-                Business Type <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="business_type"
-                id="business_type"
-                className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
-                value={client.business_type}
-                onChange={handleChange}
-              >
-                <option value="">Select Business Type</option>
-                <option value="Retail">Retail</option>
-                <option value="Wholesale">Wholesale</option>
-                <option value="Manufacturing">Manufacturing</option>
-                <option value="Service">Service</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-          </div>
-          <div className="flex gap-2">
             <div className="flex flex-col flex-1 gap-1">
               <label htmlFor="business_address">Business Address</label>
               <textarea
