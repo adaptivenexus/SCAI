@@ -68,14 +68,14 @@ const Footer = () => {
             <div className="space-y-5">
               <h5 className="heading-5 text-foreground">Support</h5>
               <ul className="body-text text-secondary-foreground space-y-2">
-                <li>+1 (001) 981-76-17</li>
-                <li>info@logoipsum.com</li>
+                <li>+1 (904) 800-9254</li>
+                <li>business@adaptivenexus.com</li>
               </ul>
             </div>
           </div>
           <div className="flex justify-between text-secondary-foreground body-text">
             <Link href={"/"}>Privacy Policy</Link>
-            <p>© 2024 — Copyright</p>
+            <p>© 2025 — Copyright</p>
           </div>
         </div>
       </div>
