@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useState } from "react";
 import { MdOutlinePhoneInTalk } from "react-icons/md";
+import { useAuth } from "@/context/AuthContext";
 
 const ContactUs = () => {
+  const { user } = useAuth(); // user comes from your login response
   const [subject, setSubject] = useState("general");
   const [form, setForm] = useState({
     firstName: "",
@@ -31,8 +33,11 @@ const ContactUs = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...form,
+          name: user?.name,
+          email: user?.email,
+          phoneNumber: user?.phone_number,
           subject,
+          message: form.message,
         }),
       });
       const data = await res.json();
@@ -72,43 +77,27 @@ const ContactUs = () => {
               <form className="space-y-6" onSubmit={handleSubmit}>
                 <div className="flex gap-4 flex-col md:flex-row">
                   <div className="flex flex-col flex-1 gap-2">
-                    <label htmlFor="firstName">First Name</label>
+                    <label htmlFor="firstName">Agency Name</label>
                     <input
                       type="text"
                       id="firstName"
-                      placeholder="Enter your first name "
+                      placeholder="Enter your agency name"
                       className="outline-none border border-[#D1D1D1] font-medium rounded-md py-2 px-4"
-                      value={form.firstName}
-                      onChange={handleInputChange}
-                      required
+                      value={user?.name || ""} disabled // Agency name is fetched from the auth context
                     />
                   </div>
-                  <div className="flex flex-col flex-1 gap-2">
-                    <label htmlFor="lastName">Last Name</label>
-                    <input
-                      type="text"
-                      id="lastName"
-                      placeholder="Enter your last name"
-                      className="outline-none border border-[#D1D1D1] font-medium rounded-md py-2 px-4"
-                      value={form.lastName}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="flex gap-4 flex-col md:flex-row">
                   <div className="flex flex-col flex-1 gap-2">
                     <label htmlFor="email">Email</label>
                     <input
                       type="email"
                       id="email"
-                      placeholder="Enter your Email"
                       className="outline-none border border-[#D1D1D1] font-medium rounded-md py-2 px-4"
-                      value={form.email}
-                      onChange={handleInputChange}
-                      required
+                      value={user?.email || ""} disabled
                     />
                   </div>
+                </div>
+                <div className="flex gap-4 flex-col md:flex-row">
+                  
                   <div className="flex flex-col flex-1 gap-2">
                     <label htmlFor="phoneNumber">Phone Number</label>
                     <input
@@ -116,27 +105,23 @@ const ContactUs = () => {
                       id="phoneNumber"
                       placeholder="+1 234-567-890"
                       className="outline-none border border-[#D1D1D1] font-medium rounded-md py-2 px-4"
-                      value={form.phoneNumber}
-                      onChange={handleInputChange}
-                      required
+                      value={user?.phone_number || ""} disabled // Phone number is fetched from the auth context
                     />
                   </div>
-                </div>
-                <div className="space-y-4">
-                  <h6 className="subtitle-text font-semibold">
-                    Select Subject
-                  </h6>
-                  <select
+                  <div className="flex flex-col flex-1 gap-2">
+                    <label htmlFor="phoneNumber">Select Subject</label>
+                    <select
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
                     className="w-full outline-none border border-[#D1D1D1] font-medium rounded-md py-2 px-4"
                   >
-                    <option value="general">General Inquiry</option>
-                    <option value="service">Service Details</option>
-                    <option value="quote">Request a Quote</option>
-                    <option value="project">Project Consultation</option>
-                    <option value="other">Other</option>
+                    <option value="General query">General query</option>
+                    <option value="Facing Issue in Product">Facing Issue in Product</option>
+                    <option value="Suggest Improvements">Suggest Improvements</option>
+                    <option value="New Feature Request">New Feature Request</option>
+                    <option value="Other">Other</option>
                   </select>
+                  </div>
                 </div>
                 <div className="flex flex-col gap-2">
                   <label htmlFor="message">Message</label>

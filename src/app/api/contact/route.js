@@ -3,7 +3,7 @@ import nodemailer from "nodemailer";
 
 export async function POST(req) {
   try {
-    const { firstName, lastName, email, phoneNumber, subject, message } =
+    const { name, email, phoneNumber, subject, message } =
       await req.json();
 
     // Create a nodemailer transporter
@@ -17,8 +17,7 @@ export async function POST(req) {
 
     // Format the email content
     const emailContent = `
-      <h2>New Contact Form Submission</h2>
-      <p><strong>Name:</strong> ${firstName} ${lastName}</p>
+      <p><strong>Name:</strong> ${name}</p>
       <p><strong>Email:</strong> ${email}</p>
       <p><strong>Phone:</strong> ${phoneNumber || "Not provided"}</p>
       <p><strong>Subject:</strong> ${subject}</p>
@@ -30,7 +29,7 @@ export async function POST(req) {
     const mailOptions = {
       from: process.env.EMAIL_FROM,
       to: process.env.EMAIL_TO,
-      subject: `Contact Form: ${subject}`,
+      subject: `SCANDOQ Support Request for : ${subject}`,
       html: emailContent,
       replyTo: email,
     };
