@@ -10,6 +10,7 @@ import { BiLoaderAlt } from "react-icons/bi";
 import DocumentShareModal from "@/components/Dashboard/documentManagement/DocumentShareModal";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation"; 
+import { useAuth } from "@/context/AuthContext"; 
 
 // Helper function to check if a date matches the search query or filter
 const doesDateMatch = (dateString, query) => {
@@ -76,6 +77,20 @@ const AllDocumentPage = () => {
   const documentDateRef = useRef(null);
   const statusRef = useRef(null); // Ref for status dropdown  const [isMounted, setIsMounted] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+
+  // Get subscription info (adjust according to your context/provider)
+  const { subscription, subscriptionDetails } = useAuth();
+
+   // Restriction logic
+  const isScanLimitReached =
+    subscription &&
+    subscriptionDetails &&
+    subscription.used_scans >= subscriptionDetails.allowed_smart_scan;
+
+  const isFreePlan =
+    subscriptionDetails &&
+    subscriptionDetails.name &&
+    subscriptionDetails.name.toLowerCase().includes("free");
 
   const router = useRouter();
   useEffect(() => {
@@ -277,6 +292,21 @@ const AllDocumentPage = () => {
         {/* Top buttons and search */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="heading-5">All Documents</h2>
+          {/* Show restriction/warning message here, between label and button */}
+          {isScanLimitReached && isFreePlan && (
+            <div className="mb-4 px-4 py-3 rounded bg-yellow-100 text-red-600 font-medium w-fit mx-auto">
+              You have reached the maximum number of free scans in your plan. Please upgrade to add more documents.
+            </div>
+          )}
+          {isScanLimitReached &&
+            !isFreePlan &&
+            subscription &&
+            subscriptionDetails &&
+            subscription.used_scans < subscriptionDetails.allowed_smart_scan + 10 && (
+              <div className="mb-4 px-4 py-3 rounded bg-green-100 text-black font-medium w-fit mx-auto">
+                You have exhausted free scans in your current plan. Further scans will be charged at <b>$0.20 per page</b>.
+              </div>
+          )}
           <div className="flex gap-2">
             {selectedDocuments.size > 0 && (
               <>
@@ -298,8 +328,32 @@ const AllDocumentPage = () => {
               </>
             )}
             <Link
-              className="primary-btn"
-              href={"/dashboard/document-management/add-documents"}
+              className={`primary-btn ${
+                isScanLimitReached && isFreePlan ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              href={
+                isScanLimitReached && isFreePlan
+                  ? "#"
+                  : "/dashboard/document-management/add-documents"
+              }
+              onClick={e => {
+                if (isScanLimitReached && isFreePlan) {
+                  e.preventDefault();
+                  // Optionally show a toast or alert
+                  toast.error(
+                    "You have reached the maximum number of free scans in your plan. Please upgrade to add more documents."
+                  );
+                }
+                if (isScanLimitReached && !isFreePlan && subscription && subscriptionDetails && subscription.used_scans < subscriptionDetails.allowed_smart_scan + 10) {
+                  // Show warning for paid plans
+                  toast.warn(
+                    "You have exhausted free scans in your current plan. Further scans will be charged at $0.20 per page."
+                  );
+                  // Allow navigation
+                }
+              }}
+              tabIndex={isScanLimitReached && isFreePlan ? -1 : 0}
+              aria-disabled={isScanLimitReached && isFreePlan}
             >
               Add Document
             </Link>

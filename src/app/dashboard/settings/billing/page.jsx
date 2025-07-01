@@ -174,36 +174,73 @@ const BillingPage = () => {
           </div>
         </div>
       </div>
-      <div className="bg-white p-6 shadow-md rounded-xl space-y-5">
-        <div className="flex justify-between">
-          <div className="flex items-center gap-2">
-            <h5 className="heading-5">Usage Summary</h5>
-            <button type="button" className="secondary-btn w-max h-max px-10">
-              View Usage
-            </button>
-          </div>
-          <button type="button" className="secondary-btn w-max h-max px-10">
-            Add Add-on
-          </button>
-        </div>
-        <div className="space-y-3">
-          <p className="subtitle-text text-secondary-foreground">
-            Overall Usage: {subscription.used_scans} pages used out of{" "}
-            {subscriptionDetails.allowed_smart_scan}.
-          </p>
-          <div className="w-full h-6 rounded-lg border overflow-hidden">
-            <div
-              className={`w-0 h-full bg-primary-gradient`}
-              style={{ width: `${scanPercentage}%` }}
-            ></div>
-          </div>
-          <p className="subtitle-text text-secondary-foreground">
-            Remaining:{" "}
-            {subscriptionDetails.allowed_smart_scan - subscription.used_scans}{" "}
-            Credits left.
-          </p>
-        </div>
+      <div className="bg-white p-6 shadow-md rounded-xl space-y-5 flex gap-6">
+  {/* Usage Summary - 50% width, with border */}
+  <div className="w-1/2 flex flex-col justify-between border border-gray-200 rounded-lg p-4 bg-white">
+  <div>
+    <div className="flex justify-between items-center mb-2">
+      <div className="flex items-center gap-2">
+        <h5 className="heading-5">Usage Summary</h5>
+        <button type="button" className="secondary-btn w-max h-max px-10">
+          View Usage
+        </button>
       </div>
+      <button type="button" className="secondary-btn w-max h-max px-10">
+        Add Add-on
+      </button>
+    </div>
+    <div className="space-y-3">
+      <p className="subtitle-text text-secondary-foreground">
+        Overall Usage: {Math.min(subscription.used_scans, subscriptionDetails.allowed_smart_scan)} pages used out of{" "}
+        {subscriptionDetails.allowed_smart_scan}.
+      </p>
+      <div className="w-full h-6 rounded-lg border overflow-hidden">
+        <div
+          className={`h-full bg-primary-gradient`}
+          style={{ width: `${scanPercentage > 100 ? 100 : scanPercentage}%` }}
+        ></div>
+      </div>
+      <p className="subtitle-text text-secondary-foreground">
+        Remaining:{" "}
+        {Math.max(0, subscriptionDetails.allowed_smart_scan - subscription.used_scans)} Credits left.
+      </p>
+    </div>
+  </div>
+</div>
+  {/* Extra Cost Details - 50% width, with border and aligned label */}
+  <div className="w-1/2 flex flex-col justify-between border border-gray-200 rounded-lg p-4 bg-white">
+    <div className="h-full flex flex-col justify-between">
+      <div className="flex justify-between items-center mb-2">
+        <div className="flex items-center gap-2">
+          <h5 className="heading-5">Extra Cost Details</h5>
+        </div>
+        {/* Empty div to align with Add Add-on button */}
+        <div style={{ width: "120px" }}></div>
+      </div>
+      <div className="space-y-3">
+        <p className="subtitle-text text-secondary-foreground">
+          <b>After exceeding your plan's free scans,</b> each additional page will be charged at <b>$0.20 per page</b>.
+        </p>
+        <p className="subtitle-text text-secondary-foreground">
+          Extra usage page count in this cycle:{" "}
+          <b>
+            {Math.max(0, subscription.used_scans - subscriptionDetails.allowed_smart_scan)}
+          </b>
+        </p>
+        <p className="subtitle-text text-secondary-foreground">
+          Estimated extra cost:{" "}
+          <b>
+            $
+            {(
+              Math.max(0, subscription.used_scans - subscriptionDetails.allowed_smart_scan) *
+              0.2
+            ).toFixed(2)}
+          </b>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
 
       <div className="bg-white p-6 shadow-md rounded-xl space-y-5">
         <h5 className="heading-5">Billing history</h5>

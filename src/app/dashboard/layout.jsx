@@ -121,7 +121,7 @@ const DashboardLayout = ({ children }) => {
                                 Billing
                               </Link>
                             </li>
-                            <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
+                            {/* <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
                               <Link
                                 href={"/dashboard/user/my-usage"}
                                 className="flex items-center gap-2"
@@ -142,7 +142,7 @@ const DashboardLayout = ({ children }) => {
                                 </div>
                                 Team Usage
                               </Link>
-                            </li>
+                            </li> */}
                           </>
                         )}
                         <li className="subtitle-text text-red-500 py-2 px-1 hover:bg-slate-100">
