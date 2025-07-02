@@ -70,34 +70,34 @@ export const AuthProvider = ({ children }) => {
         return item.agency === JSON.parse(agency).id && item.is_active;
       });
 
-      // if (!subscriptionData) {
-      //   const newPlan = {
-      //     is_active: true,
-      //     expires_on: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-      //       .toISOString()
-      //       .slice(0, 10), // Extracts the date in "YYYY-MM-DD" format
-      //     plan: 1,
-      //     used_scans: 0,
-      //     registered_users_count: 1,
-      //     used_storage: 0,
-      //     agency: user.id,
-      //   };
+      if (!subscriptionData) {
+        const newPlan = {
+          is_active: true,
+          expires_on: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .slice(0, 10), // Extracts the date in "YYYY-MM-DD" format
+          plan: 1,
+          used_scans: 0,
+          registered_users_count: 1,
+          used_storage: 0,
+          agency: user.id,
+        };
 
-      //   await authFetch(
-      //     `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/add/`,
-      //     {
-      //       method: "POST",
-      //       body: JSON.stringify(newPlan),
-      //       headers: {
-      //         "Content-Type": "application/json",
-      //         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      //       },
-      //     },
-      //     refreshTokenFn
-      //   );
+        await authFetch(
+          `${process.env.NEXT_PUBLIC_SWAGGER_URL}/agency_subscription/add/`,
+          {
+            method: "POST",
+            body: JSON.stringify(newPlan),
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          },
+          refreshTokenFn
+        );
 
-      //   return getSubscription();
-      // }
+        return getSubscription();
+      }
 
       setSubscription(subscriptionData || {});
 
