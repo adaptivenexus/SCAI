@@ -92,28 +92,28 @@ const DocumentRow = ({
     setIsMounted(true);
   }, []);
 
-  // useEffect(() => {
-  //   if (isMounted) {
-  //     fetchParsedData();
-  //   }
-  // }, [isMounted]);
+  useEffect(() => {
+    if (isMounted) {
+      fetchParsedData();
+    }
+  }, [isMounted]);
 
-  // useEffect(() => {
-  //   if (doc) {
-  //     const interval = setInterval(() => {
-  //       if (
-  //         !parsedData?.parsed_data?.suggested_title ||
-  //         Object.keys(parsedData)?.length === 0
-  //       ) {
-  //         fetchParsedData();
-  //       } else {
-  //         clearInterval(interval);
-  //       }
-  //     }, 5000);
+  useEffect(() => {
+    if (doc) {
+      const interval = setInterval(() => {
+        if (
+          !parsedData?.parsed_data?.suggested_title ||
+          Object.keys(parsedData)?.length === 0
+        ) {
+          fetchParsedData();
+        } else {
+          clearInterval(interval);
+        }
+      }, 5000);
 
-  //     return () => clearInterval(interval);
-  //   }
-  // }, [doc, parsedData]);
+      return () => clearInterval(interval);
+    }
+  }, [doc, parsedData]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
