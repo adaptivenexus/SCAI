@@ -137,6 +137,12 @@ const TransactionSuccess = () => {
   }, [countdown, status, router]);
 
   const updatePlan = async () => {
+    if (!subscription) {
+      setStatus("error");
+      setError("Subscription data not loaded.");
+      console.log("Subscription data not loaded. =====================:", subscription);
+      return;
+    }
     // Ensure localStorage is accessed only on the client side
     const accessToken =
       typeof window !== "undefined"
@@ -203,10 +209,10 @@ const TransactionSuccess = () => {
   };
 
   useEffect(() => {
-    if (status === "success") {
+    if (status === "success" && subscription) {
       updatePlan();
     }
-  }, [status]);
+  }, [status, subscription]);
 
   const handleEmail = async () => {
     await fetch("/api/plan-update-email", {

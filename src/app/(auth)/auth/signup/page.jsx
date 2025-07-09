@@ -25,7 +25,7 @@ const SignUp = () => {
     email: "",
     password: "",
     password2: "",
-    plan: 0, // Default to 0, update in useEffect if needed
+    plan: 1, // Default to 1, update in useEffect if needed
   });
 
   const [message, setMessage] = useState({ type: "", text: "" });
@@ -114,7 +114,7 @@ const SignUp = () => {
         return;
       }
 
-      await login(formData.email, formData.password, true);
+      await login(formData.email, formData.password, false);
 
       setMessage({ type: "success", text: "User created successfully" });
 
