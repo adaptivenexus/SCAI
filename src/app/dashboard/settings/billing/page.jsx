@@ -17,6 +17,21 @@ const BillingPage = () => {
   const [isOpenManagePlan, setIsOpenManagePlan] = useState(false);
   const router = useRouter();
 
+    // Helper to compare only date part
+  const getDateOnly = (dateStr) => {
+    const d = new Date(dateStr);
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  };
+  const today = new Date();
+  const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+  // Use subscription.expires_on or subscriptionDetails.end_date as needed
+  const expiryDate = subscription.expires_on || subscriptionDetails.end_date;
+  const isPlanExpired =
+    expiryDate &&
+    !isNaN(Date.parse(expiryDate)) &&
+    getDateOnly(expiryDate) < todayDateOnly;
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -131,16 +146,22 @@ const BillingPage = () => {
               <h5 className="heading-5">Next Billing Date</h5>
               <div className="space-y-0.5">
                 <p className="subtitle-text text-secondary-foreground">
-                  {formatDate(subscription.expires_on)}
+                  {formatDate(expiryDate)}
                 </p>
                 <p className="subtitle-text text-primary">
-                  (Auto-renewal enabled)
+                  (Auto-renewal disabled)
                 </p>
               </div>
             </div>
-            <p className="label-text text-[#DF5753]">
-              Expiring Soon: Renew before {formatDate(subscription.expires_on)}.
-            </p>
+            {isPlanExpired ? (
+              <p className="label-text text-[#DF5753]">
+                <b>Plan expired</b>
+              </p>
+            ) : (
+              <p className="label-text text-[#DF5753]">
+                Expiring Soon: Renew before {formatDate(expiryDate)}.
+              </p>
+            )}
           </div>
         </div>
         <div className="flex-1 bg-white p-6 shadow-md rounded-xl space-y-3">
@@ -181,13 +202,13 @@ const BillingPage = () => {
     <div className="flex justify-between items-center mb-2">
       <div className="flex items-center gap-2">
         <h5 className="heading-5">Usage Summary</h5>
-        <button type="button" className="secondary-btn w-max h-max px-10">
+        {/* <button type="button" className="secondary-btn w-max h-max px-10">
           View Usage
-        </button>
+        </button> */}
       </div>
-      <button type="button" className="secondary-btn w-max h-max px-10">
+      {/* <button type="button" className="secondary-btn w-max h-max px-10">
         Add Add-on
-      </button>
+      </button> */}
     </div>
     <div className="space-y-3">
       <p className="subtitle-text text-secondary-foreground">
@@ -208,7 +229,7 @@ const BillingPage = () => {
   </div>
 </div>
   {/* Extra Cost Details - 50% width, with border and aligned label */}
-  <div className="w-1/2 flex flex-col justify-between border border-gray-200 rounded-lg p-4 bg-white">
+  <div className="w-1/2 flex flex-col justify-between border border-gray-200 rounded-lg p-4 bg-white" style={{ marginTop: 0 }}>
     <div className="h-full flex flex-col justify-between">
       <div className="flex justify-between items-center mb-2">
         <div className="flex items-center gap-2">
