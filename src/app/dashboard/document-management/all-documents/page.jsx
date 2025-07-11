@@ -81,7 +81,15 @@ const AllDocumentPage = () => {
   // Get subscription info (adjust according to your context/provider)
   const { subscription, subscriptionDetails } = useAuth();
 
-   // Restriction logic
+  // Check if subscription is expired
+    const isSubscriptionExpired = !!(
+    subscription &&
+    subscription.expires_on &&
+    !isNaN(Date.parse(subscription.expires_on)) &&
+    new Date(subscription.expires_on) < new Date()
+  );
+
+  // Restriction logic
   const isScanLimitReached =
     subscription &&
     subscriptionDetails &&
@@ -293,12 +301,18 @@ const AllDocumentPage = () => {
         <div className="flex justify-between items-center mb-6">
           <h2 className="heading-5">All Documents</h2>
           {/* Show restriction/warning message here, between label and button */}
-          {isScanLimitReached && isFreePlan && (
+          {isSubscriptionExpired && (
+            <div className="mb-4 px-4 py-3 rounded bg-red-100 text-red-600 font-medium w-fit mx-auto">
+              Your subscription is expired, please upgrade it to continue document processing.
+            </div>
+          )}
+          {!isSubscriptionExpired && isScanLimitReached && isFreePlan && (
             <div className="mb-4 px-4 py-3 rounded bg-yellow-100 text-red-600 font-medium w-fit mx-auto">
               You have reached the maximum number of free scans in your plan. Please upgrade to add more documents.
             </div>
           )}
-          {isScanLimitReached &&
+          {!isSubscriptionExpired &&
+            isScanLimitReached &&
             !isFreePlan &&
             subscription &&
             subscriptionDetails &&
@@ -329,31 +343,41 @@ const AllDocumentPage = () => {
             )}
             <Link
               className={`primary-btn ${
-                isScanLimitReached && isFreePlan ? "opacity-50 cursor-not-allowed" : ""
+                isSubscriptionExpired
+                  ? "opacity-50 cursor-not-allowed"
+                  : isScanLimitReached && isFreePlan
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
               }`}
               href={
-                isScanLimitReached && isFreePlan
+                isSubscriptionExpired
+                  ? "#"
+                  : isScanLimitReached && isFreePlan
                   ? "#"
                   : "/dashboard/document-management/add-documents"
               }
               onClick={e => {
-                if (isScanLimitReached && isFreePlan) {
+                if (isSubscriptionExpired) {
                   e.preventDefault();
-                  // Optionally show a toast or alert
+                  toast.error(
+                    "Your subscription is expired, please upgrade it to continue document processing."
+                  );
+                }
+                if (!isSubscriptionExpired && isScanLimitReached && isFreePlan) {
+                  e.preventDefault();
                   toast.error(
                     "You have reached the maximum number of free scans in your plan. Please upgrade to add more documents."
                   );
                 }
-                if (isScanLimitReached && !isFreePlan && subscription && subscriptionDetails && subscription.used_scans < subscriptionDetails.allowed_smart_scan + 10) {
-                  // Show warning for paid plans
+                if (!isSubscriptionExpired && isScanLimitReached && !isFreePlan && subscription && subscriptionDetails && subscription.used_scans < subscriptionDetails.allowed_smart_scan + 10) {
                   toast.warn(
                     "You have exhausted free scans in your current plan. Further scans will be charged at $0.20 per page."
                   );
                   // Allow navigation
                 }
               }}
-              tabIndex={isScanLimitReached && isFreePlan ? -1 : 0}
-              aria-disabled={isScanLimitReached && isFreePlan}
+              tabIndex={isSubscriptionExpired || (isScanLimitReached && isFreePlan) ? -1 : 0}
+              aria-disabled={isSubscriptionExpired || (isScanLimitReached && isFreePlan)}
             >
               Add Document
             </Link>
