@@ -7,6 +7,7 @@ import { FaDownload } from "react-icons/fa";
 import { RiVisaLine } from "react-icons/ri";
 import { useRouter } from "nextjs-toploader/app";
 import BillingHistoryRow from "@/components/Dashboard/settingsComponents/BillingHistoryRow";
+import { handleCheckout } from "@/utils/paymentGateway";
 
 const BillingPage = () => {
   const { subscription, previousSubscriptions, subscriptionDetails } =
@@ -109,6 +110,15 @@ const BillingPage = () => {
                   ref={dropdownRef}
                   className="absolute top-12 left-0 flex flex-col bg-white rounded-lg shadow-md"
                 >
+                  {/* Renew Plan Option */}
+                  <button
+                    onClick={() => handleCheckout(subscriptionDetails.id, false)}
+                    type="button"
+                    disabled={subscription.plan === subscriptionDetails.id && subscriptionDetails.id === 0}
+                    className="w-max h-max font-medium text-green-600 py-2 px-4 hover:bg-slate-100 min-w-full text-start"
+                  >
+                    Renew Existing Plan
+                  </button>
                   <button
                     type="button"
                     onClick={() => {
@@ -153,14 +163,27 @@ const BillingPage = () => {
                 </p>
               </div>
             </div>
-            {isPlanExpired ? (
+           {isPlanExpired ? (
               <p className="label-text text-[#DF5753]">
                 <b>Plan expired</b>
               </p>
             ) : (
-              <p className="label-text text-[#DF5753]">
-                Expiring Soon: Renew before {formatDate(expiryDate)}.
-              </p>
+              // Show "Expiring Soon" only if plan expires in 5 days or less
+              (() => {
+                if (expiryDate) {
+                  const expiry = getDateOnly(expiryDate);
+                  const diffTime = expiry - todayDateOnly;
+                  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                  if (diffDays > 0 && diffDays <= 5) {
+                    return (
+                      <p className="label-text text-[#DF5753]">
+                        Expiring Soon: Renew before {formatDate(expiryDate)}.
+                      </p>
+                    );
+                  }
+                }
+                return null;
+              })()
             )}
           </div>
         </div>
@@ -240,7 +263,7 @@ const BillingPage = () => {
       </div>
       <div className="space-y-3">
         <p className="subtitle-text text-secondary-foreground">
-          <b>After exceeding your plan's free scans,</b> each additional page will be charged at <b>$0.20 per page</b>.
+          <b>After exceeding your plan's free scans,</b> each additional page will be charged at <b>${subscriptionDetails.exceeds_page_limit_cost}/per page</b>.
         </p>
         <p className="subtitle-text text-secondary-foreground">
           Extra usage page count in this cycle:{" "}
@@ -254,7 +277,7 @@ const BillingPage = () => {
             $
             {(
               Math.max(0, subscription.used_scans - subscriptionDetails.allowed_smart_scan) *
-              0.2
+              subscriptionDetails.exceeds_page_limit_cost
             ).toFixed(2)}
           </b>
         </p>
