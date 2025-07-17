@@ -37,7 +37,7 @@ const Pricing = () => {
         "Smart Scan 1000 pages",
         "Priority support",
         "Moderate customization",
-        "API access",
+        "Document Sharing",
         "10 GB storage",
         "Smart Dashboard",
       ],
@@ -45,10 +45,10 @@ const Pricing = () => {
     {
       ...subscriptions[3],
       features: [
-        "Smart Scan Unlimited pages",
+        "Smart Scan Customized pages",
         "24/7 dedicated support",
         "Extensive customization",
-        "API access",
+        "Document Sharing",
         "50 GB storage",
         "Smart Dashboard",
       ],
@@ -147,7 +147,7 @@ const Pricing = () => {
                 </tr>
                 <tr className="">
                   <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
-                    API Access
+                    Document Sharing
                   </td>
                 </tr>
                 <tr className="">
@@ -228,7 +228,7 @@ const Pricing = () => {
                     Up to 10
                   </td>
                   <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                    Unlimited
+                    Customized
                   </td>
                 </tr>
                 <tr>
@@ -456,13 +456,13 @@ const Pricing = () => {
                     25 Pages
                   </td>
                   <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                    100 Pages
+                    200 Pages
                   </td>
                   <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                    1000 Pages
+                    500 Pages
                   </td>
                   <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                    Unlimited
+                    Customized
                   </td>
                 </tr>
                 <tr>
