@@ -26,7 +26,7 @@ const AddOrManageClient = ({
     tin: "",
     business_address: "",
     postal_code: "",
-    status: "", // Changed default value to empty string
+    status: "Pending", // Changed default value to empty string
   });
 
   const [message, setMessage] = useState({ type: "", text: "" });
