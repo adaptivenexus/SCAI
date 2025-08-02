@@ -25,7 +25,7 @@ const SignUp = () => {
     email: "",
     password: "",
     password2: "",
-    plan: 1, // Default to 1, update in useEffect if needed
+    plan: 5, // Default to 6, update in useEffect if needed
   });
 
   const [message, setMessage] = useState({ type: "", text: "" });
@@ -118,7 +118,7 @@ const SignUp = () => {
 
       setMessage({ type: "success", text: "User created successfully" });
 
-      if (formData.plan !== 0) {
+      if (formData.plan !== 5) {
         await handleCheckout(formData.plan, true);
       }
     } catch (error) {

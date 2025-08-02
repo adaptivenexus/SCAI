@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }) => {
           expires_on: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
             .toISOString()
             .slice(0, 10), // Extracts the date in "YYYY-MM-DD" format
-          plan: 1,
+          plan: 5, // Default to Free plan
           used_scans: 0,
           registered_users_count: 1,
           used_storage: 0,

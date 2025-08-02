@@ -44,6 +44,7 @@ Create a server-side API route to handle the creation of a Stripe Checkout sessi
          "basic-plan": "price_basic",
          "standard-plan": "price_standard",
          "enterprise-plan": "price_enterprise",
+         "executive-plan": "price_executive",
        };
 
        const session = await stripe.checkout.sessions.create({
