@@ -4,9 +4,11 @@ import Image from "next/image";
 import { FaCirclePlay } from "react-icons/fa6";
 import VideoModel from "./VideoModel";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const Hero = () => {
   const [showVideo, setShowVideo] = useState(false);
+  const router = useRouter(); // Add this line
 
   return (
     <section
@@ -29,7 +31,10 @@ const Hero = () => {
           </p>
         </div>
         <div className="flex items-center gap-0 mx-auto w-full sm:w-max">
-          <button className="body-text text-background bg-primary-gradient rounded-l-full py-4 flex-1 sm:w-[200px] block hover:opacity-85 duration-200">
+          <button
+            className="body-text text-background bg-primary-gradient rounded-l-full py-4 flex-1 sm:w-[200px] block hover:opacity-85 duration-200"
+            onClick={() => router.push("/auth/signup")} // Add this line
+          >
             Start Free Trial
           </button>
           <button
