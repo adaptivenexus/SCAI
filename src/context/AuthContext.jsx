@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }) => {
       if (!subscriptionData) {
         const newPlan = {
           is_active: true,
-          expires_on: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          expires_on: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
             .toISOString()
             .slice(0, 10), // Extracts the date in "YYYY-MM-DD" format
           plan: 5, // Default to Free plan

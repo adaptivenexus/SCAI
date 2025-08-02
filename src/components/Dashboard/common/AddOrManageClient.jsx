@@ -138,6 +138,24 @@ const AddOrManageClient = ({
       return "Please fill the details";
     }
 
+    // Business name validation
+    if (!client.business_name) {
+      return "Business Name is required";
+    }
+
+     // Business type validation
+    if (!client.business_type) {
+      return "Please select a Business Type";
+    }
+
+    // Email validation
+    if (!client.email) {
+      return "Email is required";
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(client.email)) {
+      return "Invalid email address";
+    }
+
     // Mobile number validation
     if (!client.mobile_number) {
       return "Mobile number is required";
@@ -162,18 +180,9 @@ const AddOrManageClient = ({
       }
     }
 
-    // Email validation
-    if (!client.email) {
-      return "Email is required";
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(client.email)) {
-      return "Invalid email address";
-    }
+    
 
-    // Business name validation
-    if (!client.business_name) {
-      return "Business Name is required";
-    }
+    
     // if (client.business_name.match(/['";\\]/)) {
     //   return "Business Name contains invalid characters (e.g., quotes, semicolons)";
     // }
@@ -189,10 +198,7 @@ const AddOrManageClient = ({
       return "SSN/TIN Number is required";
     }
 
-    // Business type validation
-    if (!client.business_type) {
-      return "Business Type is required";
-    }
+   
     if (client.business_type.match(/['";\\]/)) {
       return "Business Type contains invalid characters (e.g., quotes, semicolons)";
     }
