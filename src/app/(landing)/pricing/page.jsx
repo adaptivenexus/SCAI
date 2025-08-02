@@ -14,7 +14,7 @@ const PricingPage = () => {
     {
       ...subscriptions[0],
       features: [
-        "Smart Scan 25 pages",
+        "Smart Scan 100 pages",
         "FAQ support",
         "No customization",
         "1 GB storage",
@@ -23,21 +23,21 @@ const PricingPage = () => {
     {
       ...subscriptions[1],
       features: [
-        "Smart Scan 100 pages",
+        "Smart Scan 200 pages",
         "Email Support",
         "Limited customization",
-        "5 GB storage",
+        "2 GB storage",
         "Smart Dashboard",
       ],
     },
     {
       ...subscriptions[2],
       features: [
-        "Smart Scan 1000 pages",
+        "Smart Scan 500 pages",
         "Priority support",
         "Modrate customization",
         "Document Sharing",
-        "10 GB storage",
+        "5 GB storage",
         "Smart Dashboard",
       ],
     },
@@ -48,7 +48,7 @@ const PricingPage = () => {
         "24/7 dedicated support",
         "Extensive customization",
         "Document Sharing",
-        "50 GB storage",
+        "10 GB storage",
         "Smart Dashboard",
       ],
     },
@@ -127,7 +127,7 @@ const PricingPage = () => {
                   </tr>
                   <tr className="">
                     <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
-                      Users per Client
+                      Clients per user
                     </td>
                   </tr>
                   <tr className="">
@@ -152,12 +152,17 @@ const PricingPage = () => {
                   </tr>
                   <tr className="">
                     <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
-                      Smart AI Document Tagging
+                      Document Sharing
                     </td>
                   </tr>
                   <tr className="">
                     <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
-                      Document Sharing
+                      Smart Search
+                    </td>
+                  </tr>
+                  <tr className="">
+                    <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
+                      Smart AI Document Tagging
                     </td>
                   </tr>
                   <tr className="">
@@ -182,11 +187,6 @@ const PricingPage = () => {
                   </tr>
                   <tr className="">
                     <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
-                      Smart Search
-                    </td>
-                  </tr>
-                  <tr className="">
-                    <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
                       SMART SCAN
                     </td>
                   </tr>
@@ -203,9 +203,6 @@ const PricingPage = () => {
                 <thead>
                   <tr>
                     <th className="heading-5 border-b border-[#E1E1E1] py-3 text-center w-full">
-                      Free
-                    </th>
-                    <th className="heading-5 border-b border-[#E1E1E1] py-3 text-center w-full">
                       Basic
                     </th>
                     <th className="heading-5 border-b border-[#E1E1E1] py-3 text-center w-full">
@@ -213,6 +210,9 @@ const PricingPage = () => {
                     </th>
                     <th className="heading-5 border-b border-[#E1E1E1] py-3 text-center w-full">
                       Enterprise
+                    </th>
+                    <th className="heading-5 border-b border-[#E1E1E1] py-3 text-center w-full">
+                      Executive
                     </th>
                   </tr>
                 </thead>
@@ -222,24 +222,24 @@ const PricingPage = () => {
                       1GB
                     </td>
                     <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                      2GB
+                    </td>
+                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
                       5GB
                     </td>
                     <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
                       10GB
                     </td>
-                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                      50GB
-                    </td>
                   </tr>
                   <tr>
-                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                      1 user
-                    </td>
                     <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
                       Up to 5
                     </td>
                     <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
                       Up to 10
+                    </td>
+                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                      Up to 20
                     </td>
                     <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
                       Customized
@@ -317,13 +317,35 @@ const PricingPage = () => {
                   </tr>
                   <tr>
                     <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                      <div className="text-3xl">
-                        <IoIosCloseCircle className="mx-auto text-gray-500" />
+                      <div className="text-2xl">
+                        <FaCheckCircle className="mx-auto text-primary" />
                       </div>
                     </td>
                     <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                      <div className="text-3xl">
-                        <IoIosCloseCircle className="mx-auto text-gray-500" />
+                      <div className="text-2xl">
+                        <FaCheckCircle className="mx-auto text-primary" />
+                      </div>
+                    </td>
+                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                      <div className="text-2xl">
+                        <FaCheckCircle className="mx-auto text-primary" />
+                      </div>
+                    </td>
+                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                      <div className="text-2xl">
+                        <FaCheckCircle className="mx-auto text-primary" />
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                      <div className="text-2xl">
+                        <FaCheckCircle className="mx-auto text-primary" />
+                      </div>
+                    </td>
+                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                      <div className="text-2xl">
+                        <FaCheckCircle className="mx-auto text-primary" />
                       </div>
                     </td>
                     <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
@@ -413,7 +435,7 @@ const PricingPage = () => {
                       <div className="text-3xl">
                         <IoIosCloseCircle className="mx-auto text-gray-500" />
                       </div>
-                    </td>
+                    </td>              
                     <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
                       2 Hours
                     </td>
@@ -445,29 +467,7 @@ const PricingPage = () => {
                   </tr>
                   <tr>
                     <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                      <div className="text-3xl">
-                        <IoIosCloseCircle className="mx-auto text-gray-500" />
-                      </div>
-                    </td>
-                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                      <div className="text-3xl">
-                        <IoIosCloseCircle className="mx-auto text-gray-500" />
-                      </div>
-                    </td>
-                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                      <div className="text-2xl">
-                        <FaCheckCircle className="mx-auto text-primary" />
-                      </div>
-                    </td>
-                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                      <div className="text-2xl">
-                        <FaCheckCircle className="mx-auto text-primary" />
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                      25 Pages
+                      100 Pages
                     </td>
                     <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
                       200 Pages
@@ -481,10 +481,10 @@ const PricingPage = () => {
                   </tr>
                   <tr>
                     <td className="py-3 text-center subtitle-text w-full">
-                      ......
+                      25¢ / Page
                     </td>
                     <td className="py-3 text-center subtitle-text w-full">
-                      25¢ / Page
+                      20¢ / Page
                     </td>
                     <td className="py-3 text-center subtitle-text w-full">
                       20¢ / Page

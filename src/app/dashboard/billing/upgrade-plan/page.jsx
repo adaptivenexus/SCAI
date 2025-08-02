@@ -14,7 +14,7 @@ const UpgradePlanPage = () => {
     {
       ...subscriptions[0],
       features: [
-        "Smart Scan 25 pages",
+        "Smart Scan 100 pages",
         "FAQ support",
         "No customization",
         "1 GB storage",
@@ -23,32 +23,32 @@ const UpgradePlanPage = () => {
     {
       ...subscriptions[1],
       features: [
-        "Smart Scan 100 pages",
+        "Smart Scan 200 pages",
         "Email Support",
         "Limited customization",
-        "5 GB storage",
+        "2 GB storage",
         "Smart Dashboard",
       ],
     },
     {
       ...subscriptions[2],
       features: [
-        "Smart Scan 1000 pages",
+        "Smart Scan 500 pages",
         "Priority support",
         "Modrate customization",
-        "API access",
-        "10 GB storage",
+        "Document Sharing",
+        "5 GB storage",
         "Smart Dashboard",
       ],
     },
     {
       ...subscriptions[3],
       features: [
-        "Smart Scan Unlimited pages",
+        "Smart Scan Customized pages",
         "24/7 dedicated support",
         "Extensive customization",
-        "API access",
-        "50 GB storage",
+        "Document Sharing",
+        "10 GB storage",
         "Smart Dashboard",
       ],
     },
@@ -138,7 +138,7 @@ const UpgradePlanPage = () => {
               <li className="text-primary">✔ Advanced AI categorization</li>
               <li className="text-primary">✔ Premium OCR</li>
               <li className="text-primary">✔ Priority support</li>
-              <li className="text-primary">✔ API access</li>
+              <li className="text-primary">✔ Document Sharing</li>
             </ul>
           </div>
           <button
@@ -247,12 +247,17 @@ const UpgradePlanPage = () => {
                   </tr>
                   <tr className="">
                     <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
-                      Smart AI Document Tagging
+                      Document Sharing
                     </td>
                   </tr>
                   <tr className="">
                     <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
-                      API Access
+                      Smart Search
+                    </td>
+                  </tr>
+                  <tr className="">
+                    <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
+                      Smart AI Document Tagging
                     </td>
                   </tr>
                   <tr className="">
@@ -277,11 +282,6 @@ const UpgradePlanPage = () => {
                   </tr>
                   <tr className="">
                     <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
-                      Smart Search
-                    </td>
-                  </tr>
-                  <tr className="">
-                    <td className="py-3 border-b border-[#E1E1E1] subtitle-text">
                       SMART SCAN
                     </td>
                   </tr>
@@ -298,9 +298,6 @@ const UpgradePlanPage = () => {
                 <thead>
                   <tr>
                     <th className="heading-5 border-b border-[#E1E1E1] py-3 text-center w-full">
-                      Free
-                    </th>
-                    <th className="heading-5 border-b border-[#E1E1E1] py-3 text-center w-full">
                       Basic
                     </th>
                     <th className="heading-5 border-b border-[#E1E1E1] py-3 text-center w-full">
@@ -308,6 +305,9 @@ const UpgradePlanPage = () => {
                     </th>
                     <th className="heading-5 border-b border-[#E1E1E1] py-3 text-center w-full">
                       Enterprise
+                    </th>
+                    <th className="heading-5 border-b border-[#E1E1E1] py-3 text-center w-full">
+                      Executive
                     </th>
                   </tr>
                 </thead>
@@ -317,19 +317,16 @@ const UpgradePlanPage = () => {
                       1GB
                     </td>
                     <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                      2GB
+                    </td>
+                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
                       5GB
                     </td>
                     <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
                       10GB
                     </td>
-                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                      50GB
-                    </td>
                   </tr>
                   <tr>
-                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                      1 user
-                    </td>
                     <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
                       Up to 5
                     </td>
@@ -337,7 +334,10 @@ const UpgradePlanPage = () => {
                       Up to 10
                     </td>
                     <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                      Unlimited
+                      Up to 20
+                    </td>
+                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                      Customized
                     </td>
                   </tr>
                   <tr>
@@ -412,13 +412,35 @@ const UpgradePlanPage = () => {
                   </tr>
                   <tr>
                     <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                      <div className="text-3xl">
-                        <IoIosCloseCircle className="mx-auto text-gray-500" />
+                      <div className="text-2xl">
+                        <FaCheckCircle className="mx-auto text-primary" />
                       </div>
                     </td>
                     <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                      <div className="text-3xl">
-                        <IoIosCloseCircle className="mx-auto text-gray-500" />
+                      <div className="text-2xl">
+                        <FaCheckCircle className="mx-auto text-primary" />
+                      </div>
+                    </td>
+                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                      <div className="text-2xl">
+                        <FaCheckCircle className="mx-auto text-primary" />
+                      </div>
+                    </td>
+                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                      <div className="text-2xl">
+                        <FaCheckCircle className="mx-auto text-primary" />
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                      <div className="text-2xl">
+                        <FaCheckCircle className="mx-auto text-primary" />
+                      </div>
+                    </td>
+                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                      <div className="text-2xl">
+                        <FaCheckCircle className="mx-auto text-primary" />
                       </div>
                     </td>
                     <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
@@ -540,46 +562,24 @@ const UpgradePlanPage = () => {
                   </tr>
                   <tr>
                     <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                      <div className="text-3xl">
-                        <IoIosCloseCircle className="mx-auto text-gray-500" />
-                      </div>
-                    </td>
-                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                      <div className="text-3xl">
-                        <IoIosCloseCircle className="mx-auto text-gray-500" />
-                      </div>
-                    </td>
-                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                      <div className="text-2xl">
-                        <FaCheckCircle className="mx-auto text-primary" />
-                      </div>
-                    </td>
-                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                      <div className="text-2xl">
-                        <FaCheckCircle className="mx-auto text-primary" />
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                      25 Pages
-                    </td>
-                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
                       100 Pages
                     </td>
                     <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                      1000 Pages
+                      200 Pages
                     </td>
                     <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
-                      Unlimited
+                      500 Pages
+                    </td>
+                    <td className="border-b border-[#E1E1E1] py-3 text-center subtitle-text w-full">
+                      Customized
                     </td>
                   </tr>
                   <tr>
                     <td className="py-3 text-center subtitle-text w-full">
-                      ......
+                      25¢ / Page
                     </td>
                     <td className="py-3 text-center subtitle-text w-full">
-                      25¢ / Page
+                      20¢ / Page
                     </td>
                     <td className="py-3 text-center subtitle-text w-full">
                       20¢ / Page
