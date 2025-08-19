@@ -109,7 +109,7 @@ const DocumentRow = ({
         } else {
           clearInterval(interval);
         }
-      }, 5000);
+      }, 25000);
 
       return () => clearInterval(interval);
     }

@@ -44,17 +44,21 @@ const GlobalDashboardProvider = ({ children }) => {
     }
   };
 
-  const fetchDocuments = async () => {
+  const fetchDocuments = async (clientId = null) => {
     try {
-      // Ensure localStorage is accessed only on the client side
       const accessToken =
         typeof window !== "undefined"
           ? localStorage.getItem("accessToken")
           : null;
 
-      // First fetch all documents
+      // Build URL with client filter if provided
+      let url = `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/`;
+      if (clientId) {
+        url += `?client_id=${clientId}`;
+      }
+
       const response = await authFetch(
-        `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/`,
+        url,
         {
           method: "GET",
           headers: {
@@ -71,12 +75,12 @@ const GlobalDashboardProvider = ({ children }) => {
 
       const documentsData = await response.json();
 
-      // Now fetch parsed data for each document
+      // Fetch parsed data for each document (unchanged)
       const documentsWithParsedData = await Promise.all(
         documentsData.map(async (document) => {
           try {
             const parsedDataResponse = await authFetch(
-              `https://www.scandoq.com/api/v1/document/${document.id}/parsed-data/`,
+              `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${document.id}/parsed-data/`,
               {
                 method: "GET",
                 headers: {
@@ -93,18 +97,17 @@ const GlobalDashboardProvider = ({ children }) => {
                 parsed_data: parsedData,
               };
             }
-            return document; // Return original document if parsing data fetch fails
+            return document;
           } catch (error) {
             console.error(
               `Error fetching parsed data for document ${document.id}:`,
               error
             );
-            return document; // Return original document on error
+            return document;
           }
         })
       );
 
-      // Sort documents by upload date and update state
       const sortedData = documentsWithParsedData.sort(
         (a, b) => new Date(b.uploaded_at) - new Date(a.uploaded_at)
       );
@@ -129,7 +132,7 @@ const GlobalDashboardProvider = ({ children }) => {
         setIsAddClientOpen,
         clients,
         documents,
-        fetchDocuments,
+        fetchDocuments, // now accepts clientId
         fetchClients,
       }}
     >

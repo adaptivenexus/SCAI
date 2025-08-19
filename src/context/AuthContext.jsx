@@ -39,6 +39,7 @@ export const AuthProvider = ({ children }) => {
 
       const data = await response.json();
       setSubscriptions(data);
+      // DO NOT call setUser here!
     } catch (error) {
       console.error("Error fetching subscription:", error);
     }
@@ -96,7 +97,7 @@ export const AuthProvider = ({ children }) => {
           refreshTokenFn
         );
 
-        return getSubscription();
+        // getSubscription();
       }
 
       setSubscription(subscriptionData || {});
@@ -106,6 +107,7 @@ export const AuthProvider = ({ children }) => {
         .sort((a, b) => new Date(b.subscribed_on) - new Date(a.subscribed_on));
 
       setPreviousSubscriptions(previousSubscriptionData);
+      // DO NOT call setUser here!
     } catch (error) {
       console.error("Error fetching subscription:", error);
     }
@@ -126,7 +128,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    // Check for stored tokens on mount
+    // Set user only once on mount
     const { userData } = getStoredTokens();
     if (userData) {
       setUser(userData);
@@ -134,12 +136,17 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  // Fetch subscription plans only once on mount
   useEffect(() => {
     getSubscriptions();
+  }, []);
 
-    if (isAuthenticated() && user?.role === "admin") {
+  // Fetch agency subscription when user is authenticated and admin
+  useEffect(() => {
+    if (user && isAuthenticated() && user.role === "admin") {
       getSubscription();
     }
+    // DO NOT call setUser in getSubscription or in this effect!
   }, [user]);
 
   useEffect(() => {

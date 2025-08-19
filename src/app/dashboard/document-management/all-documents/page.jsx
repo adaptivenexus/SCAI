@@ -60,9 +60,16 @@ const doesDateMatch = (dateString, query) => {
 };
 
 const AllDocumentPage = () => {
-  const { documents, fetchDocuments } = useContext(GlobalContext);
+  // --- LINT FIX: All hooks at top ---
+  const { documents, fetchDocuments, clients } = useContext(GlobalContext);
   const [selectedDocuments, setSelectedDocuments] = useState(new Set());
   const [selectedClient, setSelectedClient] = useState(null);
+  const [selectedClientId, setSelectedClientId] = useState(null); // Folder UI
+  const filteredDocuments = useMemo(() => {
+    if (!selectedClientId) return documents;
+    return documents.filter(doc => doc.client_id === selectedClientId);
+  }, [documents, selectedClientId]);
+  // --- END LINT FIX ---
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [currentPage, setCurrentPage] = useState(1);
@@ -125,6 +132,12 @@ const AllDocumentPage = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    // Fetch documents for selected client
+    fetchDocuments(selectedClientId);
+    setCurrentPage(1); // Optionally reset pagination
+  }, [selectedClientId]);
 
   const itemsPerPage = 10;
 
@@ -294,9 +307,39 @@ const AllDocumentPage = () => {
     );
   }
 
+  // --- CLIENT FOLDER LIST ---
+  // (UI remains the same as previous edit)
   return (
     <div className="p-6 flex-1 min-w-0">
       <div className="flex flex-col h-full">
+        <div className="mb-8">
+          <div className="flex flex-wrap gap-4 items-center">
+            {clients && clients.length > 0 ? (
+              clients.map(client => (
+                <button
+                  key={client.id}
+                  className={`flex flex-col items-center px-4 py-3 rounded-lg border border-gray-200 shadow-sm hover:bg-accent-primary/10 transition-all ${selectedClientId === client.id ? 'bg-accent-primary text-white border-accent-primary' : 'bg-white text-foreground'}`}
+                  onClick={() => setSelectedClientId(client.id)}
+                >
+                  <span className="text-3xl mb-1">📁</span>
+                  <span className="font-medium text-sm truncate max-w-[120px]">{client.business_name || client.firstName || client.lastName || client.email}</span>
+                </button>
+              ))
+            ) : (
+              <span className="text-gray-400">No clients found</span>
+            )}
+            {selectedClientId && (
+              <button
+                className="ml-4 px-3 py-2 rounded bg-gray-100 hover:bg-gray-200 text-gray-600 border border-gray-300 text-xs"
+                onClick={() => setSelectedClientId(null)}
+              >
+                Show All Documents
+              </button>
+            )}
+          </div>
+        </div>
+        {/* --- END CLIENT FOLDER LIST --- */}
+
         {/* Top buttons and search */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="heading-5">All Documents</h2>
@@ -386,8 +429,27 @@ const AllDocumentPage = () => {
 
         {/* Search and filters */}
         <div className="flex justify-between items-center mb-6 gap-4">
-          <div className="relative flex-1">
-            <div className="relative">
+          {/* --- Client Filter Dropdown --- */}
+          <div className="flex gap-2 flex-1">
+            <div className="relative min-w-[200px]">
+              <select
+                className="w-full pl-3 pr-8 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-blue-500 bg-white"
+                value={selectedClientId || ""}
+                onChange={e => setSelectedClientId(e.target.value ? Number(e.target.value) : null)}
+              >
+                <option value="">All Clients</option>
+                {clients && clients.length > 0 && clients.map(client => (
+                  <option key={client.id} value={client.id}>
+                    {client.business_name || client.firstName || client.lastName || client.email}
+                  </option>
+                ))}
+              </select>
+              <span className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400">
+                ▼
+              </span>
+            </div>
+            {/* --- Search Input --- */}
+            <div className="relative flex-1">
               <input
                 type="text"
                 placeholder="Search by client, document, category, date, or status"
@@ -412,6 +474,7 @@ const AllDocumentPage = () => {
             Export
           </button>
         </div>
+        {/* --- END Search and filters --- */}
 
         {/* Table with horizontal scroll */}
         <div className="bg-white rounded-lg border border-gray-200 overflow-auto">

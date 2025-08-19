@@ -35,27 +35,6 @@ export const getStoredTokens = () => {
     };
   }
 
-  const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
-  const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
-  const accessTokenCookie = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith(`${ACCESS_TOKEN_KEY}=`));
-  const refreshTokenCookie = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith(`${REFRESH_TOKEN_KEY}=`));
-
-  if (
-    (!accessTokenCookie && accessToken) ||
-    (!refreshTokenCookie && refreshToken) ||
-    (!accessToken && accessTokenCookie) ||
-    (!refreshToken && refreshTokenCookie)
-  ) {
-    storeTokens(
-      accessToken || accessTokenCookie.split("=")[1],
-      refreshToken || refreshTokenCookie.split("=")[1]
-    );
-  }
-
   return {
     accessToken: localStorage.getItem(ACCESS_TOKEN_KEY),
     refreshToken: localStorage.getItem(REFRESH_TOKEN_KEY),
