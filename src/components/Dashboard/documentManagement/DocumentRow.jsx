@@ -208,7 +208,7 @@ const DocumentRow = ({
         {formatDate(doc.uploaded_at)}
       </td>
       <td className="px-6 py-4 text-sm text-foreground">
-        {parsedData?.parsed_data?.document_date}
+        {formatDate(parsedData?.parsed_data?.document_date)}
       </td>
       <td className="px-6 py-4">
         {!parsedData?.parsed_data?.suggested_title ? (
@@ -220,6 +220,7 @@ const DocumentRow = ({
             {doc?.status}
           </span>
         ) : (
+          // Only show Verify Now if not already Verified
           <button
             type="button"
             className="px-2 py-1 text-xs rounded-full bg-orange-100 text-orange-800"

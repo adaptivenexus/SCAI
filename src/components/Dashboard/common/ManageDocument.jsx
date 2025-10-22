@@ -12,6 +12,12 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData, action,
   const { refreshTokenFn } = useAuth();
   const [categories, setCategories] = useState([]);
   const [editDocument, setEditDocument] = useState(document);
+  // Auto-set status to Verified if action is verify and not already set
+  useEffect(() => {
+    if (action === "verify" && editDocument.status !== "Verified") {
+      setEditDocument((prev) => ({ ...prev, status: "Verified" }));
+    }
+  }, [action]);
   const [listClients, setListClients] = useState(clients);
   const [searchInputClients, setSearchInputClients] = useState("");
   const [error, setError] = useState("");
@@ -38,10 +44,10 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData, action,
     const payload = {
       client_id: editDocument.client.id,
       category_id: editDocument.category.id,
+      name: editDocument.name,
+      documentDate: editDocument.documentDate,
+      status: action === "verify" ? "Verified" : editDocument.status,
     };
-    if (action === "verify") {
-      payload.status = "Verified";
-    }
 
     try {
       const accessToken =
@@ -337,6 +343,30 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData, action,
                   disabled={loading}
                 />
               </div>
+              {/* Status dropdown only for edit, not for verify */}
+              {action !== "verify" && (
+                <div className="flex flex-col flex-1 gap-1">
+                  <label htmlFor="status">Status</label>
+                  <select
+                    name="status"
+                    id="status"
+                    className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
+                    value={editDocument.status || ""}
+                    onChange={(e) =>
+                      setEditDocument({
+                        ...editDocument,
+                        status: e.target.value,
+                      })
+                    }
+                    disabled={loading}
+                  >
+                    <option value="">Select Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Verified">Verified</option>
+                    <option value="Rejected">Rejected</option>
+                  </select>
+                </div>
+              )}
               <div className="flex flex-col flex-1 gap-1">
                 <label htmlFor="documentDate">Document Date</label>
                 <input

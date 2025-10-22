@@ -40,9 +40,33 @@ const Sidebar = () => {
         setIsDocumentsOpen(false);
       }}
     >
-      <div className="sticky top-0 p-4 min-w-[90px] bg-secondary">
-        <Link href={"/"} className="text-background text-center text-2xl block">
-          SCANDOQ.
+      <div className="sticky top-0 pt-6 px-4 pb-2 min-w-[90px] bg-secondary">
+        <Link href={"/"} className="text-background text-center text-2xl block font-bold tracking-wide relative">
+          <AnimatePresence mode="wait">
+            {isOpen ? (
+              <motion.span
+                key="full"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                style={{letterSpacing: '2px'}}
+              >
+                SCANDOQ
+              </motion.span>
+            ) : (
+              <motion.span
+                key="short"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="mx-auto block"
+              >
+                SD
+              </motion.span>
+            )}
+          </AnimatePresence>
         </Link>
         <hr className="my-4" />
         <nav>

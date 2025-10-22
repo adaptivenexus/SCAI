@@ -204,7 +204,7 @@ const DashboardLayout = ({ children }) => {
               }`}
             >
               <div className="flex items-center justify-between p-4 border-b">
-                <span className="text-xl font-bold">SCANDOQ.</span>
+                <span className="text-xl font-bold px-2 py-1">SCANDOQ</span>
                 <button
                   onClick={() => setIsMobileNavOpen(false)}
                   aria-label="Close navigation menu"
