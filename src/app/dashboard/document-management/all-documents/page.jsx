@@ -174,6 +174,43 @@ const AllDocumentPage = () => {
     });
   };
 
+  // Select all functionality
+  const handleSelectAll = () => {
+    const currentPageDocuments = currentItems;
+    const allSelected = currentPageDocuments.every(doc => selectedDocuments.has(doc.id));
+    
+    if (allSelected) {
+      // Deselect all documents on current page
+      setSelectedDocuments(prev => {
+        const newSet = new Set(prev);
+        currentPageDocuments.forEach(doc => newSet.delete(doc.id));
+        if (newSet.size === 0) {
+          setSelectedClient(null);
+        }
+        return newSet;
+      });
+    } else {
+      // Select all documents on current page
+      const firstDocClient = currentPageDocuments[0]?.client;
+      if (selectedDocuments.size === 0 || selectedClient === firstDocClient) {
+        setSelectedDocuments(prev => {
+          const newSet = new Set(prev);
+          currentPageDocuments.forEach(doc => {
+            if (selectedClient === null || selectedClient === doc.client) {
+              newSet.add(doc.id);
+            }
+          });
+          if (newSet.size > 0 && selectedClient === null) {
+            setSelectedClient(firstDocClient);
+          }
+          return newSet;
+        });
+      }
+    }
+  };
+
+
+
   const handleReset = () => {
     setSelectedDocuments(new Set());
     setSelectedClient(null);
@@ -262,6 +299,27 @@ const AllDocumentPage = () => {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  // Determine select all checkbox state
+  const getSelectAllState = () => {
+    const currentPageDocuments = currentItems;
+    if (currentPageDocuments.length === 0) return { checked: false, indeterminate: false };
+    
+    const selectableDocuments = currentPageDocuments.filter(doc => 
+      selectedClient === null || selectedClient === doc.client
+    );
+    const selectedCount = selectableDocuments.filter(doc => selectedDocuments.has(doc.id)).length;
+    
+    if (selectedCount === 0) {
+      return { checked: false, indeterminate: false };
+    } else if (selectedCount === selectableDocuments.length) {
+      return { checked: true, indeterminate: false };
+    } else {
+      return { checked: false, indeterminate: true };
+    }
+  };
+
+  const selectAllState = getSelectAllState();
 
   const getVisiblePageNumbers = () => {
     const delta = 2;
@@ -482,6 +540,18 @@ const AllDocumentPage = () => {
             <table className="w-full">
               <thead className="bg-accent-primary">
                 <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
+                    <input
+                      type="checkbox"
+                      className="rounded"
+                      checked={selectAllState.checked}
+                      ref={(el) => {
+                        if (el) el.indeterminate = selectAllState.indeterminate;
+                      }}
+                      onChange={handleSelectAll}
+                      disabled={currentItems.length === 0}
+                    />
+                  </th>
                   <th
                     className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
                     onClick={() => handleSort("client")}

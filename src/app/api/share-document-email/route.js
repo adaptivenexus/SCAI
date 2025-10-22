@@ -5,6 +5,15 @@ export async function POST(req) {
   try {
     const { name, email, url, otp } = await req.json();
 
+    // Check for required environment variables
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD || !process.env.EMAIL_FROM) {
+      console.error("Missing email configuration environment variables");
+      return NextResponse.json(
+        { success: false, message: "Email service not configured properly" },
+        { status: 500 }
+      );
+    }
+
     // Create a nodemailer transporter
     const transporter = nodemailer.createTransport({
       service: process.env.EMAIL_SERVICE || "gmail",
