@@ -10,7 +10,8 @@ import { BiLoaderAlt } from "react-icons/bi";
 import DocumentShareModal from "@/components/Dashboard/documentManagement/DocumentShareModal";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation"; 
-import { useAuth } from "@/context/AuthContext"; 
+import { useAuth } from "@/context/AuthContext";
+import { extractFilenameFromUrl } from "@/utils"; 
 
 // Helper function to check if a date matches the search query or filter
 const doesDateMatch = (dateString, query) => {
@@ -80,6 +81,7 @@ const AllDocumentPage = () => {
   const [showDocumentDatePicker, setShowDocumentDatePicker] = useState(false);
   const [showStatusDropdown, setShowStatusDropdown] = useState(false); // For status dropdown visibility
   const [isShareDocumentOpen, setIsShareDocumentOpen] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const processDateRef = useRef(null);
   const documentDateRef = useRef(null);
   const statusRef = useRef(null); // Ref for status dropdown  const [isMounted, setIsMounted] = useState(false);
@@ -242,6 +244,102 @@ const AllDocumentPage = () => {
     } catch (error) {
       console.error("Error deleting documents:", error);
       toast.error("Something went wrong while deleting documents");
+    }
+  };
+
+  const downloadFile = async (url, filename) => {
+    try {
+      const proxyUrl = `/api/download?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(filename || '')}`;
+      const res = await fetch(proxyUrl, { cache: 'no-store' });
+      if (!res.ok) {
+        console.error(`Proxy download failed: ${res.status}`);
+        return false;
+      }
+      const blob = await res.blob();
+      if (!blob || blob.size === 0) {
+        console.warn('Downloaded blob is empty');
+        return false;
+      }
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = objectUrl;
+      link.download = filename || '';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+      return true;
+    } catch (error) {
+      console.error(`Error downloading file ${filename}:`, error);
+      return false;
+    }
+  };
+
+  const downloadFileFallback = (url, filename) => {
+    try {
+      const proxyUrl = `/api/download?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(filename || '')}`;
+      const link = document.createElement('a');
+      link.href = proxyUrl;
+      link.download = filename || '';
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      return true;
+    } catch (error) {
+      console.error(`Error with fallback download ${filename}:`, error);
+      return false;
+    }
+  };
+
+  const handleDownload = async () => {
+    if (selectedDocuments.size === 0) {
+      toast.warning("Please select documents to download");
+      return;
+    }
+
+    setIsDownloading(true);
+    try {
+      const selectedDocs = documents.filter((doc) => selectedDocuments.has(doc.id));
+      
+      if (selectedDocs.length === 1) {
+        const doc = selectedDocs[0];
+        const filename = extractFilenameFromUrl(doc.file) || `document_${doc.id}`;
+        const success = await downloadFile(doc.file, filename);
+        
+        if (success) {
+          toast.success("Document downloaded successfully");
+        } else {
+          toast.error("Failed to download document");
+        }
+      } else {
+        let successCount = 0;
+        let failCount = 0;
+
+        for (const doc of selectedDocs) {
+          const filename = extractFilenameFromUrl(doc.file) || `document_${doc.id}`;
+          const success = await downloadFile(doc.file, filename);
+          if (success) {
+            successCount++;
+          } else {
+            failCount++;
+          }
+          // Small delay between downloads to avoid browser blocking
+          await new Promise(resolve => setTimeout(resolve, 700));
+        }
+
+        if (successCount > 0) {
+          toast.success(`${successCount} document(s) downloaded successfully`);
+        }
+        if (failCount > 0) {
+          toast.error(`Failed to download ${failCount} document(s)`);
+        }
+      }
+    } catch (error) {
+      console.error("Error downloading documents:", error);
+      toast.error("Something went wrong while downloading documents");
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -527,9 +625,17 @@ const AllDocumentPage = () => {
             <IoIosRefresh />
             Refresh
           </button>
-          <button className="px-4 py-2 rounded-lg border border-gray-200 flex items-center gap-2 hover:bg-gray-50">
-            <FiDownload />
-            Export
+          <button 
+            onClick={handleDownload}
+            disabled={selectedDocuments.size === 0 || isDownloading}
+            className={`px-4 py-2 rounded-lg border border-gray-200 flex items-center gap-2 hover:bg-gray-50 ${
+              selectedDocuments.size === 0 || isDownloading 
+                ? 'opacity-50 cursor-not-allowed' 
+                : 'hover:bg-gray-50'
+            }`}
+          >
+            {isDownloading ? <BiLoaderAlt className="animate-spin" /> : <FiDownload />}
+            {isDownloading ? 'Downloading...' : 'Export'}
           </button>
         </div>
         {/* --- END Search and filters --- */}
