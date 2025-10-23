@@ -4,12 +4,13 @@ import DocumentRow from "@/components/Dashboard/documentManagement/DocumentRow";
 import { GlobalContext } from "@/context/GlobalProvider";
 import Link from "next/link";
 import { useState, useMemo, useRef, useEffect, useContext } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { FiSearch, FiDownload } from "react-icons/fi";
 import { IoIosRefresh } from "react-icons/io";
 import { BiLoaderAlt } from "react-icons/bi";
 import DocumentShareModal from "@/components/Dashboard/documentManagement/DocumentShareModal";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation"; 
+
 import { useAuth } from "@/context/AuthContext"; 
 
 // Helper function to check if a date matches the search query or filter
@@ -65,6 +66,25 @@ const AllDocumentPage = () => {
   const [selectedDocuments, setSelectedDocuments] = useState(new Set());
   const [selectedClient, setSelectedClient] = useState(null);
   const [selectedClientId, setSelectedClientId] = useState(null); // Folder UI
+  const [isManageDocumentOpen, setIsManageDocumentOpen] = useState(false);
+  const [editDocument, setEditDocument] = useState(null);
+  const [editAction, setEditAction] = useState(null); // 'edit' or 'verify'
+  // const router = useRouter();
+  const searchParams = useSearchParams();
+  // Open verify modal if navigated from notification
+  useEffect(() => {
+    const verify = searchParams.get('verify');
+    const id = searchParams.get('id');
+    if (verify === '1' && id && documents && documents.length > 0) {
+      const docToEdit = documents.find(d => String(d.id) === String(id));
+      if (docToEdit) {
+        setEditDocument(docToEdit);
+        setEditAction('edit');
+        setIsManageDocumentOpen(true);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, documents]);
   const filteredDocuments = useMemo(() => {
     if (!selectedClientId) return documents;
     return documents.filter(doc => doc.client_id === selectedClientId);
@@ -678,7 +698,12 @@ const AllDocumentPage = () => {
                     fetchDocuments={fetchDocuments}
                     isDisabled={isRowDisabled(doc.client)}
                     parsedData={doc.parsed_data}
-                    onRowClick={() => router.push(`/dashboard/document-management/view-document/${doc.id}`)} 
+                    onRowClick={() => router.push(`/dashboard/document-management/view-document/${doc.id}`)}
+                    isManageDocumentOpen={isManageDocumentOpen && editDocument && editDocument.id === doc.id}
+                    setIsManageDocumentOpen={setIsManageDocumentOpen}
+                    setEditDocument={setEditDocument}
+                    setEditAction={setEditAction}
+                    action={editAction}
                   />
                 ))}
               </tbody>
@@ -734,6 +759,7 @@ const AllDocumentPage = () => {
             handleReset={handleReset}
           />
         )}
+        {/* Only use the ManageDocument modal from DocumentRow now. */}
       </div>
     </div>
   );

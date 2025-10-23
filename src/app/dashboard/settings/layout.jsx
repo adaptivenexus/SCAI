@@ -15,13 +15,6 @@ const SettingsLayout = ({ children }) => {
       <div className="flex gap-6 relative">
         <div className="space-y-6">
           <div className="flex gap-3 items-center">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="bg-blue-500 text-white p-2 rounded-full"
-            >
-              <IoMdArrowRoundBack size={24} />
-            </button>
             <h5 className="heading-5">Settings</h5>
           </div>
           <div className="bg-white p-4 shadow-md flex flex-col w-max sticky top-0 left-0 h-max rounded-lg">

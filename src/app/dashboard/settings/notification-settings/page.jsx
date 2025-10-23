@@ -97,7 +97,7 @@ const NotificationSettingsPage = () => {
           </p>
         </div>
         <div className="flex gap-3">
-          <button className="primary-btn">Save changes</button>
+          <button className="primary-btn">Save</button>
           <button className="secondary-btn">Cancel</button>
         </div>
       </div>

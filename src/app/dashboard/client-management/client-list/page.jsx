@@ -4,6 +4,7 @@ import UserRow from "@/components/Dashboard/clientManagementComponents/UserRow";
 import AddOrManageClient from "@/components/Dashboard/common/AddOrManageClient";
 import { GlobalContext } from "@/context/GlobalProvider";
 import { useState, useMemo, useContext, useRef, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { FiSearch, FiDownload } from "react-icons/fi";
 
 // Helper function to check if a date matches the search query or filter in various formats
@@ -60,9 +61,24 @@ const doesDateMatch = (dateString, query) => {
 
 const ClientListPage = () => {
   const { clients } = useContext(GlobalContext);
+  const searchParams = useSearchParams();
 
   const [isEditClientOpen, setIsEditClientOpen] = useState(false);
   const [editClient, setEditClient] = useState(null);
+
+  // Open verify modal if navigated from notification
+  useEffect(() => {
+    const verify = searchParams.get('verify');
+    const id = searchParams.get('id');
+    if (verify === '1' && id && clients && clients.length > 0) {
+      const clientToEdit = clients.find(c => String(c.id) === String(id));
+      if (clientToEdit) {
+        setEditClient(clientToEdit);
+        setIsEditClientOpen(true);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, clients]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: "id", direction: "asc" });

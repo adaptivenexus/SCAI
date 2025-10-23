@@ -18,6 +18,11 @@ const DocumentRow = ({
   isDisabled,
   parsedData = {},
   onRowClick,
+  isManageDocumentOpen,
+  setIsManageDocumentOpen,
+  setEditDocument,
+  setEditAction,
+  action,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -25,8 +30,7 @@ const DocumentRow = ({
   // const [parsedData, setParsedData] = useState({});
   const { refreshTokenFn } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
-  const [isManageDocumentOpen, setIsManageDocumentOpen] = useState(false);
-  const [action, setAction] = useState(null);
+  // Modal state is now managed by parent
 
   const getFileType = (filename) => {
     if (!filename) return "unknown";
@@ -225,7 +229,8 @@ const DocumentRow = ({
             type="button"
             className="px-2 py-1 text-xs rounded-full bg-orange-100 text-orange-800"
             onClick={() => {
-              setAction("verify");
+              setEditAction("verify");
+              setEditDocument(doc);
               setIsManageDocumentOpen(true);
             }}
           >
@@ -252,7 +257,8 @@ const DocumentRow = ({
                 className="block subtitle-text px-3 py-1 text-foreground hover:opacity-80 hover:bg-black/10 w-full text-start"
                 onClick={() => {
                   setIsOpen(false);
-                  setAction("edit");
+                  setEditAction("edit");
+                  setEditDocument(doc);
                   setIsManageDocumentOpen(true);
                 }}
               >
@@ -272,7 +278,7 @@ const DocumentRow = ({
               <ManageDocument
                 setIsManageDocumentOpen={setIsManageDocumentOpen}
                 document={{ ...doc, status: doc.status || "Pending" }}
-                parsedData={parsedData.parsed_data || {}}
+                parsedData={parsedData?.parsed_data || {}}
                 action={action}
                 onDocumentUpdate={fetchDocuments}
               />
