@@ -2,7 +2,7 @@
 
 import AddOrManageClient from "@/components/Dashboard/common/AddOrManageClient";
 import { authFetch } from "@/utils/auth";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useMemo, useState } from "react";
 import { useAuth } from "./AuthContext";
 
 export const GlobalContext = createContext(null);
@@ -12,6 +12,9 @@ const GlobalDashboardProvider = ({ children }) => {
   const [clients, setClients] = useState([]);
   const [documents, setDocuments] = useState([]);
   const { refreshTokenFn } = useAuth();
+
+  // Global search state
+  const [globalSearchQuery, setGlobalSearchQuery] = useState("");
 
   const fetchClients = async () => {
     try {
@@ -118,6 +121,56 @@ const GlobalDashboardProvider = ({ children }) => {
     }
   };
 
+  // Helper: recursively check if any value in object includes the query
+  const objectIncludesQuery = (obj, query) => {
+    if (!query) return true;
+    const q = String(query).toLowerCase();
+
+    const seen = new Set();
+    const stack = [obj];
+    let steps = 0;
+
+    while (stack.length && steps < 5000) {
+      const item = stack.pop();
+      steps++;
+      if (!item) continue;
+
+      if (typeof item === "string" || typeof item === "number" || typeof item === "boolean") {
+        if (String(item).toLowerCase().includes(q)) return true;
+        continue;
+      }
+
+      if (Array.isArray(item)) {
+        for (const el of item) stack.push(el);
+        continue;
+      }
+
+      if (typeof item === "object") {
+        if (seen.has(item)) continue;
+        seen.add(item);
+        for (const key of Object.keys(item)) {
+          const val = item[key];
+          if (val == null) continue;
+          if (typeof val === "object") stack.push(val);
+          else if (String(val).toLowerCase().includes(q)) return true;
+        }
+      }
+    }
+
+    return false;
+  };
+
+  // Derived: filtered clients/documents based on globalSearchQuery
+  const filteredClients = useMemo(() => {
+    if (!globalSearchQuery) return clients;
+    return clients.filter((c) => objectIncludesQuery(c, globalSearchQuery));
+  }, [clients, globalSearchQuery]);
+
+  const filteredDocuments = useMemo(() => {
+    if (!globalSearchQuery) return documents;
+    return documents.filter((d) => objectIncludesQuery(d, globalSearchQuery));
+  }, [documents, globalSearchQuery]);
+
   useEffect(() => {
     fetchDocuments();
     fetchClients();
@@ -132,6 +185,10 @@ const GlobalDashboardProvider = ({ children }) => {
         setIsAddClientOpen,
         clients,
         documents,
+        filteredClients,
+        filteredDocuments,
+        globalSearchQuery,
+        setGlobalSearchQuery,
         fetchDocuments, // now accepts clientId
         fetchClients,
       }}

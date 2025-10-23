@@ -1,5 +1,5 @@
 "use client";
-import { FaRegBell, FaSearch } from "react-icons/fa";
+import { FaRegBell, FaSearch, FaFileAlt, FaUserFriends } from "react-icons/fa";
 import Image from "next/image";
 import Sidebar from "@/components/Dashboard/Sidebar";
 import GlobalDashboardProvider from "@/context/GlobalProvider";
@@ -7,10 +7,12 @@ import Link from "next/link";
 
 import { PiUserCircleFill } from "react-icons/pi";
 import { MdDataUsage, MdLogout, MdOutlinePayment } from "react-icons/md";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { IoMenu, IoClose } from "react-icons/io5";
 import { useRouter } from "next/navigation";
+import { GlobalContext } from "@/context/GlobalProvider";
+import { extractFilenameFromUrl } from "@/utils";
 
 const DashboardLayout = ({ children }) => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -27,12 +29,25 @@ const DashboardLayout = ({ children }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMobileNavVisible, setIsMobileNavVisible] = useState(false);
+  const [isSearchContainerOpen, setIsSearchContainerOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const dropdownRef = useRef(null);
+  const searchContainerRef = useRef(null);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
+      }
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target)
+      ) {
+        setIsSearchContainerOpen(false);
       }
     };
 
@@ -161,18 +176,25 @@ const DashboardLayout = ({ children }) => {
                   </div>
                 )}
               </div>
-              <div className="flex-1 flex justify-end items-center">
-                <div className="bg-white w-full max-w-[400px] rounded-full py-4 px-6 md:flex items-center border hidden">
-                  <input
-                    type="text"
-                    name="search"
-                    id="search"
-                    placeholder="Search Documents and Clients"
-                    className="w-full outline-none"
+              <div className="flex-1 flex justify-end items-center relative">
+                <div
+                  className="bg-white w-full max-w-[400px] rounded-full py-4 px-6 md:flex items-center border hidden relative"
+                  ref={searchContainerRef}
+                >
+                  <SearchBoxInput
+                    isSearchContainerOpen={isSearchContainerOpen}
+                    setIsSearchContainerOpen={setIsSearchContainerOpen}
                   />
                   <div className="">
                     <FaSearch size={30} />
                   </div>
+
+                  {/* Search Container */}
+                  {isClient && isSearchContainerOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+                      <SearchContainer />
+                    </div>
+                  )}
                 </div>
                 <Link href={"/dashboard/notification-page"}>
                   <div className="text-primary">
@@ -268,3 +290,156 @@ const DashboardLayout = ({ children }) => {
 };
 
 export default DashboardLayout;
+
+const SearchBoxInput = ({
+  isSearchContainerOpen,
+  setIsSearchContainerOpen,
+}) => {
+  const { setGlobalSearchQuery, globalSearchQuery } = useContext(GlobalContext);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const handleInputChange = (e) => {
+    const value = e.target.value || "";
+    setGlobalSearchQuery(value);
+
+    // Show search container when user starts typing
+    if (value.length > 0 && !isSearchContainerOpen) {
+      setIsSearchContainerOpen(true);
+    } else if (value.length === 0) {
+      setIsSearchContainerOpen(false);
+    }
+  };
+
+  const handleInputFocus = () => {
+    if (globalSearchQuery.length > 0) {
+      setIsSearchContainerOpen(true);
+    }
+  };
+
+  return (
+    <input
+      type="text"
+      name="search"
+      id="search"
+      placeholder="Search Documents and Clients"
+      className="w-full outline-none"
+      value={isClient ? globalSearchQuery : ""}
+      onChange={handleInputChange}
+      onFocus={handleInputFocus}
+      autoComplete="off"
+    />
+  );
+};
+
+const SearchContainer = () => {
+  const { filteredDocuments, filteredClients, globalSearchQuery } =
+    useContext(GlobalContext);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Prevent hydration mismatch by not rendering dynamic content on server
+  if (!isClient) {
+    return <div className="p-4 text-gray-500 text-center">Loading...</div>;
+  }
+
+  if (!globalSearchQuery) {
+    return (
+      <div className="p-4 text-gray-500 text-center">
+        Start typing to search documents and clients...
+      </div>
+    );
+  }
+
+  const hasResults = filteredDocuments.length > 0 || filteredClients.length > 0;
+
+  if (!hasResults) {
+    return (
+      <div className="p-4 text-gray-500 text-center">
+        No results found for "{globalSearchQuery}"
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-4">
+      {/* Documents Section */}
+      {filteredDocuments.length > 0 && (
+        <div className="mb-4">
+          <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center">
+            <FaFileAlt className="mr-2" />
+            Documents ({filteredDocuments.slice(0, 5).length})
+          </h3>
+          <div className="space-y-2">
+            {filteredDocuments.slice(0, 5).map((doc) => (
+              <Link
+                key={doc.id}
+                href={`/dashboard/document-management/view-document/${doc.id}`}
+                className="block p-2 hover:bg-gray-50 rounded border-l-2 border-blue-500"
+              >
+                <div className="text-sm font-medium text-gray-900 truncate">
+                  {doc.parsed_data?.parsed_data?.suggested_title ||
+                    doc.name ||
+                    (doc.file
+                      ? extractFilenameFromUrl(doc.file)
+                      : "Untitled Document")}
+                </div>
+                <div className="text-xs text-gray-500 truncate">
+                  Client: {doc.client?.business_name || doc.client || "Unknown"}
+                </div>
+              </Link>
+            ))}
+          </div>
+          {filteredDocuments.length > 5 && (
+            <Link
+              href="/dashboard/document-management/all-documents"
+              className="text-xs text-blue-600 hover:text-blue-800 mt-2 block"
+            >
+              View all {filteredDocuments.length} documents →
+            </Link>
+          )}
+        </div>
+      )}
+
+      {/* Clients Section */}
+      {filteredClients.length > 0 && (
+        <div>
+          <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center">
+            <FaUserFriends className="mr-2" />
+            Clients ({filteredClients.slice(0, 5).length})
+          </h3>
+          <div className="space-y-2">
+            {filteredClients.slice(0, 5).map((client) => (
+              <Link
+                key={client.id}
+                href="/dashboard/client-management/client-list"
+                className="block p-2 hover:bg-gray-50 rounded border-l-2 border-green-500"
+              >
+                <div className="text-sm font-medium text-gray-900 truncate">
+                  {client.business_name || "Unnamed Business"}
+                </div>
+                <div className="text-xs text-gray-500 truncate">
+                  {client.email} • {client.mobile_number || "No phone"}
+                </div>
+              </Link>
+            ))}
+          </div>
+          {filteredClients.length > 5 && (
+            <Link
+              href="/dashboard/client-management/client-list"
+              className="text-xs text-blue-600 hover:text-blue-800 mt-2 block"
+            >
+              View all {filteredClients.length} clients →
+            </Link>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
