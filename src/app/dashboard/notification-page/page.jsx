@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { GlobalContext } from "@/context/GlobalProvider";
 
 const NotificationPage = () => {
-
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [sort, setSort] = useState("newest");
@@ -17,13 +16,18 @@ const NotificationPage = () => {
   const { clients, documents } = useContext(GlobalContext);
 
   // Filter unverified clients and documents
-  const unverifiedClients = Array.isArray(clients) ? clients.filter((c) => !c.is_verified) : [];
-  const unverifiedDocuments = Array.isArray(documents) ? documents.filter((d) => !d.is_verified) : [];
+  const unverifiedClients = Array.isArray(clients)
+    ? clients.filter((c) => c.status !== "Verified")
+    : [];
+  const unverifiedDocuments = Array.isArray(documents)
+    ? documents.filter((d) => !d.is_verified)
+    : [];
 
   // Compose notification objects
   function getDocumentName(doc) {
     // Try to get the best document name
-    if (doc.parsed_data && doc.parsed_data.suggested_title) return doc.parsed_data.suggested_title;
+    if (doc.parsed_data && doc.parsed_data.suggested_title)
+      return doc.parsed_data.suggested_title;
     if (doc.name) return doc.name;
     if (doc.title) return doc.title;
     if (doc.file) {
@@ -45,8 +49,9 @@ const NotificationPage = () => {
     if (doc.client_name) return doc.client_name;
     if (doc.client) return doc.client;
     if (doc.client_id && Array.isArray(clients)) {
-      const found = clients.find(c => String(c.id) === String(doc.client_id));
-      if (found) return found.business_name || found.name || found.email || found.id;
+      const found = clients.find((c) => String(c.id) === String(doc.client_id));
+      if (found)
+        return found.business_name || found.name || found.email || found.id;
     }
     return "Unknown Client";
   }
@@ -55,8 +60,12 @@ const NotificationPage = () => {
     ...unverifiedClients.map((client) => ({
       id: `client-${client.id}`,
       type: "client",
-      title: `Unverified Client: ${client.name || client.business_name || client.email || client.id}`,
-      description: `Client ${client.name || client.business_name || client.email || client.id} is not verified.`,
+      title: `Unverified Client: ${
+        client.name || client.business_name || client.email || client.id
+      }`,
+      description: `Client ${
+        client.name || client.business_name || client.email || client.id
+      } is not verified.`,
       time: client.created_at || "",
       unread: true,
       data: client,
@@ -71,7 +80,6 @@ const NotificationPage = () => {
       data: doc,
     })),
   ];
-
 
   const filteredNotifications = notificationsData.filter((n) => {
     if (filter === "all") return true;
@@ -92,14 +100,14 @@ const NotificationPage = () => {
   };
 
   const handleSelectAll = (e) => {
-    setSelectedNotifications(
-      sortedNotifications.map((n) => n.id)
-    );
+    setSelectedNotifications(sortedNotifications.map((n) => n.id));
   };
 
   const handleMarkAsRead = (e) => {
     setSelectedNotifications(
-      selectedNotifications.filter((id) => !sortedNotifications.find((n) => n.id === id).unread)
+      selectedNotifications.filter(
+        (id) => !sortedNotifications.find((n) => n.id === id).unread
+      )
     );
     sortedNotifications.forEach((n) => {
       if (selectedNotifications.includes(n.id)) {
@@ -107,7 +115,6 @@ const NotificationPage = () => {
       }
     });
   };
-
 
   return (
     <div className="p-10 flex flex-col gap-6">
@@ -121,7 +128,9 @@ const NotificationPage = () => {
             <IoMdArrowRoundBack size={24} />
           </button>
           <div className="flex w-full justify-between items-center">
-            <h4 className="heading-4">{editMode ? "Edit Notifications" : "Notifications"}</h4>
+            <h4 className="heading-4">
+              {editMode ? "Edit Notifications" : "Notifications"}
+            </h4>
             <button
               className="text-primary subtitle-text"
               onClick={handleEditButton}
@@ -154,7 +163,9 @@ const NotificationPage = () => {
               <button
                 onClick={() => setFilter("all")}
                 className={`px-5 py-1.5 rounded-full font-semibold ${
-                  filter === "all" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-900"
+                  filter === "all"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-900"
                 }`}
               >
                 All
@@ -162,7 +173,9 @@ const NotificationPage = () => {
               <button
                 onClick={() => setFilter("unread")}
                 className={`px-5 py-1.5 rounded-full font-semibold ${
-                  filter === "unread" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-900"
+                  filter === "unread"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-900"
                 }`}
               >
                 Unread ({filteredNotifications.filter((n) => n.unread).length})
@@ -186,58 +199,78 @@ const NotificationPage = () => {
             </select>
           </div>
           {/* Notification Cards */}
-          <div className="w-full">
+          <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6">
             {sortedNotifications
-              .filter((n) => n.title.toLowerCase().includes(search.toLowerCase()))
+              .filter((n) =>
+                n.title.toLowerCase().includes(search.toLowerCase())
+              )
               .map((n) => (
                 <div
                   key={n.id}
-                  className="flex items-center border-b border-gray-100 py-4 gap-4 hover:bg-blue-50"
+                  className="relative bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition p-5 flex items-center justify-between"
                 >
                   {editMode && (
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={selectedNotifications.includes(n.id)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedNotifications([...selectedNotifications, n.id]);
-                          } else {
-                            setSelectedNotifications(
-                              selectedNotifications.filter((id) => id !== n.id)
-                            );
-                          }
-                        }}
-                        className="mt-1 mr-2 w-4 h-4"
-                      />
-                    </div>
+                    <input
+                      type="checkbox"
+                      checked={selectedNotifications.includes(n.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedNotifications([
+                            ...selectedNotifications,
+                            n.id,
+                          ]);
+                        } else {
+                          setSelectedNotifications(
+                            selectedNotifications.filter((id) => id !== n.id)
+                          );
+                        }
+                      }}
+                      className="absolute top-3 left-3 w-4 h-4"
+                    />
                   )}
-                  <span className="text-2xl">{n.type === "client" ? "👤" : "📄"}</span>
-                  <div className="flex-1">
-                    <div
-                      className={`font-semibold text-base ${
-                        n.unread ? "text-primary" : "text-secondary-foreground"
-                      }`}
-                    >
-                      {n.title}
+                  <div className="flex items-start gap-3">
+                    <div className="text-2xl">
+                      {n.type === "client" ? "👤" : "📄"}
                     </div>
-                    <div className="text-gray-600 my-1 text-sm">
-                      {n.description}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className={`font-semibold text-sm sm:text-base ${
+                            n.unread
+                              ? "text-primary"
+                              : "text-secondary-foreground"
+                          }`}
+                        >
+                          {n.title}
+                        </div>
+                        {n.unread && (
+                          <span className="inline-block w-2 h-2 rounded-full bg-blue-600" />
+                        )}
+                      </div>
+                      <div className="text-gray-600 my-1 text-sm">
+                        {n.description}
+                      </div>
+                      <div className="text-gray-400 text-xs">{n.time}</div>
                     </div>
-                    <div className="text-gray-400 text-xs">{n.time}</div>
                   </div>
-                  <button
-                    className="ml-4 px-4 py-2 rounded-md font-medium text-sm bg-blue-600 text-white hover:bg-blue-700 transition"
-                    onClick={() => {
-                      if (n.type === "client") {
-                        router.push(`/dashboard/client-management/client-list?verify=1&id=${n.data.id}`);
-                      } else if (n.type === "document") {
-                        router.push(`/dashboard/document-management/all-documents?verify=1&id=${n.data.id}`);
-                      }
-                    }}
-                  >
-                    Verify Now
-                  </button>
+                  <div className="flex justify-end">
+                    <button
+                      className="px-4 py-2 rounded-md font-medium text-sm bg-blue-600 text-white hover:bg-blue-700 transition"
+                      onClick={() => {
+                        if (n.type === "client") {
+                          router.push(
+                            `/dashboard/client-management/client-list?verify=1&id=${n.data.id}`
+                          );
+                        } else if (n.type === "document") {
+                          router.push(
+                            `/dashboard/document-management/all-documents?verify=1&id=${n.data.id}`
+                          );
+                        }
+                      }}
+                    >
+                      Verify Now
+                    </button>
+                  </div>
                 </div>
               ))}
           </div>

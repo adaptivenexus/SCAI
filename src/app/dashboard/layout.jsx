@@ -7,10 +7,33 @@ import Link from "next/link";
 
 import { PiUserCircleFill } from "react-icons/pi";
 import { MdDataUsage, MdLogout, MdOutlinePayment } from "react-icons/md";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { IoMenu, IoClose } from "react-icons/io5";
 import { useRouter } from "next/navigation";
+import { GlobalContext } from "@/context/GlobalProvider";
+
+const NotificationBell = () => {
+  const ctx = useContext(GlobalContext);
+  const clients = Array.isArray(ctx?.clients) ? ctx.clients : [];
+  const documents = Array.isArray(ctx?.documents) ? ctx.documents : [];
+  const unverifiedClientsCount = clients.filter((c) => c.status !== "Verified").length;
+  const unverifiedDocumentsCount = documents.filter((d) => !d.is_verified).length;
+  const notificationCount = unverifiedClientsCount + unverifiedDocumentsCount;
+
+  return (
+    <Link href={"/dashboard/notification-page"}>
+      <div className="relative text-primary">
+        <FaRegBell size={30} />
+        {notificationCount > 0 && (
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+            {notificationCount}
+          </span>
+        )}
+      </div>
+    </Link>
+  );
+};
 
 const DashboardLayout = ({ children }) => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -28,6 +51,7 @@ const DashboardLayout = ({ children }) => {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMobileNavVisible, setIsMobileNavVisible] = useState(false);
   const dropdownRef = useRef(null);
+
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -161,7 +185,7 @@ const DashboardLayout = ({ children }) => {
                   </div>
                 )}
               </div>
-              <div className="flex-1 flex justify-end items-center">
+              <div className="flex-1 flex justify-end items-center gap-5">
                 <div className="bg-white w-full max-w-[400px] rounded-full py-4 px-6 md:flex items-center border hidden">
                   <input
                     type="text"
@@ -174,11 +198,7 @@ const DashboardLayout = ({ children }) => {
                     <FaSearch size={30} />
                   </div>
                 </div>
-                <Link href={"/dashboard/notification-page"}>
-                  <div className="text-primary">
-                    <FaRegBell size={30} />
-                  </div>
-                </Link>
+                <NotificationBell />
               </div>
             </div>
           </header>
