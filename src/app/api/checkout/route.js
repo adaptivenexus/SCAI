@@ -27,6 +27,9 @@ export async function POST(req) {
 
     console.log(planDetails);
 
+    // Safely capture the last page URL from the request's Referer header
+    const referer = req.headers.get("referer") || process.env.NEXT_PUBLIC_BASE_URL;
+
     const sessionConfig = {
       payment_method_types: ["card"],
 
@@ -52,7 +55,7 @@ export async function POST(req) {
       }/success?session_id={CHECKOUT_SESSION_ID}&type=${
         isNewRegistration ? "registration" : "upgrade"
       }&plan=${plan}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel?session_id={CHECKOUT_SESSION_ID}&return_to=${encodeURIComponent(referer)}`,
     };
 
     const session = await stripe.checkout.sessions.create(sessionConfig);

@@ -1,9 +1,8 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import { calculatePercentage, formatDate, formatDate2 } from "@/utils";
+import { calculatePercentage, formatDate } from "@/utils";
 import { useEffect, useRef, useState } from "react";
-import { FaDownload } from "react-icons/fa";
 import { RiVisaLine } from "react-icons/ri";
 import { useRouter } from "nextjs-toploader/app";
 import BillingHistoryRow from "@/components/Dashboard/settingsComponents/BillingHistoryRow";
@@ -18,13 +17,17 @@ const BillingPage = () => {
   const [isOpenManagePlan, setIsOpenManagePlan] = useState(false);
   const router = useRouter();
 
-    // Helper to compare only date part
+  // Helper to compare only date part
   const getDateOnly = (dateStr) => {
     const d = new Date(dateStr);
     return new Date(d.getFullYear(), d.getMonth(), d.getDate());
   };
   const today = new Date();
-  const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const todayDateOnly = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
 
   // Use subscription.expires_on or subscriptionDetails.end_date as needed
   const expiryDate = subscription.expires_on || subscriptionDetails.end_date;
@@ -112,9 +115,14 @@ const BillingPage = () => {
                 >
                   {/* Renew Plan Option */}
                   <button
-                    onClick={() => handleCheckout(subscriptionDetails.id, false)}
+                    onClick={() =>
+                      handleCheckout(subscriptionDetails.id, false)
+                    }
                     type="button"
-                    disabled={subscription.plan === subscriptionDetails.id && subscriptionDetails.id === 0}
+                    disabled={
+                      subscription.plan === subscriptionDetails.id &&
+                      subscriptionDetails.id === 0
+                    }
                     className="w-max h-max font-medium text-green-600 py-2 px-4 hover:bg-slate-100 min-w-full text-start"
                   >
                     Renew Existing Plan
@@ -163,7 +171,7 @@ const BillingPage = () => {
                 </p>
               </div>
             </div>
-           {isPlanExpired ? (
+            {isPlanExpired ? (
               <p className="label-text text-[#DF5753]">
                 <b>Plan expired</b>
               </p>
@@ -219,72 +227,95 @@ const BillingPage = () => {
         </div>
       </div>
       <div className="bg-white p-6 shadow-md rounded-xl space-y-5 flex gap-6">
-  {/* Usage Summary - 50% width, with border */}
-  <div className="w-1/2 flex flex-col justify-between border border-gray-200 rounded-lg p-4 bg-white">
-  <div>
-    <div className="flex justify-between items-center mb-2">
-      <div className="flex items-center gap-2">
-        <h5 className="heading-5">Usage Summary</h5>
-        {/* <button type="button" className="secondary-btn w-max h-max px-10">
+        {/* Usage Summary - 50% width, with border */}
+        <div className="w-1/2 flex flex-col justify-between border border-gray-200 rounded-lg p-4 bg-white">
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <div className="flex items-center gap-2">
+                <h5 className="heading-5">Usage Summary</h5>
+                {/* <button type="button" className="secondary-btn w-max h-max px-10">
           View Usage
         </button> */}
-      </div>
-      {/* <button type="button" className="secondary-btn w-max h-max px-10">
+              </div>
+              {/* <button type="button" className="secondary-btn w-max h-max px-10">
         Add Add-on
       </button> */}
-    </div>
-    <div className="space-y-3">
-      <p className="subtitle-text text-secondary-foreground">
-        Overall Usage: {Math.min(subscription.used_scans, subscriptionDetails.allowed_smart_scan)} pages used out of{" "}
-        {subscriptionDetails.allowed_smart_scan}.
-      </p>
-      <div className="w-full h-6 rounded-lg border overflow-hidden">
-        <div
-          className={`h-full bg-primary-gradient`}
-          style={{ width: `${scanPercentage > 100 ? 100 : scanPercentage}%` }}
-        ></div>
-      </div>
-      <p className="subtitle-text text-secondary-foreground">
-        Remaining:{" "}
-        {Math.max(0, subscriptionDetails.allowed_smart_scan - subscription.used_scans)} Credits left.
-      </p>
-    </div>
-  </div>
-</div>
-  {/* Extra Cost Details - 50% width, with border and aligned label */}
-  <div className="w-1/2 flex flex-col justify-between border border-gray-200 rounded-lg p-4 bg-white" style={{ marginTop: 0 }}>
-    <div className="h-full flex flex-col justify-between">
-      <div className="flex justify-between items-center mb-2">
-        <div className="flex items-center gap-2">
-          <h5 className="heading-5">Extra Cost Details</h5>
+            </div>
+            <div className="space-y-3">
+              <p className="subtitle-text text-secondary-foreground">
+                Overall Usage:{" "}
+                {Math.min(
+                  subscription.used_scans,
+                  subscriptionDetails.allowed_smart_scan
+                )}{" "}
+                pages used out of {subscriptionDetails.allowed_smart_scan}.
+              </p>
+              <div className="w-full h-6 rounded-lg border overflow-hidden">
+                <div
+                  className={`h-full bg-primary-gradient`}
+                  style={{
+                    width: `${scanPercentage > 100 ? 100 : scanPercentage}%`,
+                  }}
+                ></div>
+              </div>
+              <p className="subtitle-text text-secondary-foreground">
+                Remaining:{" "}
+                {Math.max(
+                  0,
+                  subscriptionDetails.allowed_smart_scan -
+                    subscription.used_scans
+                )}{" "}
+                Credits left.
+              </p>
+            </div>
+          </div>
         </div>
-        {/* Empty div to align with Add Add-on button */}
-        <div style={{ width: "120px" }}></div>
+        {/* Extra Cost Details - 50% width, with border and aligned label */}
+        <div
+          className="w-1/2 flex flex-col justify-between border border-gray-200 rounded-lg p-4 bg-white"
+          style={{ marginTop: 0 }}
+        >
+          <div className="h-full flex flex-col justify-between">
+            <div className="flex justify-between items-center mb-2">
+              <div className="flex items-center gap-2">
+                <h5 className="heading-5">Extra Cost Details</h5>
+              </div>
+              {/* Empty div to align with Add Add-on button */}
+              <div style={{ width: "120px" }}></div>
+            </div>
+            <div className="space-y-3">
+              <p className="subtitle-text text-secondary-foreground">
+                <b>After exceeding your plan's free scans,</b> each additional
+                page will be charged at{" "}
+                <b>${subscriptionDetails.exceeds_page_limit_cost}/per page</b>.
+              </p>
+              <p className="subtitle-text text-secondary-foreground">
+                Extra usage page count in this cycle:{" "}
+                <b>
+                  {Math.max(
+                    0,
+                    subscription.used_scans -
+                      subscriptionDetails.allowed_smart_scan
+                  )}
+                </b>
+              </p>
+              <p className="subtitle-text text-secondary-foreground">
+                Estimated extra cost:{" "}
+                <b>
+                  $
+                  {(
+                    Math.max(
+                      0,
+                      subscription.used_scans -
+                        subscriptionDetails.allowed_smart_scan
+                    ) * subscriptionDetails.exceeds_page_limit_cost
+                  ).toFixed(2)}
+                </b>
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="space-y-3">
-        <p className="subtitle-text text-secondary-foreground">
-          <b>After exceeding your plan's free scans,</b> each additional page will be charged at <b>${subscriptionDetails.exceeds_page_limit_cost}/per page</b>.
-        </p>
-        <p className="subtitle-text text-secondary-foreground">
-          Extra usage page count in this cycle:{" "}
-          <b>
-            {Math.max(0, subscription.used_scans - subscriptionDetails.allowed_smart_scan)}
-          </b>
-        </p>
-        <p className="subtitle-text text-secondary-foreground">
-          Estimated extra cost:{" "}
-          <b>
-            $
-            {(
-              Math.max(0, subscription.used_scans - subscriptionDetails.allowed_smart_scan) *
-              subscriptionDetails.exceeds_page_limit_cost
-            ).toFixed(2)}
-          </b>
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
 
       <div className="bg-white p-6 shadow-md rounded-xl space-y-5">
         <h5 className="heading-5">Billing history</h5>
