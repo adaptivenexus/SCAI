@@ -3,6 +3,7 @@
 import UserRow from "@/components/Dashboard/clientManagementComponents/UserRow";
 import AddOrManageClient from "@/components/Dashboard/common/AddOrManageClient";
 import { GlobalContext } from "@/context/GlobalProvider";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useMemo, useContext, useRef, useEffect } from "react";
 import { FiSearch, FiDownload } from "react-icons/fi";
 

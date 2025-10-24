@@ -6,13 +6,14 @@ import GlobalDashboardProvider from "@/context/GlobalProvider";
 import Link from "next/link";
 
 import { PiUserCircleFill } from "react-icons/pi";
-import { MdDataUsage, MdLogout, MdOutlinePayment } from "react-icons/md";
+import { MdLogout, MdOutlinePayment } from "react-icons/md";
 import { useState, useEffect, useRef, useContext } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { IoMenu, IoClose } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import { GlobalContext } from "@/context/GlobalProvider";
 import { extractFilenameFromUrl } from "@/utils";
+import Avatar from "@/components/Dashboard/Avatar";
 
 const DashboardLayout = ({ children }) => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -73,14 +74,14 @@ const DashboardLayout = ({ children }) => {
           <Sidebar />
         </div>
         <main className="flex-1 min-w-0 flex flex-col transition-[margin] duration-300 ease-in-out">
-          <header className="py-4 px-6 bg-white shadow-md flex items-center justify-between sticky top-0  lg:static">
+          <header className="py-4 px-6 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 shadow-lg shadow-gray-100/50 flex items-center justify-between sticky top-0 z-20 lg:static transition-all duration-300">
             {/* Hamburger for mobile */}
             <button
-              className="lg:hidden mr-4"
+              className="lg:hidden mr-4 p-2 rounded-xl hover:bg-gray-100/80 transition-all duration-200 active:scale-95"
               onClick={() => setIsMobileNavOpen(true)}
               aria-label="Open navigation menu"
             >
-              <IoMenu size={32} />
+              <IoMenu size={24} className="text-gray-700" />
             </button>
             <div className="flex items-center justify-between w-full">
               <div
@@ -88,87 +89,88 @@ const DashboardLayout = ({ children }) => {
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="relative group cursor-pointer"
               >
-                <div className="flex gap-3 items-center ">
-                  <Image
-                    src={
-                      "https://images.unsplash.com/photo-1633332755192-727a05c4013d?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8YXZhdGFyfGVufDB8fDB8fHww"
-                    }
-                    alt={"Profile"}
-                    width={60}
-                    height={60}
-                    className="rounded-full"
-                  />
-                  <div className="space-y-2">
-                    <p className="text-xl text-start font-medium">
+                <div className="flex gap-4 items-center p-2 rounded-2xl hover:bg-gray-50/80 transition-all duration-300 group-hover:shadow-md">
+                  <div className="relative">
+                    <Avatar
+                      name={user?.name}
+                      src={user?.image_url}
+                      size={48}
+                      className="rounded-full ring-2 ring-white shadow-lg transition-all duration-300 group-hover:ring-4 group-hover:ring-blue-100"
+                    />
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-lg font-semibold text-gray-800 leading-tight">
                       {user?.name}
                     </p>
-                    <p className="text-sm text-start text-primary">
-                      Welcome Back{" "}
-                      <span className="capitalize">{user?.role}</span>
+                    <p className="text-sm text-gray-600 leading-tight">
+                      Welcome back{" "}
+                      <span className="capitalize font-medium text-blue-600">
+                        {user?.role}
+                      </span>
                     </p>
+                  </div>
+                  <div className="ml-2 text-gray-400 group-hover:text-gray-600 transition-colors duration-200">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
                   </div>
                 </div>
                 {isDropdownOpen && (
-                  <div className="absolute w-[200px] z-20">
-                    <div className="bg-white shadow-md rounded-lg px-1 py-2 mt-4">
-                      <ul>
-                        <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
+                  <div className="absolute w-[240px] z-20 top-full left-0 mt-2">
+                    <div className="bg-white/95 backdrop-blur-xl shadow-xl rounded-2xl border border-gray-200/50 py-2 animate-in slide-in-from-top-2 duration-200">
+                      <ul className="space-y-1">
+                        <li>
                           <Link
                             href={"/dashboard/settings/account-details"}
-                            className="flex items-center gap-2"
+                            className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50/80 hover:text-gray-900 transition-all duration-200 rounded-xl mx-2 group"
                           >
-                            <div>
-                              <PiUserCircleFill size={24} />
+                            <div className="p-2 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors duration-200">
+                              <PiUserCircleFill
+                                size={18}
+                                className="text-blue-600"
+                              />
                             </div>
-                            Profile
+                            <span className="font-medium">Profile</span>
                           </Link>
                         </li>
                         {user.role === "admin" && (
                           <>
-                            <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
+                            <li>
                               <Link
                                 href={"/dashboard/settings/billing"}
-                                className="flex items-center gap-2"
+                                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50/80 hover:text-gray-900 transition-all duration-200 rounded-xl mx-2 group"
                               >
-                                <div>
-                                  <MdOutlinePayment size={24} />
+                                <div className="p-2 bg-green-50 rounded-lg group-hover:bg-green-100 transition-colors duration-200">
+                                  <MdOutlinePayment
+                                    size={18}
+                                    className="text-green-600"
+                                  />
                                 </div>
-                                Billing
+                                <span className="font-medium">Billing</span>
                               </Link>
                             </li>
-                            {/* <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
-                              <Link
-                                href={"/dashboard/user/my-usage"}
-                                className="flex items-center gap-2"
-                              >
-                                <div>
-                                  <MdDataUsage size={24} />
-                                </div>
-                                My Usage
-                              </Link>
-                            </li>
-                            <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
-                              <Link
-                                href={"/dashboard/user/team-usage"}
-                                className="flex items-center gap-2"
-                              >
-                                <div>
-                                  <MdDataUsage size={24} />
-                                </div>
-                                Team Usage
-                              </Link>
-                            </li> */}
                           </>
                         )}
-                        <li className="subtitle-text text-red-500 py-2 px-1 hover:bg-slate-100">
+                        <li className="border-t border-gray-200/50 mt-2 pt-2">
                           <button
                             onClick={() => logout()}
-                            className="flex items-center gap-2"
+                            className="flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50/80 hover:text-red-700 transition-all duration-200 rounded-xl mx-2 w-full group"
                           >
-                            <div>
-                              <MdLogout size={24} />
+                            <div className="p-2 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors duration-200">
+                              <MdLogout size={18} className="text-red-600" />
                             </div>
-                            Logout
+                            <span className="font-medium">Logout</span>
                           </button>
                         </li>
                       </ul>
@@ -176,29 +178,38 @@ const DashboardLayout = ({ children }) => {
                   </div>
                 )}
               </div>
-              <div className="flex-1 flex justify-end items-center relative">
+              <div className="flex-1 flex justify-end items-center gap-4 relative">
                 <div
-                  className="bg-white w-full max-w-[400px] rounded-full py-4 px-6 md:flex items-center border hidden relative"
+                  className="bg-white/60 backdrop-blur-sm w-full max-w-[400px] rounded-2xl py-3 px-5 md:flex items-center border border-gray-200/50 hidden relative shadow-sm hover:shadow-md hover:bg-white/80 transition-all duration-300 group"
                   ref={searchContainerRef}
                 >
                   <SearchBoxInput
                     isSearchContainerOpen={isSearchContainerOpen}
                     setIsSearchContainerOpen={setIsSearchContainerOpen}
                   />
-                  <div className="">
-                    <FaSearch size={30} />
+                  <div className="text-gray-400 group-hover:text-gray-600 transition-colors duration-200">
+                    <FaSearch size={20} />
                   </div>
 
                   {/* Search Container */}
                   {isClient && isSearchContainerOpen && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+                    <div className="absolute top-full left-0 right-0 mt-3 bg-white/95 backdrop-blur-xl border border-gray-200/50 rounded-2xl shadow-xl z-50 max-h-96 overflow-y-auto animate-in slide-in-from-top-2 duration-200">
                       <SearchContainer />
                     </div>
                   )}
                 </div>
                 <Link href={"/dashboard/notification-page"}>
-                  <div className="text-primary">
-                    <FaRegBell size={30} />
+                  <div className="relative p-3 rounded-2xl bg-white/60 backdrop-blur-sm border border-gray-200/50 hover:bg-white/80 hover:shadow-md transition-all duration-300 group">
+                    <FaRegBell
+                      size={20}
+                      className="text-gray-600 group-hover:text-gray-800 transition-colors duration-200"
+                    />
+                    {/* Notification badge */}
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                      <span className="text-xs font-bold text-white">3</span>
+                    </div>
+                    {/* Pulse animation for new notifications */}
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full animate-ping opacity-75"></div>
                   </div>
                 </Link>
               </div>
@@ -325,8 +336,8 @@ const SearchBoxInput = ({
       type="text"
       name="search"
       id="search"
-      placeholder="Search Documents and Clients"
-      className="w-full outline-none"
+      placeholder="Search documents, clients..."
+      className="w-full outline-none bg-transparent text-gray-700 placeholder-gray-400 font-medium"
       value={isClient ? globalSearchQuery : ""}
       onChange={handleInputChange}
       onFocus={handleInputFocus}
