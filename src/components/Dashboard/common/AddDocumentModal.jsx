@@ -1,9 +1,9 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import DocumentViewer from "../documentManagement/DocumentViewer";
 import { GlobalContext } from "@/context/GlobalProvider";
-import { IoIosCloseCircle } from "react-icons/io";
+import { IoIosCloseCircle, IoIosArrowDown } from "react-icons/io";
 
 const AddNewDocumentModal = ({
   file,
@@ -14,27 +14,50 @@ const AddNewDocumentModal = ({
 }) => {
   const { clients } = useContext(GlobalContext);
   const [searchInputClients, setSearchInputClients] = useState("");
-  const [listClients, setListClients] = useState(clients);
+  const [listClients, setListClients] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
-    if (searchInputClients.length > 2) {
-      const filteredClients = clients.filter(
-        (client) =>
-          client.business_name
-            .toLowerCase()
-            .includes(searchInputClients.toLowerCase()) ||
-          client.email.toLowerCase().includes(searchInputClients.toLowerCase())
-      );
-      setListClients(filteredClients);
+    if (showDropdown) {
+      if (searchInputClients.length > 0) {
+        const filteredClients = clients.filter(
+          (client) =>
+            client.status === "Verified" &&
+            (client.business_name
+              .toLowerCase()
+              .includes(searchInputClients.toLowerCase()) ||
+            client.email.toLowerCase().includes(searchInputClients.toLowerCase()))
+        );
+        setListClients(filteredClients);
+      } else {
+        // Show all verified clients when dropdown is open but no search input
+        const verifiedClients = clients.filter(client => client.status === "Verified");
+        setListClients(verifiedClients);
+      }
     } else {
       setListClients([]);
     }
-  }, [searchInputClients]);
+  }, [searchInputClients, showDropdown, clients]);
 
   useEffect(() => {
     console.log(formData);
   }, [formData]);
+
+  // Click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <div
@@ -64,7 +87,7 @@ const AddNewDocumentModal = ({
                   <label htmlFor="client_id">
                     Client Name <span className="text-red-500">*</span>
                   </label>
-                  <div className="w-full relative">
+                  <div className="w-full relative" ref={dropdownRef}>
                     <div className="border rounded-lg p-3 w-full flex items-center">
                       <input
                         type="text"
@@ -76,6 +99,16 @@ const AddNewDocumentModal = ({
                         onChange={(e) => {
                           setSearchInputClients(e.target.value);
                         }}
+                        onFocus={() => {
+                          if (!formData.client) {
+                            setShowDropdown(true);
+                          }
+                        }}
+                        onClick={() => {
+                          if (!formData.client) {
+                            setShowDropdown(true);
+                          }
+                        }}
                         autoComplete="off"
                         disabled={formData.client ? true : false}
                         value={
@@ -84,7 +117,7 @@ const AddNewDocumentModal = ({
                             : searchInputClients
                         }
                       />
-                      {formData.client && (
+                      {formData.client ? (
                         <button
                           type="button"
                           onClick={() => {
@@ -93,17 +126,28 @@ const AddNewDocumentModal = ({
                               ...formData,
                               client: undefined,
                             });
+                            setShowDropdown(false);
                           }}
                           className="text-red-500"
                         >
                           <IoIosCloseCircle size={24} />
                         </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setShowDropdown(!showDropdown)}
+                          className="text-gray-500 transition-transform duration-200"
+                        >
+                          <IoIosArrowDown 
+                            size={20} 
+                            className={`${showDropdown ? 'rotate-180' : ''}`}
+                          />
+                        </button>
                       )}
                     </div>
-                    <div className="absolute w-full rounded-xl bg-white shadow-lg flex flex-col">
-                      {listClients
-                        .filter((client) => client.status == "Verified")
-                        .map((client) => (
+                    {showDropdown && listClients.length > 0 && (
+                      <div className="absolute w-full rounded-xl bg-white shadow-lg flex flex-col z-10 max-h-60 overflow-y-auto border">
+                        {listClients.map((client) => (
                           <button
                             type="button"
                             key={client.id}
@@ -114,6 +158,7 @@ const AddNewDocumentModal = ({
                                 client: client,
                               });
                               setSearchInputClients("");
+                              setShowDropdown(false);
                             }}
                           >
                             <p className="body-text font-semibold">
@@ -124,7 +169,8 @@ const AddNewDocumentModal = ({
                             </p>
                           </button>
                         ))}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 </div>
                 {/* <div className="flex flex-col flex-1 gap-1">

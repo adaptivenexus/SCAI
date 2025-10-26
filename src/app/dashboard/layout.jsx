@@ -1,5 +1,5 @@
 "use client";
-import { FaRegBell, FaSearch } from "react-icons/fa";
+import { FaRegBell, FaSearch, FaFileAlt, FaUserFriends } from "react-icons/fa";
 import Image from "next/image";
 import Sidebar from "@/components/Dashboard/Sidebar";
 import GlobalDashboardProvider from "@/context/GlobalProvider";
@@ -12,6 +12,8 @@ import { useAuth } from "@/context/AuthContext";
 import { IoMenu, IoClose } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import { GlobalContext } from "@/context/GlobalProvider";
+import { extractFilenameFromUrl } from "@/utils";
+import Avatar from "@/components/Dashboard/Avatar";
 
 const NotificationBell = () => {
   const ctx = useContext(GlobalContext);
@@ -50,13 +52,25 @@ const DashboardLayout = ({ children }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMobileNavVisible, setIsMobileNavVisible] = useState(false);
+  const [isSearchContainerOpen, setIsSearchContainerOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const dropdownRef = useRef(null);
+  const searchContainerRef = useRef(null);
 
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
+      }
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target)
+      ) {
+        setIsSearchContainerOpen(false);
       }
     };
 
@@ -82,14 +96,14 @@ const DashboardLayout = ({ children }) => {
           <Sidebar />
         </div>
         <main className="flex-1 min-w-0 flex flex-col transition-[margin] duration-300 ease-in-out">
-          <header className="py-4 px-6 bg-white shadow-md flex items-center justify-between sticky top-0  lg:static">
+          <header className="py-4 px-6 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 shadow-lg shadow-gray-100/50 flex items-center justify-between sticky top-0 z-20 lg:static transition-all duration-300">
             {/* Hamburger for mobile */}
             <button
-              className="lg:hidden mr-4"
+              className="lg:hidden mr-4 p-2 rounded-xl hover:bg-gray-100/80 transition-all duration-200 active:scale-95"
               onClick={() => setIsMobileNavOpen(true)}
               aria-label="Open navigation menu"
             >
-              <IoMenu size={32} />
+              <IoMenu size={24} className="text-gray-700" />
             </button>
             <div className="flex items-center justify-between w-full">
               <div
@@ -97,87 +111,88 @@ const DashboardLayout = ({ children }) => {
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="relative group cursor-pointer"
               >
-                <div className="flex gap-3 items-center ">
-                  <Image
-                    src={
-                      "https://images.unsplash.com/photo-1633332755192-727a05c4013d?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8YXZhdGFyfGVufDB8fDB8fHww"
-                    }
-                    alt={"Profile"}
-                    width={60}
-                    height={60}
-                    className="rounded-full"
-                  />
-                  <div className="space-y-2">
-                    <p className="text-xl text-start font-medium">
+                <div className="flex gap-4 items-center p-2 rounded-2xl hover:bg-gray-50/80 transition-all duration-300 group-hover:shadow-md">
+                  <div className="relative">
+                    <Avatar
+                      name={user?.name}
+                      src={user?.image_url}
+                      size={48}
+                      className="rounded-full ring-2 ring-white shadow-lg transition-all duration-300 group-hover:ring-4 group-hover:ring-blue-100"
+                    />
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-lg font-semibold text-gray-800 leading-tight">
                       {user?.name}
                     </p>
-                    <p className="text-sm text-start text-primary">
-                      Welcome Back{" "}
-                      <span className="capitalize">{user?.role}</span>
+                    <p className="text-sm text-gray-600 leading-tight">
+                      Welcome back{" "}
+                      <span className="capitalize font-medium text-blue-600">
+                        {user?.role}
+                      </span>
                     </p>
+                  </div>
+                  <div className="ml-2 text-gray-400 group-hover:text-gray-600 transition-colors duration-200">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
                   </div>
                 </div>
                 {isDropdownOpen && (
-                  <div className="absolute w-[200px] z-20">
-                    <div className="bg-white shadow-md rounded-lg px-1 py-2 mt-4">
-                      <ul>
-                        <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
+                  <div className="absolute w-[240px] z-20 top-full left-0 mt-2">
+                    <div className="bg-white/95 backdrop-blur-xl shadow-xl rounded-2xl border border-gray-200/50 py-2 animate-in slide-in-from-top-2 duration-200">
+                      <ul className="space-y-1">
+                        <li>
                           <Link
                             href={"/dashboard/settings/account-details"}
-                            className="flex items-center gap-2"
+                            className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50/80 hover:text-gray-900 transition-all duration-200 rounded-xl mx-2 group"
                           >
-                            <div>
-                              <PiUserCircleFill size={24} />
+                            <div className="p-2 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors duration-200">
+                              <PiUserCircleFill
+                                size={18}
+                                className="text-blue-600"
+                              />
                             </div>
-                            Profile
+                            <span className="font-medium">Profile</span>
                           </Link>
                         </li>
                         {user.role === "admin" && (
                           <>
-                            <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
+                            <li>
                               <Link
                                 href={"/dashboard/settings/billing"}
-                                className="flex items-center gap-2"
+                                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50/80 hover:text-gray-900 transition-all duration-200 rounded-xl mx-2 group"
                               >
-                                <div>
-                                  <MdOutlinePayment size={24} />
+                                <div className="p-2 bg-green-50 rounded-lg group-hover:bg-green-100 transition-colors duration-200">
+                                  <MdOutlinePayment
+                                    size={18}
+                                    className="text-green-600"
+                                  />
                                 </div>
-                                Billing
+                                <span className="font-medium">Billing</span>
                               </Link>
                             </li>
-                            {/* <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
-                              <Link
-                                href={"/dashboard/user/my-usage"}
-                                className="flex items-center gap-2"
-                              >
-                                <div>
-                                  <MdDataUsage size={24} />
-                                </div>
-                                My Usage
-                              </Link>
-                            </li>
-                            <li className="subtitle-text border-b border-[#E1E1E1] py-2 px-1 hover:bg-slate-100">
-                              <Link
-                                href={"/dashboard/user/team-usage"}
-                                className="flex items-center gap-2"
-                              >
-                                <div>
-                                  <MdDataUsage size={24} />
-                                </div>
-                                Team Usage
-                              </Link>
-                            </li> */}
                           </>
                         )}
-                        <li className="subtitle-text text-red-500 py-2 px-1 hover:bg-slate-100">
+                        <li className="border-t border-gray-200/50 mt-2 pt-2">
                           <button
                             onClick={() => logout()}
-                            className="flex items-center gap-2"
+                            className="flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50/80 hover:text-red-700 transition-all duration-200 rounded-xl mx-2 w-full group"
                           >
-                            <div>
-                              <MdLogout size={24} />
+                            <div className="p-2 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors duration-200">
+                              <MdLogout size={18} className="text-red-600" />
                             </div>
-                            Logout
+                            <span className="font-medium">Logout</span>
                           </button>
                         </li>
                       </ul>
@@ -185,18 +200,25 @@ const DashboardLayout = ({ children }) => {
                   </div>
                 )}
               </div>
-              <div className="flex-1 flex justify-end items-center gap-5">
-                <div className="bg-white w-full max-w-[400px] rounded-full py-4 px-6 md:flex items-center border hidden">
-                  <input
-                    type="text"
-                    name="search"
-                    id="search"
-                    placeholder="Search Documents and Clients"
-                    className="w-full outline-none"
+              <div className="flex-1 flex justify-end items-center gap-4 relative">
+                <div
+                  className="bg-white/60 backdrop-blur-sm w-full max-w-[400px] rounded-2xl py-3 px-5 md:flex items-center border border-gray-200/50 hidden relative shadow-sm hover:shadow-md hover:bg-white/80 transition-all duration-300 group"
+                  ref={searchContainerRef}
+                >
+                  <SearchBoxInput
+                    isSearchContainerOpen={isSearchContainerOpen}
+                    setIsSearchContainerOpen={setIsSearchContainerOpen}
                   />
-                  <div className="">
-                    <FaSearch size={30} />
+                  <div className="text-gray-400 group-hover:text-gray-600 transition-colors duration-200">
+                    <FaSearch size={20} />
                   </div>
+
+                  {/* Search Container */}
+                  {isClient && isSearchContainerOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-3 bg-white/95 backdrop-blur-xl border border-gray-200/50 rounded-2xl shadow-xl z-50 max-h-96 overflow-y-auto animate-in slide-in-from-top-2 duration-200">
+                      <SearchContainer />
+                    </div>
+                  )}
                 </div>
                 <NotificationBell />
               </div>
@@ -288,3 +310,156 @@ const DashboardLayout = ({ children }) => {
 };
 
 export default DashboardLayout;
+
+const SearchBoxInput = ({
+  isSearchContainerOpen,
+  setIsSearchContainerOpen,
+}) => {
+  const { setGlobalSearchQuery, globalSearchQuery } = useContext(GlobalContext);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const handleInputChange = (e) => {
+    const value = e.target.value || "";
+    setGlobalSearchQuery(value);
+
+    // Show search container when user starts typing
+    if (value.length > 0 && !isSearchContainerOpen) {
+      setIsSearchContainerOpen(true);
+    } else if (value.length === 0) {
+      setIsSearchContainerOpen(false);
+    }
+  };
+
+  const handleInputFocus = () => {
+    if (globalSearchQuery.length > 0) {
+      setIsSearchContainerOpen(true);
+    }
+  };
+
+  return (
+    <input
+      type="text"
+      name="search"
+      id="search"
+      placeholder="Search documents, clients..."
+      className="w-full outline-none bg-transparent text-gray-700 placeholder-gray-400 font-medium"
+      value={isClient ? globalSearchQuery : ""}
+      onChange={handleInputChange}
+      onFocus={handleInputFocus}
+      autoComplete="off"
+    />
+  );
+};
+
+const SearchContainer = () => {
+  const { filteredDocuments, filteredClients, globalSearchQuery } =
+    useContext(GlobalContext);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Prevent hydration mismatch by not rendering dynamic content on server
+  if (!isClient) {
+    return <div className="p-4 text-gray-500 text-center">Loading...</div>;
+  }
+
+  if (!globalSearchQuery) {
+    return (
+      <div className="p-4 text-gray-500 text-center">
+        Start typing to search documents and clients...
+      </div>
+    );
+  }
+
+  const hasResults = filteredDocuments.length > 0 || filteredClients.length > 0;
+
+  if (!hasResults) {
+    return (
+      <div className="p-4 text-gray-500 text-center">
+        No results found for "{globalSearchQuery}"
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-4">
+      {/* Documents Section */}
+      {filteredDocuments.length > 0 && (
+        <div className="mb-4">
+          <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center">
+            <FaFileAlt className="mr-2" />
+            Documents ({filteredDocuments.slice(0, 5).length})
+          </h3>
+          <div className="space-y-2">
+            {filteredDocuments.slice(0, 5).map((doc) => (
+              <Link
+                key={doc.id}
+                href={`/dashboard/document-management/view-document/${doc.id}`}
+                className="block p-2 hover:bg-gray-50 rounded border-l-2 border-blue-500"
+              >
+                <div className="text-sm font-medium text-gray-900 truncate">
+                  {doc.parsed_data?.parsed_data?.suggested_title ||
+                    doc.name ||
+                    (doc.file
+                      ? extractFilenameFromUrl(doc.file)
+                      : "Untitled Document")}
+                </div>
+                <div className="text-xs text-gray-500 truncate">
+                  Client: {doc.client?.business_name || doc.client || "Unknown"}
+                </div>
+              </Link>
+            ))}
+          </div>
+          {filteredDocuments.length > 5 && (
+            <Link
+              href="/dashboard/document-management/all-documents"
+              className="text-xs text-blue-600 hover:text-blue-800 mt-2 block"
+            >
+              View all {filteredDocuments.length} documents →
+            </Link>
+          )}
+        </div>
+      )}
+
+      {/* Clients Section */}
+      {filteredClients.length > 0 && (
+        <div>
+          <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center">
+            <FaUserFriends className="mr-2" />
+            Clients ({filteredClients.slice(0, 5).length})
+          </h3>
+          <div className="space-y-2">
+            {filteredClients.slice(0, 5).map((client) => (
+              <Link
+                key={client.id}
+                href="/dashboard/client-management/client-list"
+                className="block p-2 hover:bg-gray-50 rounded border-l-2 border-green-500"
+              >
+                <div className="text-sm font-medium text-gray-900 truncate">
+                  {client.business_name || "Unnamed Business"}
+                </div>
+                <div className="text-xs text-gray-500 truncate">
+                  {client.email} • {client.mobile_number || "No phone"}
+                </div>
+              </Link>
+            ))}
+          </div>
+          {filteredClients.length > 5 && (
+            <Link
+              href="/dashboard/client-management/client-list"
+              className="text-xs text-blue-600 hover:text-blue-800 mt-2 block"
+            >
+              View all {filteredClients.length} clients →
+            </Link>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};

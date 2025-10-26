@@ -82,10 +82,10 @@ const DocumentRow = ({
       );
       if (response.ok) {
         const data = await response.json();
-        setParsedData(data.parsed_data);
+        // setParsedData(data.parsed_data);
       } else {
         console.log("Error fetching parsed data:", response.statusText);
-        setParsedData({});
+        // setParsedData({});
       }
     } catch (error) {
       console.error("Error fetching document data:", error);
@@ -154,14 +154,16 @@ const DocumentRow = ({
       }}
     >
       <td className="px-6 py-4">
+        <input
+          type="checkbox"
+          className="rounded"
+          checked={isSelected}
+          onChange={() => onSelect(doc.id, doc.client)}
+          disabled={isDisabled}
+        />
+      </td>
+      <td className="px-6 py-4">
         <div className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            className="rounded"
-            checked={isSelected}
-            onChange={() => onSelect(doc.id, doc.client)}
-            disabled={isDisabled}
-          />
           <Image
             src={
               "https://images.unsplash.com/photo-1633332755192-727a05c4013d?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8YXZhdGFyfGVufDB8fDB8fHww"

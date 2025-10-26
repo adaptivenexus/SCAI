@@ -12,7 +12,6 @@ const AddOrManageClient = ({
   oldClient,
   setEditClient,
 }) => {
-
   const { fetchClients } = useContext(GlobalContext);
 
   const [loading, startTransition] = useTransition();
@@ -45,9 +44,11 @@ const AddOrManageClient = ({
     startTransition(async () => {
       if (isNew) {
         try {
-            // Ensure localStorage is accessed only on the client side
-            const accessToken =
-            typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+          // Ensure localStorage is accessed only on the client side
+          const accessToken =
+            typeof window !== "undefined"
+              ? localStorage.getItem("accessToken")
+              : null;
 
           console.log(client);
           const response = await fetch(
@@ -68,8 +69,8 @@ const AddOrManageClient = ({
             if (!response.ok) {
               for (const key in result) {
                 if (Array.isArray(result[key])) {
-                  setMessage({ type: "error", text: result[key]  });
-                  return
+                  setMessage({ type: "error", text: result[key] });
+                  return;
                 }
               }
             }
@@ -87,7 +88,9 @@ const AddOrManageClient = ({
         try {
           // Ensure localStorage is accessed only on the client side
           const accessToken =
-          typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+            typeof window !== "undefined"
+              ? localStorage.getItem("accessToken")
+              : null;
 
           const response = await fetch(
             `${process.env.NEXT_PUBLIC_SWAGGER_URL}/client/${oldClient.id}/`,
@@ -103,7 +106,7 @@ const AddOrManageClient = ({
           if (!response.ok) {
             console.log(await response.json());
             const errorData = await response.json();
-            setMessage({ type: "error", text: errorData.error  });
+            setMessage({ type: "error", text: errorData.error });
             //toast.error("Something went wrong or check your fields");
             return;
           }
@@ -143,7 +146,7 @@ const AddOrManageClient = ({
       return "Business Name is required";
     }
 
-     // Business type validation
+    // Business type validation
     if (!client.business_type) {
       return "Please select a Business Type";
     }
@@ -180,9 +183,6 @@ const AddOrManageClient = ({
       }
     }
 
-    
-
-    
     // if (client.business_name.match(/['";\\]/)) {
     //   return "Business Name contains invalid characters (e.g., quotes, semicolons)";
     // }
@@ -202,7 +202,6 @@ const AddOrManageClient = ({
       return "Invalid TIN format. Please enter a 9-digit number.";
     }
 
-   
     if (client.business_type.match(/['";\\]/)) {
       return "Business Type contains invalid characters (e.g., quotes, semicolons)";
     }
@@ -249,7 +248,7 @@ const AddOrManageClient = ({
 
   return (
     <div
-      className="flex fixed top-0 inset-0 bg-black bg-opacity-50 !m-0 items-center justify-center"
+      className="flex fixed top-0 inset-0 bg-black bg-opacity-50 !m-0 items-center justify-center z-30"
       onClick={() => setIsAddClientOpen(false)}
     >
       <div
@@ -336,7 +335,7 @@ const AddOrManageClient = ({
                 <option value="Other">Other</option>
               </select>
             </div>
-            
+
             <div className="flex flex-col flex-1 gap-1">
               <label htmlFor="email">
                 Email Address <span className="text-red-500">*</span>
