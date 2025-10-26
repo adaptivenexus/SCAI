@@ -336,7 +336,7 @@ const DocumentShareModal = ({ setIsShareDocumentOpen, docs, handleReset }) => {
                     <div
                       key={index}
                       className={` ${
-                        docs.length !== index && "border-b border-slate-300"
+                        index !== docs.length - 1 && "border-b border-slate-300"
                       } py-4`}
                     >
                       <p className="font-semibold text-lg">

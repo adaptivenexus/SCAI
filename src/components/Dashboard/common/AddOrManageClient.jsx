@@ -195,7 +195,11 @@ const AddOrManageClient = ({
 
     // TIN validation
     if (!client.tin) {
-      return "SSN/TIN Number is required";
+      return "Tax Identifier Number/Employer Id Number is required";
+    }
+    // Only validate TIN format (example: 9 digits, can be adjusted as needed)
+    if (!/^\d{9}$/.test(client.tin)) {
+      return "Invalid TIN format. Please enter a 9-digit number.";
     }
 
     if (client.business_type.match(/['";\\]/)) {
@@ -376,15 +380,14 @@ const AddOrManageClient = ({
             </div>
             <div className="flex flex-col flex-1 gap-1">
               <label htmlFor="tin">
-                Social Security Number (SSN) / TIN{" "}
-                <span className="text-red-500">*</span>
+                Tax Identifier Number/Employer Id Number <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 name="tin"
                 id="tin"
                 className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
-                placeholder="Enter SSN / TIN number"
+                placeholder="Enter Tax Identifier Number/Employer Id Number"
                 value={client.tin}
                 onChange={handleChange}
               />

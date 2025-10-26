@@ -6,7 +6,7 @@ import GlobalDashboardProvider from "@/context/GlobalProvider";
 import Link from "next/link";
 
 import { PiUserCircleFill } from "react-icons/pi";
-import { MdLogout, MdOutlinePayment } from "react-icons/md";
+import { MdDataUsage, MdLogout, MdOutlinePayment } from "react-icons/md";
 import { useState, useEffect, useRef, useContext } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { IoMenu, IoClose } from "react-icons/io5";
@@ -14,6 +14,28 @@ import { useRouter } from "next/navigation";
 import { GlobalContext } from "@/context/GlobalProvider";
 import { extractFilenameFromUrl } from "@/utils";
 import Avatar from "@/components/Dashboard/Avatar";
+
+const NotificationBell = () => {
+  const ctx = useContext(GlobalContext);
+  const clients = Array.isArray(ctx?.clients) ? ctx.clients : [];
+  const documents = Array.isArray(ctx?.documents) ? ctx.documents : [];
+  const unverifiedClientsCount = clients.filter((c) => c.status !== "Verified").length;
+  const unverifiedDocumentsCount = documents.filter((d) => !d.is_verified).length;
+  const notificationCount = unverifiedClientsCount + unverifiedDocumentsCount;
+
+  return (
+    <Link href={"/dashboard/notification-page"}>
+      <div className="relative text-primary">
+        <FaRegBell size={30} />
+        {notificationCount > 0 && (
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+            {notificationCount}
+          </span>
+        )}
+      </div>
+    </Link>
+  );
+};
 
 const DashboardLayout = ({ children }) => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -198,20 +220,7 @@ const DashboardLayout = ({ children }) => {
                     </div>
                   )}
                 </div>
-                <Link href={"/dashboard/notification-page"}>
-                  <div className="relative p-3 rounded-2xl bg-white/60 backdrop-blur-sm border border-gray-200/50 hover:bg-white/80 hover:shadow-md transition-all duration-300 group">
-                    <FaRegBell
-                      size={20}
-                      className="text-gray-600 group-hover:text-gray-800 transition-colors duration-200"
-                    />
-                    {/* Notification badge */}
-                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                      <span className="text-xs font-bold text-white">3</span>
-                    </div>
-                    {/* Pulse animation for new notifications */}
-                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full animate-ping opacity-75"></div>
-                  </div>
-                </Link>
+                <NotificationBell />
               </div>
             </div>
           </header>
@@ -237,7 +246,7 @@ const DashboardLayout = ({ children }) => {
               }`}
             >
               <div className="flex items-center justify-between p-4 border-b">
-                <span className="text-xl font-bold">SCANDOQ.</span>
+                <span className="text-xl font-bold px-2 py-1">SCANDOQ</span>
                 <button
                   onClick={() => setIsMobileNavOpen(false)}
                   aria-label="Close navigation menu"
