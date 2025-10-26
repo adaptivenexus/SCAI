@@ -46,7 +46,7 @@ const SharedDocumentRow = ({ doc }) => {
         </a>
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-        {new Date(doc.shared_date).toLocaleDateString()}
+        {new Date(doc.shared_date).toLocaleDateString('en-GB', {day: '2-digit', month: '2-digit', year: 'numeric'}).replace(/\//g, '/')}
       </td>
       {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
         {doc.otp}

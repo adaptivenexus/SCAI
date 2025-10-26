@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { FaFileAlt, FaRegUser, FaShareAlt, FaUsers } from "react-icons/fa";
 import { RiDashboardFill } from "react-icons/ri";
 import { IoIosCall, IoMdSettings } from "react-icons/io";
@@ -15,6 +16,7 @@ const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isUsersOpen, setIsUsersOpen] = useState(false);
   const [isDocumentsOpen, setIsDocumentsOpen] = useState(false);
+  const pathname = usePathname();
 
   const sidebarVariants = {
     open: {
@@ -40,9 +42,33 @@ const Sidebar = () => {
         setIsDocumentsOpen(false);
       }}
     >
-      <div className="sticky top-0 p-4 min-w-[90px] bg-secondary">
-        <Link href={"/"} className="text-background text-center text-2xl block">
-          SCANDOQ.
+      <div className="sticky top-0 pt-6 px-4 pb-2 min-w-[90px] bg-secondary">
+        <Link href={"/"} className="text-background text-center text-2xl block font-bold tracking-wide relative">
+          <AnimatePresence mode="wait">
+            {isOpen ? (
+              <motion.span
+                key="full"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                style={{letterSpacing: '2px'}}
+              >
+                SCANDOQ
+              </motion.span>
+            ) : (
+              <motion.span
+                key="short"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="mx-auto block"
+              >
+                SD
+              </motion.span>
+            )}
+          </AnimatePresence>
         </Link>
         <hr className="my-4" />
         <nav>
@@ -50,7 +76,9 @@ const Sidebar = () => {
             <li>
               <Link
                 href={"/dashboard/overview"}
-                className="p-2 rounded-lg text-background flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200 w-full"
+                className={`p-2 rounded-lg text-background flex items-center gap-4 font-semibold text-xl transition-colors duration-200 w-full
+                  hover:bg-accent-secondary/90 hover:text-primary
+                  ${pathname === "/dashboard/overview" ? "bg-accent-secondary text-primary" : ""}`}
               >
                 <RiDashboardFill size={40} className="min-w-[40px]" />
                 <AnimatePresence mode="wait">
@@ -72,7 +100,9 @@ const Sidebar = () => {
               <li>
                 <Link
                   href={"/dashboard/members-mangement"}
-                  className="w-full p-2 rounded-lg text-background flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200"
+                  className={`w-full p-2 rounded-lg text-background flex items-center gap-4 font-semibold text-xl transition-colors duration-200
+                    hover:bg-accent-secondary/90 hover:text-primary
+                    ${pathname.startsWith("/dashboard/members-mangement") ? "bg-accent-secondary text-primary" : ""}`}
                 >
                   <FaUsers size={40} className="min-w-[40px]" />
                   <AnimatePresence mode="wait">
@@ -84,7 +114,7 @@ const Sidebar = () => {
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden text-ellipsis whitespace-nowrap"
                       >
-                        Members Mangement
+                        Members
                       </motion.span>
                     )}
                   </AnimatePresence>
@@ -94,7 +124,9 @@ const Sidebar = () => {
             <li>
               <Link
                 href={"/dashboard/shared-doc"}
-                className="w-full p-2 rounded-lg text-background flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200"
+                className={`w-full p-2 rounded-lg text-background flex items-center gap-4 font-semibold text-xl transition-colors duration-200
+                  hover:bg-accent-secondary/90 hover:text-primary
+                  ${pathname.startsWith("/dashboard/shared-doc") ? "bg-accent-secondary text-primary" : ""}`}
               >
                 <FaShareAlt size={40} className="min-w-[40px]" />
                 <AnimatePresence mode="wait">
@@ -106,7 +138,7 @@ const Sidebar = () => {
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden text-ellipsis whitespace-nowrap"
                     >
-                      Shared Documents
+                      Sharing
                     </motion.span>
                   )}
                 </AnimatePresence>
@@ -116,7 +148,9 @@ const Sidebar = () => {
             <li className="rounded-xl flex flex-col gap-2">
               <Link
                 href={"/dashboard/client-management/client-list"}
-                className="w-full p-2 rounded-xl text-background flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200"
+                className={`w-full p-2 rounded-xl text-background flex items-center gap-4 font-semibold text-xl transition-colors duration-200
+                  hover:bg-accent-secondary/90 hover:text-primary
+                  ${pathname.startsWith("/dashboard/client-management") ? "bg-accent-secondary text-primary" : ""}`}
               >
                 <FaRegUser size={40} className="min-w-[40px]" />
                 <AnimatePresence mode="wait">
@@ -128,7 +162,7 @@ const Sidebar = () => {
                       className="overflow-hidden text-ellipsis whitespace-nowrap"
                       transition={{ duration: 0.2 }}
                     >
-                      Client Management
+                      Clients
                     </motion.span>
                   )}
                 </AnimatePresence>
@@ -137,7 +171,9 @@ const Sidebar = () => {
             <li className="rounded-xl flex flex-col gap-2">
               <Link
                 href="/dashboard/document-management/all-documents"
-                className="w-full p-2 rounded-xl text-background flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200"
+                className={`w-full p-2 rounded-xl text-background flex items-center gap-4 font-semibold text-xl transition-colors duration-200
+                  hover:bg-accent-secondary/90 hover:text-primary
+                  ${pathname.startsWith("/dashboard/document-management") ? "bg-accent-secondary text-primary" : ""}`}
               >
                 <FaFileAlt size={40} className="min-w-[40px]" />
                 <AnimatePresence mode="wait">
@@ -149,7 +185,7 @@ const Sidebar = () => {
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden text-ellipsis whitespace-nowrap"
                     >
-                      Document Management
+                      Documents
                     </motion.span>
                   )}
                 </AnimatePresence>
@@ -159,7 +195,9 @@ const Sidebar = () => {
             <li>
               <Link
                 href={"/dashboard/contact"}
-                className="w-full p-2 rounded-lg text-background flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200"
+                className={`w-full p-2 rounded-lg text-background flex items-center gap-4 font-semibold text-xl transition-colors duration-200
+                  hover:bg-accent-secondary/90 hover:text-primary
+                  ${pathname.startsWith("/dashboard/contact") ? "bg-accent-secondary text-primary" : ""}`}
               >
                 <IoIosCall size={40} className="min-w-[40px]" />
                 <AnimatePresence mode="wait">
@@ -171,7 +209,7 @@ const Sidebar = () => {
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden text-ellipsis whitespace-nowrap"
                     >
-                      Contact us
+                      Support
                     </motion.span>
                   )}
                 </AnimatePresence>
@@ -180,7 +218,9 @@ const Sidebar = () => {
             <li>
               <Link
                 href={"/dashboard/settings/account-details"}
-                className="w-full p-2 rounded-lg text-background flex items-center gap-4 font-semibold text-xl hover:bg-accent-secondary/90 transition-colors duration-200"
+                className={`w-full p-2 rounded-lg text-background flex items-center gap-4 font-semibold text-xl transition-colors duration-200
+                  hover:bg-accent-secondary/90 hover:text-primary
+                  ${pathname.startsWith("/dashboard/settings") ? "bg-accent-secondary text-primary" : ""}`}
               >
                 <IoMdSettings size={40} className="min-w-[40px]" />
                 <AnimatePresence mode="wait">

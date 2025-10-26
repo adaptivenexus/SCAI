@@ -1,54 +1,8 @@
 "use client";
 import { IoMdArrowRoundBack } from "react-icons/io";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useRouter } from "next/navigation";
-const notificationsData = [
-  {
-    id: 1,
-    title: "Team Invite Notification",
-    description: 'You’ve been invited to join the "Document Review Team" by Sarah Malik.',
-    time: "3 Minutes ago",
-    actions: ["Accept", "Decline"],
-    icon: "📧",
-    unread: true,
-  },
-  {
-    id: 2,
-    title: "Billing Reminder",
-    description: "Your Pro plan will renew on April 20, 2025.",
-    time: "4 days ago",
-    actions: ["Manage", "Ignore"],
-    icon: "💳",
-    unread: true,
-  },
-  {
-    id: 3,
-    title: "Security Update",
-    description: "Two-Factor Authentication has been enabled.",
-    time: "10 days ago",
-    actions: [],
-    icon: "🔒",
-    unread: false,
-  },
-  {
-    id: 4,
-    title: "Limited-Time Offer",
-    description: "Get 20% off on annual Team plans. Upgrade now and save more on your next billing cycle. Offer valid for a limited period",
-    time: "1 Week ago",
-    actions: ["Upgrade Plan", "Ignore"],
-    icon: "🎁",
-    unread: false,
-  },
-  {
-    id: 5,
-    title: "Team Member Added",
-    description: 'Zoya Rehman joined your "Design" workspace.',
-    time: "1 Month ago",
-    actions: ["View Team", "Ignore"],
-    icon: "👤",
-    unread: false,
-  },
-];
+import { GlobalContext } from "@/context/GlobalProvider";
 
 const NotificationPage = () => {
   const [search, setSearch] = useState("");
@@ -56,8 +10,76 @@ const NotificationPage = () => {
   const [sort, setSort] = useState("newest");
   const [editMode, setEditMode] = useState(false);
   const [selectedNotifications, setSelectedNotifications] = useState([]);
-
+  const [popupData, setPopupData] = useState(null);
+  const [popupType, setPopupType] = useState(null); // 'client' or 'document'
   const router = useRouter();
+  const { clients, documents } = useContext(GlobalContext);
+
+  // Filter unverified clients and documents
+  const unverifiedClients = Array.isArray(clients)
+    ? clients.filter((c) => c.status !== "Verified")
+    : [];
+  const unverifiedDocuments = Array.isArray(documents)
+    ? documents.filter((d) => !d.is_verified)
+    : [];
+
+  // Compose notification objects
+  function getDocumentName(doc) {
+    // Try to get the best document name
+    if (doc.parsed_data && doc.parsed_data.suggested_title)
+      return doc.parsed_data.suggested_title;
+    if (doc.name) return doc.name;
+    if (doc.title) return doc.title;
+    if (doc.file) {
+      try {
+        const urlObj = new URL(doc.file);
+        const pathname = urlObj.pathname;
+        const decodedPath = decodeURIComponent(pathname);
+        const segments = decodedPath.split("/");
+        return segments[segments.length - 1];
+      } catch {
+        return doc.file;
+      }
+    }
+    return doc.id;
+  }
+
+  function getDocumentClientName(doc) {
+    // Try to get the client name or email
+    if (doc.client_name) return doc.client_name;
+    if (doc.client) return doc.client;
+    if (doc.client_id && Array.isArray(clients)) {
+      const found = clients.find((c) => String(c.id) === String(doc.client_id));
+      if (found)
+        return found.business_name || found.name || found.email || found.id;
+    }
+    return "Unknown Client";
+  }
+
+  const notificationsData = [
+    ...unverifiedClients.map((client) => ({
+      id: `client-${client.id}`,
+      type: "client",
+      title: `Unverified Client: ${
+        client.name || client.business_name || client.email || client.id
+      }`,
+      description: `Client ${
+        client.name || client.business_name || client.email || client.id
+      } is not verified.`,
+      time: client.created_at || "",
+      unread: true,
+      data: client,
+    })),
+    ...unverifiedDocuments.map((doc) => ({
+      id: `document-${doc.id}`,
+      type: "document",
+      title: `Unverified Document: ${getDocumentName(doc)}`,
+      description: `Client: ${getDocumentClientName(doc)}`,
+      time: doc.uploaded_at || "",
+      unread: true,
+      data: doc,
+    })),
+  ];
 
   const filteredNotifications = notificationsData.filter((n) => {
     if (filter === "all") return true;
@@ -78,14 +100,14 @@ const NotificationPage = () => {
   };
 
   const handleSelectAll = (e) => {
-    setSelectedNotifications(
-      sortedNotifications.map((n) => n.id)
-    );
+    setSelectedNotifications(sortedNotifications.map((n) => n.id));
   };
 
   const handleMarkAsRead = (e) => {
     setSelectedNotifications(
-      selectedNotifications.filter((id) => !sortedNotifications.find((n) => n.id === id).unread)
+      selectedNotifications.filter(
+        (id) => !sortedNotifications.find((n) => n.id === id).unread
+      )
     );
     sortedNotifications.forEach((n) => {
       if (selectedNotifications.includes(n.id)) {
@@ -106,7 +128,9 @@ const NotificationPage = () => {
             <IoMdArrowRoundBack size={24} />
           </button>
           <div className="flex w-full justify-between items-center">
-            <h4 className="heading-4">{editMode ? "Edit Notifications" : "Notifications"}</h4>
+            <h4 className="heading-4">
+              {editMode ? "Edit Notifications" : "Notifications"}
+            </h4>
             <button
               className="text-primary subtitle-text"
               onClick={handleEditButton}
@@ -139,7 +163,9 @@ const NotificationPage = () => {
               <button
                 onClick={() => setFilter("all")}
                 className={`px-5 py-1.5 rounded-full font-semibold ${
-                  filter === "all" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-900"
+                  filter === "all"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-900"
                 }`}
               >
                 All
@@ -147,7 +173,9 @@ const NotificationPage = () => {
               <button
                 onClick={() => setFilter("unread")}
                 className={`px-5 py-1.5 rounded-full font-semibold ${
-                  filter === "unread" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-900"
+                  filter === "unread"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-900"
                 }`}
               >
                 Unread ({filteredNotifications.filter((n) => n.unread).length})
@@ -171,74 +199,102 @@ const NotificationPage = () => {
             </select>
           </div>
           {/* Notification Cards */}
-          <div className="w-full">
+          <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6">
             {sortedNotifications
-              .filter((n) => n.title.toLowerCase().includes(search.toLowerCase()))
+              .filter((n) =>
+                n.title.toLowerCase().includes(search.toLowerCase())
+              )
               .map((n) => (
                 <div
                   key={n.id}
-                  className="flex items-center border-b border-gray-100 py-4 gap-4"
+                  className="relative bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition p-5 flex items-center justify-between"
                 >
                   {editMode && (
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={selectedNotifications.includes(n.id)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedNotifications([...selectedNotifications, n.id]);
-                          } else {
-                            setSelectedNotifications(
-                              selectedNotifications.filter((id) => id !== n.id)
-                            );
-                          }
-                        }}
-                        className="mt-1 mr-2 w-4 h-4"
-                      />
-                    </div>
+                    <input
+                      type="checkbox"
+                      checked={selectedNotifications.includes(n.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedNotifications([
+                            ...selectedNotifications,
+                            n.id,
+                          ]);
+                        } else {
+                          setSelectedNotifications(
+                            selectedNotifications.filter((id) => id !== n.id)
+                          );
+                        }
+                      }}
+                      className="absolute top-3 left-3 w-4 h-4"
+                    />
                   )}
-                  <span className="text-2xl">{n.icon}</span>
-                  <div className="flex-1">
-                    <div
-                      className={`font-semibold text-base ${
-                        n.unread ? "text-primary" : "text-secondary-foreground"
-                      }`}
-                    >
-                      {n.title}
+                  <div className="flex items-start gap-3">
+                    <div className="text-2xl">
+                      {n.type === "client" ? "👤" : "📄"}
                     </div>
-                    <div className="text-gray-600 my-1 text-sm">
-                      {n.description}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className={`font-semibold text-sm sm:text-base ${
+                            n.unread
+                              ? "text-primary"
+                              : "text-secondary-foreground"
+                          }`}
+                        >
+                          {n.title}
+                        </div>
+                        {n.unread && (
+                          <span className="inline-block w-2 h-2 rounded-full bg-blue-600" />
+                        )}
+                      </div>
+                      <div className="text-gray-600 my-1 text-sm">
+                        {n.description}
+                      </div>
+                      <div className="text-gray-400 text-xs">{n.time}</div>
                     </div>
-                    <div className="text-gray-400 text-xs">{n.time}</div>
                   </div>
-                  <div className="flex gap-2">
-                    {n.actions.map((label, i) => (
-                      <button
-                        key={i}
-                        className={`px-4 py-2 rounded-md font-medium text-sm transition ${
-                          i === 0
-                            ? "bg-blue-600 text-white"
-                            : "bg-white border border-gray-200 text-gray-900"
-                        }`}
-                        disabled
-                      >
-                        {label}
-                      </button>
-                    ))}
-                    {n.title === "Security Update" && (
-                      <button
-                        className="bg-none border-none text-gray-400 text-2xl px-2"
-                        title="Dismiss"
-                        disabled
-                      >
-                        ×
-                      </button>
-                    )}
+                  <div className="flex justify-end">
+                    <button
+                      className="px-4 py-2 rounded-md font-medium text-sm bg-blue-600 text-white hover:bg-blue-700 transition"
+                      onClick={() => {
+                        if (n.type === "client") {
+                          router.push(
+                            `/dashboard/client-management/client-list?verify=1&id=${n.data.id}`
+                          );
+                        } else if (n.type === "document") {
+                          router.push(
+                            `/dashboard/document-management/all-documents?verify=1&id=${n.data.id}`
+                          );
+                        }
+                      }}
+                    >
+                      Verify Now
+                    </button>
                   </div>
                 </div>
               ))}
           </div>
         </div>
+        {/* Popup for client/document verification */}
+        {popupData && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-lg p-8 min-w-[350px] max-w-[90vw] relative">
+              <button
+                className="absolute top-2 right-2 text-gray-400 hover:text-gray-700"
+                onClick={() => setPopupData(null)}
+              >
+                ×
+              </button>
+              <h3 className="text-lg font-bold mb-4">
+                {popupType === "client" ? "Verify Client" : "Verify Document"}
+              </h3>
+              <pre className="text-xs bg-gray-100 rounded p-2 overflow-x-auto max-h-60">
+                {JSON.stringify(popupData, null, 2)}
+              </pre>
+              {/* You can replace the above with a custom component for better UI */}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
