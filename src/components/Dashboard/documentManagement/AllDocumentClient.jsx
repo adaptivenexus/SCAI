@@ -13,51 +13,114 @@ import { toast } from "react-toastify";
 
 import { useAuth } from "@/context/AuthContext"; 
 
-// Helper function to check if a date matches the search query or filter
+// Internal: try to parse common numeric date formats when native parsing fails
+const parseFlexibleDate = (raw) => {
+  if (!raw) return null;
+  const s = String(raw).trim();
+
+  // ISO-like first
+  const isoMatch = s.match(/^(\d{4})[\/.\-](\d{1,2})[\/.\-](\d{1,2})/);
+  if (isoMatch) {
+    const y = Number(isoMatch[1]);
+    const m = Number(isoMatch[2]);
+    const d = Number(isoMatch[3]);
+    if (m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+      const dt = new Date(y, m - 1, d);
+      if (!isNaN(dt.getTime())) return dt;
+    }
+  }
+
+  // DMY or MDY with separators
+  const sepMatch = s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})$/);
+  if (sepMatch) {
+    const a = Number(sepMatch[1]);
+    const b = Number(sepMatch[2]);
+    const y = Number(sepMatch[3].length === 2 ? `20${sepMatch[3]}` : sepMatch[3]);
+
+    // Try DMY (a=d, b=m)
+    if (b >= 1 && b <= 12 && a >= 1 && a <= 31) {
+      const dtDMY = new Date(y, b - 1, a);
+      if (!isNaN(dtDMY.getTime())) return dtDMY;
+    }
+    // Try MDY (a=m, b=d)
+    if (a >= 1 && a <= 12 && b >= 1 && b <= 31) {
+      const dtMDY = new Date(y, a - 1, b);
+      if (!isNaN(dtMDY.getTime())) return dtMDY;
+    }
+  }
+
+  // As a last resort, native Date
+  const native = new Date(s);
+  if (!isNaN(native.getTime())) return native;
+  return null;
+};
+
+// Helper: robust date matching across many common formats
 const doesDateMatch = (dateString, query) => {
   if (!dateString || !query) return false;
 
-  try {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return false; // Invalid date
+  const queryLower = query.toLowerCase().trim();
+  const querySanitized = queryLower.replace(/[^a-z0-9]/g, "");
 
-    const queryLower = query.toLowerCase().trim();
-    const year = date.getFullYear().toString();
-    const monthLong = date
-      .toLocaleString("en-US", { month: "long" })
-      .toLowerCase();
-    const monthShort = date
-      .toLocaleString("en-US", { month: "short" })
-      .toLowerCase();
-    const monthNum = (date.getMonth() + 1).toString().padStart(2, "0"); // e.g., "05"
-    const day = date.getDate().toString().padStart(2, "0"); // e.g., "14"
+  // Quick raw string checks (works even if parsing fails)
+  const rawLower = String(dateString).toLowerCase();
+  const rawSanitized = rawLower.replace(/[^a-z0-9]/g, "");
+  if (rawLower.includes(queryLower) || rawSanitized.includes(querySanitized)) {
+    return true;
+  }
 
-    const dateFormats = [
-      year,
-      monthLong,
-      monthShort,
-      `${day} ${monthLong}`,
-      `${monthLong} ${day}`,
-      `${day} ${monthShort}`,
-      `${monthShort} ${day}`,
-      `${day}-${monthLong}-${year}`,
-      `${day}-${monthShort}-${year}`,
-      dateString.toLowerCase(),
-      `${day}/${monthNum}/${year}`,
-      `${day}-${monthNum}-${year}`,
-      `${day}/${monthNum}`,
-      `${monthNum}/${day}`,
-      `${year}/${monthNum}/${day}`,
-      `${day}-${monthNum}-${year}`,
-      `${monthNum}-${day}-${year}`,
-      `${day}.${monthNum}.${year}`,
-    ];
-
-    return dateFormats.some((format) => format.includes(queryLower));
-  } catch (error) {
-    console.error("Error in doesDateMatch:", dateString, query, error);
+  // Try parsing dateString using flexible parser
+  const date = parseFlexibleDate(dateString);
+  if (!date) {
+    // If parsing fails, we've already checked raw string above
     return false;
   }
+
+  const year = date.getFullYear().toString();
+  const yy = year.slice(-2);
+  const monthIndex = date.getMonth() + 1;
+  const monthNum = monthIndex.toString().padStart(2, "0"); // "01".."12"
+  const monthNumNoPad = monthIndex.toString();
+  const dayNum = date.getDate();
+  const day = dayNum.toString().padStart(2, "0");
+  const dayNoPad = dayNum.toString();
+  const monthLong = date.toLocaleString("en-US", { month: "long" }).toLowerCase();
+  const monthShort = date.toLocaleString("en-US", { month: "short" }).toLowerCase();
+
+  // Extract YYYY-MM-DD from ISO strings if present
+  const isoDate = rawLower.match(/\d{4}-\d{2}-\d{2}/)?.[0] || `${year}-${monthNum}-${day}`;
+  const compactYMD = `${year}${monthNum}${day}`;
+  const compactDMY = `${day}${monthNum}${year}`;
+
+  const candidates = [
+    // Year-only / partials
+    year, yy,
+    `${monthLong} ${year}`, `${monthShort} ${year}`, `${monthNum}/${year}`, `${monthNumNoPad}/${year}`,
+    `${year} ${monthLong}`, `${year} ${monthShort}`, `${year}/${monthNum}`, `${year}/${monthNumNoPad}`,
+    // Month + Day (names)
+    `${day} ${monthLong}`, `${monthLong} ${day}`, `${day} ${monthShort}`, `${monthShort} ${day}`,
+    `${monthLong} ${day}, ${year}`, `${day} ${monthLong}, ${year}`,
+    `${monthShort} ${day}, ${year}`, `${day} ${monthShort}, ${year}`,
+    // Numeric with separators
+    `${day}/${monthNum}/${year}`, `${monthNum}/${day}/${year}`, `${dayNoPad}/${monthNumNoPad}/${year}`, `${monthNumNoPad}/${dayNoPad}/${year}`,
+    `${year}-${monthNum}-${day}`, `${day}-${monthNum}-${year}`, `${monthNum}-${day}-${year}`,
+    `${year}/${monthNum}/${day}`, `${day}-${monthNum}-${year}`, `${monthNum}-${day}-${year}`,
+    `${day}.${monthNum}.${year}`, `${monthNum}.${day}.${year}`,
+    // No separators
+    compactYMD, compactDMY,
+    // ISO substring
+    isoDate,
+    // Raw again (trimmed variants)
+    rawLower.replace(/,/g, ""), rawLower.replace(/[ ,]/g, ""),
+  ];
+
+  // Compare with sanitized version as well to tolerate punctuation differences
+  const candidatesSanitized = candidates.map((c) => String(c).toLowerCase().replace(/[^a-z0-9]/g, ""));
+
+  return (
+    candidates.some((c) => String(c).toLowerCase().includes(queryLower)) ||
+    candidatesSanitized.some((c) => c.includes(querySanitized))
+  );
 };
 
 const AllDocumentPage = () => {
@@ -242,8 +305,14 @@ const AllDocumentPage = () => {
         aValue = a.file || "";
         bValue = b.file || "";
       } else if (sortConfig.key === "category") {
-        aValue = a.parsed_data?.document_type || "";
-        bValue = b.parsed_data?.document_type || "";
+        aValue =
+          a.parsed_data?.document_type ||
+          a.parsed_data?.parsed_data?.document_type ||
+          "";
+        bValue =
+          b.parsed_data?.document_type ||
+          b.parsed_data?.parsed_data?.document_type ||
+          "";
       }
 
       if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
@@ -256,19 +325,42 @@ const AllDocumentPage = () => {
     (doc) =>
       ((doc.client || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
         (doc.file || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (doc.parsed_data?.suggested_title || "")
+        (doc.parsed_data?.suggested_title || doc.parsed_data?.parsed_data?.suggested_title || "")
           .toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
         (doc.category?.name || "")
           .toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
+        (doc.parsed_data?.summary || doc.parsed_data?.parsed_data?.summary || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (doc.parsed_data?.document_type || doc.parsed_data?.parsed_data?.document_type || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (doc.parsed_data?.masked_text || doc.parsed_data?.parsed_data?.masked_text || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (doc.parsed_data?.job_status || doc.parsed_data?.parsed_data?.job_status || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (doc.parsed_data?.analysis_provider || doc.parsed_data?.parsed_data?.analysis_provider || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
         doesDateMatch(doc.uploaded_at, searchQuery) ||
-        doesDateMatch(doc.parsed_data?.document_date, searchQuery) ||
+        doesDateMatch(
+          doc.parsed_data?.document_date ||
+            doc.parsed_data?.parsed_data?.document_date,
+          searchQuery
+        ) ||
         (doc.status || "").toLowerCase().includes(searchQuery.toLowerCase())) &&
       (!processDateFilter ||
         doesDateMatch(doc.uploaded_at, processDateFilter)) &&
       (!documentDateFilter ||
-        doesDateMatch(doc.parsed_data?.document_date, documentDateFilter)) &&
+        doesDateMatch(
+          doc.parsed_data?.document_date ||
+            doc.parsed_data?.parsed_data?.document_date,
+          documentDateFilter
+        )) &&
       (!statusFilter ||
         (statusFilter === "verified" &&
           (doc.status || "").toLowerCase() === "verified") ||
@@ -471,7 +563,7 @@ const AllDocumentPage = () => {
             <div className="relative flex-1">
               <input
                 type="text"
-                placeholder="Search by client, document, category, date, or status"
+                placeholder="Search by client, document, category, summary, content, date, or status"
                 className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-blue-500"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}

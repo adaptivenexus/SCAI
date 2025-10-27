@@ -7,7 +7,13 @@ import { IoIosCloseCircle } from "react-icons/io";
 import { toast } from "react-toastify";
 import { authFetch } from "@/utils/auth";
 
-const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData, action, onDocumentUpdate }) => {
+const ManageDocument = ({
+  setIsManageDocumentOpen,
+  document,
+  parsedData,
+  action,
+  onDocumentUpdate,
+}) => {
   const { clients } = useContext(GlobalContext);
   const { refreshTokenFn } = useAuth();
   const [categories, setCategories] = useState([]);
@@ -51,7 +57,9 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData, action,
 
     try {
       const accessToken =
-        typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+        typeof window !== "undefined"
+          ? localStorage.getItem("accessToken")
+          : null;
 
       const response = await authFetch(
         `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/${document.id}/`,
@@ -76,7 +84,11 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData, action,
 
       // Handle cases where the response body might be empty (e.g., 204 No Content)
       if (response.status === 204) {
-        toast.success(action === "verify" ? "Document verified successfully!" : "Document updated successfully!");
+        toast.success(
+          action === "verify"
+            ? "Document verified successfully!"
+            : "Document updated successfully!"
+        );
         setIsManageDocumentOpen(false);
         onDocumentUpdate(); // Trigger refresh
         setLoading(false);
@@ -89,11 +101,17 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData, action,
       } else {
         const text = await response.text();
         console.log("Non-JSON Response Body:", text);
-        throw new Error(`Expected JSON response, but got: ${text.slice(0, 100)}...`);
+        throw new Error(
+          `Expected JSON response, but got: ${text.slice(0, 100)}...`
+        );
       }
 
       if (response.ok) {
-        toast.success(action === "verify" ? "Document verified successfully!" : "Document updated successfully!");
+        toast.success(
+          action === "verify"
+            ? "Document verified successfully!"
+            : "Document updated successfully!"
+        );
         setIsManageDocumentOpen(false);
         onDocumentUpdate(); // Trigger refresh
       } else {
@@ -101,7 +119,9 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData, action,
       }
     } catch (error) {
       console.error("Error in handleSubmit:", error);
-      setError(error.message || "An unexpected error occurred. Please try again.");
+      setError(
+        error.message || "An unexpected error occurred. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -125,7 +145,9 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData, action,
   const fetchCategory = async () => {
     try {
       const accessToken =
-        typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+        typeof window !== "undefined"
+          ? localStorage.getItem("accessToken")
+          : null;
 
       const response = await authFetch(
         `${process.env.NEXT_PUBLIC_SWAGGER_URL}/document/categories/`,
@@ -190,14 +212,16 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData, action,
 
   return (
     <div
-      className="flex fixed top-0 inset-0 bg-black bg-opacity-50 !m-0 items-center justify-center z-10"
+      className="flex fixed top-0 inset-0 bg-black bg-opacity-50 !m-0 items-center justify-center z-30"
       onClick={() => setIsManageDocumentOpen(false)}
     >
       <div
         className="bg-white rounded-lg space-y-4 p-10 max-w-[1300px] w-full relative"
         onClick={(e) => e.stopPropagation()}
       >
-        <h5 className="heading-5 font-bold">{action === "verify" ? "Verify Document" : "Edit Document"}</h5>
+        <h5 className="heading-5 font-bold">
+          {action === "verify" ? "Verify Document" : "Edit Document"}
+        </h5>
         {error && (
           <div className="bg-red-100 text-red-800 p-3 rounded-lg flex items-center gap-2">
             <svg
@@ -401,7 +425,13 @@ const ManageDocument = ({ setIsManageDocumentOpen, document, parsedData, action,
               className="primary-btn px-6 text-lg disabled:opacity-50"
               disabled={loading}
             >
-              {loading ? (action === "verify" ? "Verifying..." : "Saving...") : (action === "verify" ? "Verify" : "Save")}
+              {loading
+                ? action === "verify"
+                  ? "Verifying..."
+                  : "Saving..."
+                : action === "verify"
+                ? "Verify"
+                : "Save"}
             </button>
             <button
               type="button"
