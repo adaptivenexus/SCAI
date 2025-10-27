@@ -2,7 +2,6 @@
 
 import { GlobalContext } from "@/context/GlobalProvider";
 import { extractFilenameFromUrl, formatDate } from "@/utils";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState, useMemo } from "react";
@@ -12,6 +11,8 @@ import {
   FaUserFriends,
   FaCheckCircle,
   FaExclamationTriangle,
+  FaEye,
+  FaDownload,
 } from "react-icons/fa";
 import { GrDocumentPerformance } from "react-icons/gr";
 import { MdHistory, MdTrendingUp } from "react-icons/md";
@@ -191,18 +192,6 @@ const DashboardPage = () => {
     });
   }, [data, viewMode]);
 
-  const pieData = useMemo(() => {
-    if (!Array.isArray(documents) || documents.length === 0) {
-      return [];
-    }
-    const counts = documents.reduce((acc, doc) => {
-      const cat = doc?.category?.name || "Uncategorized";
-      acc[cat] = (acc[cat] || 0) + 1;
-      return acc;
-    }, {});
-    return Object.entries(counts).map(([name, value]) => ({ name, value }));
-  }, [documents]);
-
   // Calculate top clients data from global context
   const topClientsData = useMemo(() => {
     if (
@@ -224,15 +213,11 @@ const DashboardPage = () => {
           doc.client?.includes(client.email)
       ).length;
 
-      // Calculate trend (mock calculation for now - could be enhanced with historical data)
-      const trendPercentage = Math.floor(Math.random() * 20) + 1; // 1-20%
-
       return {
         id: client.id,
         name: client.business_name,
         email: client.email,
         documents: documentCount,
-        trend: `+${trendPercentage}%`,
         status: client.status,
       };
     });
@@ -247,15 +232,6 @@ const DashboardPage = () => {
         rank: index + 1,
       }));
   }, [clients, documents]);
-
-  const pieColors = [
-    "#4FBA84",
-    "#796AFF",
-    "#F17373",
-    "#F1B91E",
-    "#005cdc",
-    "#4F46E5",
-  ];
 
   // Ensure localStorage is accessed only on the client side
   useEffect(() => {
@@ -323,7 +299,6 @@ const DashboardPage = () => {
       value: lastLogin ? formatDate(lastLogin) : "No recent login",
       color: "#F1B91E",
       icon: MdHistory,
-      trend: "2h ago",
       trendUp: false,
     },
   ];
@@ -675,9 +650,6 @@ const DashboardPage = () => {
                           <div className="text-sm font-bold text-gray-900">
                             {client.documents}
                           </div>
-                          <div className="text-xs text-green-600 font-medium">
-                            {client.trend}
-                          </div>
                         </div>
                       </div>
                     ))
@@ -696,7 +668,12 @@ const DashboardPage = () => {
 
                 {/* View All Button */}
                 <div className="pt-4 border-t border-gray-200">
-                  <button className="w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium py-2 hover:bg-blue-50 rounded-lg transition-colors duration-200">
+                  <button
+                    onClick={() =>
+                      router.push("/dashboard/client-management/client-list")
+                    }
+                    className="w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium py-2 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                  >
                     View All Clients →
                   </button>
                 </div>
@@ -837,41 +814,16 @@ const DashboardPage = () => {
                     </td>
                     <td className="px-8 py-5">
                       <div className="flex items-center gap-2">
-                        <button className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-200 hover:scale-110">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                            />
-                          </svg>
-                        </button>
-                        <button className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors duration-200 hover:scale-110">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                            />
-                          </svg>
+                        <button
+                          onClick={() =>
+                            router.push(
+                              `/dashboard/document-management/view-document/${doc.id}`
+                            )
+                          }
+                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-200 hover:scale-110"
+                          title="View Document"
+                        >
+                          <FaEye className="w-4 h-4" />
                         </button>
                       </div>
                     </td>
@@ -911,7 +863,7 @@ const DashboardPage = () => {
               </div>
             </div>
             <Link
-              href={"/dashboard/client-management"}
+              href={"/dashboard/client-management/client-list"}
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-105 hover:shadow-lg flex items-center gap-2"
             >
               <span>View All</span>
