@@ -166,7 +166,7 @@ const DocumentRow = ({
         onRowClick && onRowClick(doc);
       }}
     >
-      <td className="px-6 py-5">
+      <td className="px-8 py-4">
         <input
           type="checkbox"
           className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 transition-colors"
@@ -175,7 +175,7 @@ const DocumentRow = ({
           disabled={isDisabled}
         />
       </td>
-      <td className="px-6 py-5">
+      <td className="px-8 py-4">
         <div className="flex items-center gap-3 min-w-0">
           {/* Keep avatar at a fixed size and prevent shrinking */}
           <div className="w-8 h-8 flex-shrink-0 ring-2 ring-gray-200 group-hover:ring-blue-300 transition-all rounded-full overflow-hidden">
@@ -193,7 +193,7 @@ const DocumentRow = ({
           </div>
         </div>
       </td>
-      <td className="px-6 py-5">
+      <td className="px-6 py-4">
         <div className="flex items-center gap-3">
           <div className="flex-shrink-0">
             {type === "pdf" ? (
@@ -244,28 +244,28 @@ const DocumentRow = ({
           />
         )}
       </td>
-      <td className="px-6 py-5">
+      <td className="px-6 py-4">
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 group-hover:bg-gray-200 transition-colors">
           {doc.category?.name ||
             parsedData?.parsed_data?.document_type ||
             "Uncategorized"}
         </span>
       </td>
-      <td className="px-6 py-5">
+      <td className="px-6 py-4">
         <div className="flex flex-col">
           <span className="text-sm font-medium text-gray-900">
             {formatDate(doc.uploaded_at)}
           </span>
         </div>
       </td>
-      <td className="px-6 py-5">
+      <td className="px-6 py-4">
         <div className="flex flex-col">
           <span className="text-sm font-medium text-gray-900">
             {formatDate(parsedData?.parsed_data?.document_date)}
           </span>
         </div>
       </td>
-      <td className="px-6 py-5">
+      <td className="px-6 py-4">
         {!parsedData?.parsed_data?.suggested_title ? (
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border border-blue-200">
             <BiLoaderAlt className="animate-spin h-3 w-3" />
@@ -290,7 +290,7 @@ const DocumentRow = ({
           </button>
         )}
       </td>
-      <td className="px-8 py-5 relative">
+      <td className="px-8 py-4 relative">
         <div>
           <button
             type="button"
