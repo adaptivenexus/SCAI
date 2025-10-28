@@ -133,8 +133,10 @@ const AllDocumentPage = () => {
   const [editDocument, setEditDocument] = useState(null);
   const [editAction, setEditAction] = useState(null); // 'edit' or 'verify'
   const searchParams = useSearchParams();
+  const hasOpenedFromQuery = useRef(false);
   // Open verify modal if navigated from notification
   useEffect(() => {
+    if (hasOpenedFromQuery.current) return;
     const verify = searchParams.get('verify');
     const id = searchParams.get('id');
     if (verify === '1' && id && documents && documents.length > 0) {
@@ -143,6 +145,7 @@ const AllDocumentPage = () => {
         setEditDocument(docToEdit);
         setEditAction('edit');
         setIsManageDocumentOpen(true);
+        hasOpenedFromQuery.current = true;
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -333,8 +336,7 @@ const AllDocumentPage = () => {
           .includes(searchQuery.toLowerCase()) ||
         (doc.parsed_data?.summary || doc.parsed_data?.parsed_data?.summary || "")
           .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        (doc.parsed_data?.document_type || doc.parsed_data?.parsed_data?.document_type || "")
+          .includes(searchQuery.toLowerCase()) ||s        (doc.parsed_data?.document_type || doc.parsed_data?.parsed_data?.document_type || "")
           .toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
         (doc.parsed_data?.masked_text || doc.parsed_data?.parsed_data?.masked_text || "")

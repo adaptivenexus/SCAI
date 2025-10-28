@@ -380,14 +380,14 @@ const AddOrManageClient = ({
             </div>
             <div className="flex flex-col flex-1 gap-1">
               <label htmlFor="tin">
-                Tax Identifier Number/Employer Id Number <span className="text-red-500">*</span>
+                TIN/EIN <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 name="tin"
                 id="tin"
                 className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
-                placeholder="Enter Tax Identifier Number/Employer Id Number"
+                placeholder="Enter TIN/EIN"
                 value={client.tin}
                 onChange={handleChange}
               />
