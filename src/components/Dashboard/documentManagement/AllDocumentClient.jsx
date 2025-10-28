@@ -674,6 +674,10 @@ const AllDocumentPage = () => {
                   <th
                     className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
                     onClick={() => handleSort("client")}
+                  ></th>
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
+                    onClick={() => handleSort("client")}
                   >
                     Associated To
                     {sortConfig.key === "client" && (
