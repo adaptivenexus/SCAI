@@ -34,7 +34,7 @@ import {
 const DashboardPage = () => {
   const { clients, documents, setIsAddClientOpen } = useContext(GlobalContext);
   const [lastLogin, setLastLogin] = useState();
-  const [chartType, setChartType] = useState("line");
+  const [chartType, setChartType] = useState("area");
   const router = useRouter();
 
   const [jantojune, setJantojune] = useState([
@@ -315,8 +315,16 @@ const DashboardPage = () => {
           <AreaChart {...commonProps}>
             <defs>
               <linearGradient id="colorDocuments" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="var(--primary)" stopOpacity={0.1} />
+                <stop
+                  offset="5%"
+                  stopColor="var(--primary)"
+                  stopOpacity={0.8}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--primary)"
+                  stopOpacity={0.1}
+                />
               </linearGradient>
             </defs>
             <CartesianGrid stroke="var(--accent-primary)" strokeWidth={1} />
@@ -340,7 +348,11 @@ const DashboardPage = () => {
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="documents" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+            <Bar
+              dataKey="documents"
+              fill="var(--primary)"
+              radius={[4, 4, 0, 0]}
+            />
           </BarChart>
         );
       default:

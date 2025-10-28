@@ -16,6 +16,7 @@ import {
   FaFileWord,
   FaFileExcel,
 } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 
 const DocumentRow = ({
   doc,
@@ -38,6 +39,7 @@ const DocumentRow = ({
   const { refreshTokenFn } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
   // Modal state is now managed by parent
+  const router = useRouter();
 
   const getFileType = (filename) => {
     if (!filename) return "unknown";
@@ -281,9 +283,9 @@ const DocumentRow = ({
             type="button"
             className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full bg-gradient-to-r from-orange-100 to-amber-200 text-orange-800 border border-orange-200 hover:from-orange-200 hover:to-amber-300 transition-all duration-200 hover:shadow-sm"
             onClick={() => {
-              setEditAction("verify");
-              setEditDocument(doc);
-              setIsManageDocumentOpen(true);
+              router.push(
+                `/dashboard/document-management/view-document/${doc.id}`
+              );
             }}
           >
             Verify Now

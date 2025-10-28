@@ -558,12 +558,12 @@ const AllDocumentPage = () => {
         <div className="mb-8">
           {/* Client Filter Cards */}
           <div className="bg-background rounded-2xl border border-accent-primary shadow-sm p-6">
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-nowrap gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-accent-primary scrollbar-track-accent-secondary p-5">
               {clients && clients.length > 0 ? (
                 clients.map((client) => (
                   <button
                     key={client.id}
-                    className={`group relative flex items-center gap-3 px-4 py-3 rounded-xl border transition-all duration-200 hover:scale-105 hover:shadow-md ${
+                    className={`group relative flex items-center gap-3 px-4 py-3 rounded-xl border transition-all duration-200 hover:scale-105 hover:shadow-md flex-shrink-0 ${
                       selectedClientId === client.id
                         ? "text-background border-transparent shadow-lg"
                         : "bg-accent-primary hover:bg-accent-secondary text-foreground border-accent-primary hover:border-secondary"

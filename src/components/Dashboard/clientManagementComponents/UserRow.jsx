@@ -34,37 +34,43 @@ const UserRow = ({ client, setEditClient, setIsEditClientOpen }) => {
   }).length;
 
   return (
-    <tr className="hover:bg-black/10 cursor-pointer">
+    <tr className="hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100">
       <td className="px-6 py-4">
-        <input type="checkbox" className="rounded" />
+        <input
+          type="checkbox"
+          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        />
       </td>
       <td className="px-6 py-4">
         <div className="flex items-center gap-3">
-          <Image
-            src={client.image_url || "/placeholder.jpg"}
-            alt={"Profile"}
-            width={30}
-            height={30}
-            className="rounded-full"
-          />
-          <span className="text-sm font-medium text-gray-900">
+          <div className="relative">
+            <Image
+              src={client.image_url || "/placeholder.jpg"}
+              alt={"Profile"}
+              width={40}
+              height={40}
+              className="rounded-full border-2 border-gray-200 shadow-sm"
+            />
+          </div>
+          <span className="text-sm font-semibold text-gray-900">
             {client.business_name}
           </span>
         </div>
       </td>
-      <td className="px-6 py-4 text-sm text-foreground">{client.email}</td>
-      <td className="px-6 py-4 text-sm text-foreground">
+      <td className="px-6 py-4 text-sm text-gray-700">{client.email}</td>
+      <td className="px-6 py-4 text-sm text-gray-700">
         {client.mobile_number}
       </td>
-      <td className="px-6 py-4 text-sm text-foreground">{documentCount}</td>
-      <td className="px-6 py-4 text-sm text-foreground">
+      <td className="px-6 py-4 text-sm text-gray-700 font-medium">
+        {documentCount}
+      </td>
+      <td className="px-6 py-4 text-sm text-gray-700">
         {formatDate(client.created_at)}
       </td>
       <td className="px-6 py-4">
         {client.status === "Verified" ? (
-          <span
-            className={`px-2 py-1 text-xs rounded-full bg-green-100 text-green-800`}
-          >
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            <div className="w-1.5 h-1.5 bg-green-400 rounded-full mr-1.5"></div>
             Verified
           </span>
         ) : (
@@ -74,8 +80,9 @@ const UserRow = ({ client, setEditClient, setIsEditClientOpen }) => {
               setIsEditClientOpen(true);
               setEditClient(client);
             }}
-            className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800"
+            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 hover:bg-yellow-200 transition-colors duration-200"
           >
+            <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mr-1.5 animate-pulse"></div>
             Verify Now
           </button>
         )}
@@ -84,25 +91,26 @@ const UserRow = ({ client, setEditClient, setIsEditClientOpen }) => {
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="text-gray-400 hover:text-gray-600"
+          className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
         >
-          <FiMoreVertical />
+          <FiMoreVertical className="w-4 h-4" />
         </button>
         {isOpen && (
           <div
             ref={dropdownRef}
-            className="fixed bg-white rounded-lg shadow-lg overflow-hidden"
+            className="absolute right-5 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50 min-w-[140px]"
+            style={{ zIndex: 9999 }}
           >
             <button
               type="button"
-              className="block subtitle-text px-3 py-1 text-foreground hover:opacity-80 hover:bg-black/10 w-full text-start"
+              className="block w-full text-sm px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200 text-left"
               onClick={() => {
                 setEditClient(client);
                 setIsEditClientOpen(true);
                 setIsOpen(false);
               }}
             >
-              Edit
+              Edit Client
             </button>
           </div>
         )}

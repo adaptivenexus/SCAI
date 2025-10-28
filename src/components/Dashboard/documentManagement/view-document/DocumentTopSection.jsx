@@ -1,7 +1,14 @@
-import React from 'react';
-import Link from 'next/link';
+import React from "react";
+import Link from "next/link";
 
-const DocumentTopSection = ({ clientName, documentName, category, documentDate, processDate, documentId }) => {
+const DocumentTopSection = ({
+  clientName,
+  documentName,
+  category,
+  documentDate,
+  processDate,
+  documentId,
+}) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-md mb-6 flex items-start justify-between gap-12">
       <div>
@@ -25,11 +32,15 @@ const DocumentTopSection = ({ clientName, documentName, category, documentDate, 
         </div>
       </div>
       <div className="flex flex-col gap-4 min-w-max ml-16">
-        <Link className="primary-btn"
+        <Link
+          className="primary-btn"
           href="/dashboard/document-management/all-documents"
         >
           Back to All Documents
         </Link>
+        <button type="button" className="primary-btn" onClick={() => {}}>
+          Verify Document
+        </button>
         {/* <Link className="primary-btn"
           href={`/dashboard/document-management/edit-document/${documentId}`}
         >

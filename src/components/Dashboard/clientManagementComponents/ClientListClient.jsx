@@ -5,7 +5,7 @@ import AddOrManageClient from "@/components/Dashboard/common/AddOrManageClient";
 import { GlobalContext } from "@/context/GlobalProvider";
 import { useState, useMemo, useContext, useRef, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { FiSearch, FiDownload } from "react-icons/fi";
+import { FiSearch, FiDownload, FiChevronUp, FiChevronDown, FiChevronsLeft, FiChevronLeft, FiChevronRight, FiChevronsRight } from "react-icons/fi";
 
 // Helper function to check if a date matches the search query or filter in various formats
 const doesDateMatch = (dateString, query) => {
@@ -243,239 +243,266 @@ const ClientListPage = () => {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-800">Client List</h1>
-        <button
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg"
-          onClick={() => setIsAddClientOpen(true)}
-        >
-          Add Client
-        </button>
-      </div>
+    <div className="p-6 flex-1 min-w-0">
+      <div className="flex flex-col h-full">
+        {/* Header Section */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="heading-4 text-foreground">Client Management</h1>
+            <button
+              className="primary-btn flex items-center gap-2"
+              onClick={() => setIsAddClientOpen(true)}
+            >
+              Add Client
+            </button>
+          </div>
 
-      <div className="flex justify-between items-center mb-6 gap-4">
-        {/* Search Bar */}
-        <div className="relative flex-1">
-          <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search by client name, email, phone, documents, creation date, or status"
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-blue-500"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-
-        {/* Export Button */}
-        <button className="px-4 py-2 rounded-lg border border-gray-200 flex items-center gap-2">
-          <FiDownload />
-          Export
-        </button>
-      </div>
-
-      {/* Client Table */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-auto">
-        <div className="min-w-[1200px]">
-          <table className="w-full">
-            <thead className="bg-accent-primary">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                  <input type="checkbox" className="rounded" />
-                </th>
-                <th
-                  className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
-                  onClick={() => handleSort("business_name")}
-                >
-                  Client Name
-                  {sortConfig.key === "business_name" && (
-                    <span className="ml-1">
-                      {sortConfig.direction === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </th>
-                <th
-                  className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
-                  onClick={() => handleSort("email")}
-                >
-                  Email
-                  {sortConfig.key === "email" && (
-                    <span className="ml-1">
-                      {sortConfig.direction === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </th>
-                <th
-                  className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
-                  onClick={() => handleSort("phone")}
-                >
-                  Phone
-                  {sortConfig.key === "phone" && (
-                    <span className="ml-1">
-                      {sortConfig.direction === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </th>
-                <th
-                  className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
-                  onClick={() => handleSort("DOCUMENTS")}
-                >
-                  Documents
-                  {sortConfig.key === "DOCUMENTS" && (
-                    <span className="ml-1">
-                      {sortConfig.direction === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                  <div className="relative" ref={creationDateRef}>
-                    <div
-                      className="flex items-center gap-2 cursor-pointer"
-                      onClick={() =>
-                        setShowCreationDatePicker(!showCreationDatePicker)
-                      }
-                    >
-                      <span>Creation Date</span>
-                      <svg
-                        className={`w-4 h-4 transition-transform ${
-                          showCreationDatePicker ? "rotate-180" : ""
-                        }`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </div>
-                    {showCreationDatePicker && (
-                      <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
-                        <input
-                          type="date"
-                          className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
-                          value={creationDateFilter}
-                          onChange={(e) =>
-                            setCreationDateFilter(e.target.value)
-                          }
-                        />
-                        {creationDateFilter && (
-                          <button
-                            onClick={() => setCreationDateFilter("")}
-                            className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
-                          >
-                            Clear
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                  <div className="relative" ref={statusRef}>
-                    <div
-                      className="flex items-center gap-2 cursor-pointer"
-                      onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-                    >
-                      <span>Status</span>
-                      <svg
-                        className={`w-4 h-4 transition-transform ${
-                          showStatusDropdown ? "rotate-180" : ""
-                        }`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </div>
-                    {showStatusDropdown && (
-                      <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
-                        <select
-                          className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
-                          value={filterStatus}
-                          onChange={(e) => {
-                            setFilterStatus(e.target.value);
-                            setShowStatusDropdown(false);
-                          }}
-                        >
-                          <option value="">All</option>
-                          <option value="verified">Verified</option>
-                          <option value="verify_now">Verify Now</option>
-                        </select>
-                        {filterStatus && (
-                          <button
-                            onClick={() => {
-                              setFilterStatus("");
-                              setShowStatusDropdown(false);
-                            }}
-                            className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
-                          >
-                            Clear
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {currentItems.map((client) => (
-                <UserRow
-                  key={client.id}
-                  client={client}
-                  setEditClient={setEditClient}
-                  setIsEditClientOpen={setIsEditClientOpen}
+          {/* Search and Filter Section */}
+          <div className="bg-background rounded-2xl border border-accent-primary shadow-sm p-6">
+            <div className="flex justify-between items-center gap-4">
+              {/* Search Bar */}
+              <div className="relative flex-1">
+                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search by client name, email, phone, documents, creation date, or status"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-accent-primary bg-background text-foreground placeholder-secondary-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
-              ))}
-            </tbody>
-          </table>
+              </div>
+
+              {/* Export Button */}
+              <button className="secondary-btn flex items-center gap-2">
+                <FiDownload className="w-4 h-4" />
+                Export
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+
+        {/* Client Table */}
+        <div className="bg-white shadow-lg rounded-2xl overflow-hidden border border-gray-100">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-gray-100">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <FiSearch className="text-blue-600 text-lg" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800">
+                  Client Management
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Manage and organize your clients
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="overflow-x-auto overflow-y-visible">
+            <div className="min-w-[1200px] relative">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-200">
+                    <th className="text-left px-8 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                      <input 
+                        type="checkbox" 
+                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2" 
+                      />
+                    </th>
+                    <th
+                      className="text-left px-8 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => handleSort("business_name")}
+                    >
+                      Client Name
+                      {sortConfig.key === "business_name" && (
+                        <span className="ml-1">
+                          {sortConfig.direction === "asc" ? <FiChevronUp className="w-4 h-4 inline" /> : <FiChevronDown className="w-4 h-4 inline" />}
+                        </span>
+                      )}
+                    </th>
+                    <th
+                      className="text-left px-6 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => handleSort("email")}
+                    >
+                      Email
+                      {sortConfig.key === "email" && (
+                        <span className="ml-1">
+                          {sortConfig.direction === "asc" ? <FiChevronUp className="w-4 h-4 inline" /> : <FiChevronDown className="w-4 h-4 inline" />}
+                        </span>
+                      )}
+                    </th>
+                    <th
+                      className="text-left px-6 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => handleSort("phone")}
+                    >
+                      Phone
+                      {sortConfig.key === "phone" && (
+                        <span className="ml-1">
+                          {sortConfig.direction === "asc" ? <FiChevronUp className="w-4 h-4 inline" /> : <FiChevronDown className="w-4 h-4 inline" />}
+                        </span>
+                      )}
+                    </th>
+                    <th
+                      className="text-left px-6 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => handleSort("DOCUMENTS")}
+                    >
+                      Documents
+                      {sortConfig.key === "DOCUMENTS" && (
+                        <span className="ml-1">
+                          {sortConfig.direction === "asc" ? <FiChevronUp className="w-4 h-4 inline" /> : <FiChevronDown className="w-4 h-4 inline" />}
+                        </span>
+                      )}
+                    </th>
+                    <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                      <div className="relative" ref={creationDateRef}>
+                        <div
+                          className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 transition-colors rounded px-2 py-1"
+                          onClick={() =>
+                            setShowCreationDatePicker(!showCreationDatePicker)
+                          }
+                        >
+                          <span>Creation Date</span>
+                          <svg
+                            className={`w-4 h-4 transition-transform ${
+                              showCreationDatePicker ? "rotate-180" : ""
+                            }`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        </div>
+                        {showCreationDatePicker && (
+                          <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
+                            <input
+                              type="date"
+                              className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
+                              value={creationDateFilter}
+                              onChange={(e) =>
+                                setCreationDateFilter(e.target.value)
+                              }
+                            />
+                            {creationDateFilter && (
+                              <button
+                                onClick={() => setCreationDateFilter("")}
+                                className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
+                              >
+                                Clear
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </th>
+                    <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                      <div className="relative" ref={statusRef}>
+                        <div
+                          className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 transition-colors rounded px-2 py-1"
+                          onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+                        >
+                          <span>Status</span>
+                          <svg
+                            className={`w-4 h-4 transition-transform ${
+                              showStatusDropdown ? "rotate-180" : ""
+                            }`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        </div>
+                        {showStatusDropdown && (
+                          <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
+                            <select
+                              className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
+                              value={filterStatus}
+                              onChange={(e) => {
+                                setFilterStatus(e.target.value);
+                                setShowStatusDropdown(false);
+                              }}
+                            >
+                              <option value="">All</option>
+                              <option value="verified">Verified</option>
+                              <option value="verify_now">Verify Now</option>
+                            </select>
+                            {filterStatus && (
+                              <button
+                                onClick={() => {
+                                  setFilterStatus("");
+                                  setShowStatusDropdown(false);
+                                }}
+                                className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
+                              >
+                                Clear
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </th>
+                    <th className="text-left px-8 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-100">
+                  {currentItems.map((client) => (
+                    <UserRow
+                      key={client.id}
+                      client={client}
+                      setEditClient={setEditClient}
+                      setIsEditClientOpen={setIsEditClientOpen}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       {/* Pagination - moved outside scrollable container */}
-      <div className="flex justify-between items-center p-4 border-t border-gray-200 bg-white rounded-b-lg">
-        <div className="flex gap-2">
+      <div className="flex justify-between items-center px-6 py-4 border-t border-gray-200 bg-white rounded-b-xl">
+        <div className="flex gap-1">
           <button
             onClick={() => setCurrentPage(1)}
             disabled={currentPage === 1}
-            className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
+            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            &lt;&lt;
+            <FiChevronsLeft className="w-4 h-4" />
           </button>
           <button
             onClick={() => setCurrentPage(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
+            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            &lt;
+            <FiChevronLeft className="w-4 h-4" />
           </button>
           {getVisiblePageNumbers().map((pageNum, index) =>
             typeof pageNum === "number" ? (
               <button
                 key={index}
                 onClick={() => setCurrentPage(pageNum)}
-                className={`px-3 py-1 rounded border ${
+                className={`px-3 py-2 text-sm font-medium border rounded-md transition-colors ${
                   currentPage === pageNum
-                    ? "bg-blue-500 text-white"
-                    : "border-gray-200 hover:bg-gray-50"
+                    ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                    : "text-gray-700 bg-white border-gray-300 hover:bg-gray-50"
                 }`}
               >
                 {pageNum}
               </button>
             ) : (
-              <span key={index} className="px-3 py-1">
+              <span key={index} className="px-3 py-2 text-sm text-gray-500">
                 ...
               </span>
             )
@@ -483,19 +510,19 @@ const ClientListPage = () => {
           <button
             onClick={() => setCurrentPage(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
+            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            &gt;
+            <FiChevronRight className="w-4 h-4" />
           </button>
           <button
             onClick={() => setCurrentPage(totalPages)}
             disabled={currentPage === totalPages}
-            className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
+            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            &gt;&gt;
+            <FiChevronsRight className="w-4 h-4" />
           </button>
         </div>
-        <div className="text-sm text-foreground">
+        <div className="text-sm text-gray-700">
           Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
           {Math.min(currentPage * itemsPerPage, filteredClients.length)} of{" "}
           {filteredClients.length} entries
@@ -509,6 +536,7 @@ const ClientListPage = () => {
           setEditClient={setEditClient}
         />
       )}
+      </div>
     </div>
   );
 };
