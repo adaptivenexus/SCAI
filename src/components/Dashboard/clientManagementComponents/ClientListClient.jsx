@@ -5,7 +5,16 @@ import AddOrManageClient from "@/components/Dashboard/common/AddOrManageClient";
 import { GlobalContext } from "@/context/GlobalProvider";
 import { useState, useMemo, useContext, useRef, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { FiSearch, FiDownload, FiChevronUp, FiChevronDown, FiChevronsLeft, FiChevronLeft, FiChevronRight, FiChevronsRight } from "react-icons/fi";
+import {
+  FiSearch,
+  FiDownload,
+  FiChevronUp,
+  FiChevronDown,
+  FiChevronsLeft,
+  FiChevronLeft,
+  FiChevronRight,
+  FiChevronsRight,
+} from "react-icons/fi";
 
 // Helper function to check if a date matches the search query or filter in various formats
 const doesDateMatch = (dateString, query) => {
@@ -68,10 +77,10 @@ const ClientListPage = () => {
 
   // Open verify modal if navigated from notification
   useEffect(() => {
-    const verify = searchParams.get('verify');
-    const id = searchParams.get('id');
-    if (verify === '1' && id && clients && clients.length > 0) {
-      const clientToEdit = clients.find(c => String(c.id) === String(id));
+    const verify = searchParams.get("verify");
+    const id = searchParams.get("id");
+    if (verify === "1" && id && clients && clients.length > 0) {
+      const clientToEdit = clients.find((c) => String(c.id) === String(id));
       if (clientToEdit) {
         setEditClient(clientToEdit);
         setIsEditClientOpen(true);
@@ -266,7 +275,7 @@ const ClientListPage = () => {
                 <input
                   type="text"
                   placeholder="Search by client name, email, phone, documents, creation date, or status"
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-accent-primary bg-background text-foreground placeholder-secondary-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                  className="w-full max-w-[650px] pl-10 pr-4 py-3 rounded-xl border border-accent-primary bg-background text-foreground placeholder-secondary-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -304,9 +313,9 @@ const ClientListPage = () => {
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-200">
                     <th className="text-left px-8 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                      <input 
-                        type="checkbox" 
-                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2" 
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
                       />
                     </th>
                     <th
@@ -316,7 +325,11 @@ const ClientListPage = () => {
                       Client Name
                       {sortConfig.key === "business_name" && (
                         <span className="ml-1">
-                          {sortConfig.direction === "asc" ? <FiChevronUp className="w-4 h-4 inline" /> : <FiChevronDown className="w-4 h-4 inline" />}
+                          {sortConfig.direction === "asc" ? (
+                            <FiChevronUp className="w-4 h-4 inline" />
+                          ) : (
+                            <FiChevronDown className="w-4 h-4 inline" />
+                          )}
                         </span>
                       )}
                     </th>
@@ -327,7 +340,11 @@ const ClientListPage = () => {
                       Email
                       {sortConfig.key === "email" && (
                         <span className="ml-1">
-                          {sortConfig.direction === "asc" ? <FiChevronUp className="w-4 h-4 inline" /> : <FiChevronDown className="w-4 h-4 inline" />}
+                          {sortConfig.direction === "asc" ? (
+                            <FiChevronUp className="w-4 h-4 inline" />
+                          ) : (
+                            <FiChevronDown className="w-4 h-4 inline" />
+                          )}
                         </span>
                       )}
                     </th>
@@ -338,7 +355,11 @@ const ClientListPage = () => {
                       Phone
                       {sortConfig.key === "phone" && (
                         <span className="ml-1">
-                          {sortConfig.direction === "asc" ? <FiChevronUp className="w-4 h-4 inline" /> : <FiChevronDown className="w-4 h-4 inline" />}
+                          {sortConfig.direction === "asc" ? (
+                            <FiChevronUp className="w-4 h-4 inline" />
+                          ) : (
+                            <FiChevronDown className="w-4 h-4 inline" />
+                          )}
                         </span>
                       )}
                     </th>
@@ -349,7 +370,11 @@ const ClientListPage = () => {
                       Documents
                       {sortConfig.key === "DOCUMENTS" && (
                         <span className="ml-1">
-                          {sortConfig.direction === "asc" ? <FiChevronUp className="w-4 h-4 inline" /> : <FiChevronDown className="w-4 h-4 inline" />}
+                          {sortConfig.direction === "asc" ? (
+                            <FiChevronUp className="w-4 h-4 inline" />
+                          ) : (
+                            <FiChevronDown className="w-4 h-4 inline" />
+                          )}
                         </span>
                       )}
                     </th>
@@ -404,7 +429,9 @@ const ClientListPage = () => {
                       <div className="relative" ref={statusRef}>
                         <div
                           className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 transition-colors rounded px-2 py-1"
-                          onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+                          onClick={() =>
+                            setShowStatusDropdown(!showStatusDropdown)
+                          }
                         >
                           <span>Status</span>
                           <svg
@@ -471,71 +498,71 @@ const ClientListPage = () => {
             </div>
           </div>
         </div>
-      {/* Pagination - moved outside scrollable container */}
-      <div className="flex justify-between items-center px-6 py-4 border-t border-gray-200 bg-white rounded-b-xl">
-        <div className="flex gap-1">
-          <button
-            onClick={() => setCurrentPage(1)}
-            disabled={currentPage === 1}
-            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <FiChevronsLeft className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setCurrentPage(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <FiChevronLeft className="w-4 h-4" />
-          </button>
-          {getVisiblePageNumbers().map((pageNum, index) =>
-            typeof pageNum === "number" ? (
-              <button
-                key={index}
-                onClick={() => setCurrentPage(pageNum)}
-                className={`px-3 py-2 text-sm font-medium border rounded-md transition-colors ${
-                  currentPage === pageNum
-                    ? "bg-blue-600 text-white border-blue-600 shadow-sm"
-                    : "text-gray-700 bg-white border-gray-300 hover:bg-gray-50"
-                }`}
-              >
-                {pageNum}
-              </button>
-            ) : (
-              <span key={index} className="px-3 py-2 text-sm text-gray-500">
-                ...
-              </span>
-            )
-          )}
-          <button
-            onClick={() => setCurrentPage(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <FiChevronRight className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setCurrentPage(totalPages)}
-            disabled={currentPage === totalPages}
-            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <FiChevronsRight className="w-4 h-4" />
-          </button>
+        {/* Pagination - moved outside scrollable container */}
+        <div className="flex justify-between items-center px-6 py-4 border-t border-gray-200 bg-white rounded-b-xl">
+          <div className="flex gap-1">
+            <button
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <FiChevronsLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <FiChevronLeft className="w-4 h-4" />
+            </button>
+            {getVisiblePageNumbers().map((pageNum, index) =>
+              typeof pageNum === "number" ? (
+                <button
+                  key={index}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`px-3 py-2 text-sm font-medium border rounded-md transition-colors ${
+                    currentPage === pageNum
+                      ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                      : "text-gray-700 bg-white border-gray-300 hover:bg-gray-50"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              ) : (
+                <span key={index} className="px-3 py-2 text-sm text-gray-500">
+                  ...
+                </span>
+              )
+            )}
+            <button
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <FiChevronRight className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <FiChevronsRight className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="text-sm text-gray-700">
+            Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+            {Math.min(currentPage * itemsPerPage, filteredClients.length)} of{" "}
+            {filteredClients.length} entries
+          </div>
         </div>
-        <div className="text-sm text-gray-700">
-          Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-          {Math.min(currentPage * itemsPerPage, filteredClients.length)} of{" "}
-          {filteredClients.length} entries
-        </div>
-      </div>
-      {isEditClientOpen && (
-        <AddOrManageClient
-          oldClient={editClient}
-          isNew={false}
-          setIsAddClientOpen={setIsEditClientOpen}
-          setEditClient={setEditClient}
-        />
-      )}
+        {isEditClientOpen && (
+          <AddOrManageClient
+            oldClient={editClient}
+            isNew={false}
+            setIsAddClientOpen={setIsEditClientOpen}
+            setEditClient={setEditClient}
+          />
+        )}
       </div>
     </div>
   );

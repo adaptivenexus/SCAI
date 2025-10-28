@@ -327,18 +327,20 @@ const Sidebar = () => {
 
             <li>
               <Link
-                href={"/dashboard/settings"}
+                href={"/dashboard/settings/account-details"}
                 className={`group relative rounded-2xl text-[var(--background)] flex items-center font-medium transition-all duration-300 w-full
                   hover:bg-[var(--accent-secondary)]/20 hover:text-[var(--accent-primary)] hover:shadow-lg hover:scale-105
                   ${
-                    pathname.startsWith("/dashboard/settings") && isOpen
+                    pathname.startsWith(
+                      "/dashboard/settings/account-details"
+                    ) && isOpen
                       ? "bg-gradient-to-r from-[var(--accent-primary)]/20 to-transparent text-[var(--accent-primary)] shadow-lg border-l-4 border-[var(--accent-primary)]"
                       : ""
                   } ${isOpen ? "p-3 gap-4" : "p-3 justify-center"}`}
               >
                 <div
                   className={`p-2 rounded-xl transition-all duration-300 ${
-                    pathname.startsWith("/dashboard/settings")
+                    pathname.startsWith("/dashboard/settings/account-details")
                       ? "bg-[var(--accent-primary)] text-[var(--primary)] shadow-lg"
                       : "bg-[var(--accent-secondary)]/20 text-[var(--background)] group-hover:bg-[var(--accent-primary)] group-hover:text-[var(--primary)]"
                   } ${!isOpen ? "flex-shrink-0" : ""}`}

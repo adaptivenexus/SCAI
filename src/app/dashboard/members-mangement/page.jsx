@@ -220,25 +220,25 @@ const MembersManagementPage = () => {
       const buttonRect = event.currentTarget.getBoundingClientRect();
       const dropdownWidth = 192; // w-48 = 192px
       const dropdownHeight = 96; // Approximate height for 2 items
-      
+
       // Calculate initial position
       let top = buttonRect.bottom + 8;
       let left = buttonRect.right - dropdownWidth;
-      
+
       // Boundary checking
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
-      
+
       // Adjust if dropdown goes off right edge
       if (left < 8) {
         left = buttonRect.left; // Align left edges instead
       }
-      
+
       // Adjust if dropdown goes off bottom edge
       if (top + dropdownHeight > viewportHeight) {
         top = buttonRect.top - dropdownHeight - 8; // Show above button
       }
-      
+
       setDropdownPosition({ top, left });
       setActionsIndex(index);
     }
@@ -246,75 +246,65 @@ const MembersManagementPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-accent-primary/20 to-accent-secondary/30 p-6">
-      {/* Header Section */}
-      <div className="mb-8">
-        <div className="bg-gradient-to-r from-primary to-secondary rounded-2xl p-8 shadow-2xl">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-              <FiUsers className="w-6 h-6 text-white" />
+      {/* Main Container */}
+      <div className="bg-white/80 backdrop-blur-sm shadow-2xl rounded-3xl border border-white/20 overflow-hidden">
+        {/* Compact Header */}
+        <div className="bg-gradient-to-r from-primary to-secondary p-6">
+          <div className="flex items-center justify-between gap-6">
+            {/* Left Section - Title and Info */}
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                <FiUsers className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="heading-3 text-white">Members Management</h1>
+                <div className="flex items-center gap-4 text-white/90 mt-1">
+                  <div className="flex items-center gap-1">
+                    <FiUsers className="w-3 h-3" />
+                    <span className="label-text">
+                      {members.length} Total Members
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <FiShield className="w-3 h-3" />
+                    <span className="label-text">Role-based Access</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div>
-              <h1 className="heading-2 text-white">Members Management</h1>
-              <p className="body-text text-white/80 mt-1">
-                Manage your agency team members and their permissions
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-6 text-white/90">
-            <div className="flex items-center gap-2">
-              <FiUsers className="w-4 h-4" />
-              <span className="label-text">{members.length} Total Members</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <FiShield className="w-4 h-4" />
-              <span className="label-text">Role-based Access</span>
+
+            {/* Right Section - Actions and Stats */}
+            <div className="flex items-center gap-4">
+              {/* User Seats Info - Compact */}
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2 text-center">
+                <div className="text-white font-semibold text-sm">
+                  {members.length} of 20
+                </div>
+                <div className="text-white/80 text-xs">User Seats</div>
+              </div>
+
+              {/* Add Members Button */}
+              <button
+                className="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-4 py-2 rounded-xl transition-all duration-300 font-medium border border-white/30"
+                onClick={() => openModal()}
+              >
+                <FiUserPlus className="w-4 h-4" />
+                Add Members
+              </button>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Main Container */}
-      <div className="bg-white/80 backdrop-blur-sm shadow-2xl rounded-3xl border border-white/20 overflow-hidden">
-        {/* Container Header */}
-        <div className="bg-gradient-to-r from-accent-primary/50 to-accent-secondary/50 p-8 border-b border-white/20">
-          <div className="flex justify-between items-start gap-6">
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
-                  <FiUsers className="w-5 h-5 text-white" />
-                </div>
-                <h4 className="heading-4 text-foreground">Agency Members</h4>
-              </div>
-              <p className="subtitle-text text-secondary-foreground max-w-2xl">
-                Agency members can be given access to data in the project. Users
-                with the "Viewer" role do not consume seats.
-              </p>
-            </div>
-            <div className="flex flex-col items-end gap-4">
-              <button
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 font-medium"
-                onClick={() => openModal()}
-              >
-                <FiUserPlus className="w-5 h-5" />
-                Add Members
-              </button>
-              <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-white/40">
-                <div className="text-center space-y-1">
-                  <h2 className="heading-5 text-foreground">
-                    {members.length} of 20
-                  </h2>
-                  <p className="body-text text-secondary-foreground">
-                    User Seats
-                  </p>
-                  <p className="label-text text-secondary-foreground">
-                    20 included in plan
-                  </p>
-                  <button className="label-text text-primary hover:text-secondary transition-colors duration-200 font-medium">
-                    Get More Seats
-                  </button>
-                </div>
-              </div>
-            </div>
+        {/* Sub-header with description */}
+        <div className="bg-gradient-to-r from-accent-primary/30 to-accent-secondary/30 px-6 py-4 border-b border-white/20">
+          <div className="flex items-center justify-between">
+            <p className="text-secondary-foreground text-sm">
+              Agency members can be given access to data in the project. Users
+              with the "Viewer" role do not consume seats.
+            </p>
+            <button className="text-primary hover:text-secondary transition-colors duration-200 font-medium text-sm">
+              Get More Seats
+            </button>
           </div>
         </div>
 
@@ -348,12 +338,13 @@ const MembersManagementPage = () => {
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <FiSearch className="h-5 w-5 text-secondary-foreground" />
+                <FiSearch color="#000000" className="h-5 w-5" />
               </div>
               <input
+                id="search-member"
                 type="text"
                 placeholder="Search for name or email"
-                className="w-full pl-12 pr-4 py-3 bg-white/60 backdrop-blur-sm border border-white/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300"
+                className="w-full max-w-[700px] pl-12 pr-4 py-3 bg-white/60 backdrop-blur-sm border border-slate-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -469,7 +460,6 @@ const MembersManagementPage = () => {
                         >
                           <HiOutlineEllipsisVertical className="w-5 h-5" />
                         </button>
-
                       </div>
                     </div>
                   </div>
