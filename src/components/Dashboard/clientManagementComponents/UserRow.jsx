@@ -5,9 +5,12 @@ import Image from "next/image";
 import { FiMoreVertical } from "react-icons/fi";
 import { useContext, useEffect, useRef, useState } from "react";
 import { GlobalContext } from "@/context/GlobalProvider";
+import Avatar from "../Avatar";
+import { createPortal } from "react-dom";
 
 const UserRow = ({ client, setEditClient, setIsEditClientOpen }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const dropdownRef = useRef(null);
   const { documents } = useContext(GlobalContext);
 
@@ -34,7 +37,9 @@ const UserRow = ({ client, setEditClient, setIsEditClientOpen }) => {
   }).length;
 
   return (
-    <tr className="hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100">
+    <>
+      {/* Table Row */}
+      <tr className="hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100">
       <td className="px-6 py-4">
         <input
           type="checkbox"
@@ -44,12 +49,11 @@ const UserRow = ({ client, setEditClient, setIsEditClientOpen }) => {
       <td className="px-6 py-4">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <Image
-              src={client.image_url || "/placeholder.jpg"}
-              alt={"Profile"}
-              width={40}
-              height={40}
-              className="rounded-full border-2 border-gray-200 shadow-sm"
+            {/* Avatar */}
+            <Avatar
+              name={client?.business_name || "Client"}
+              className="w-8 h-8 rounded-full"
+              fallbackBg="bg-gradient-to-br from-blue-400 to-green-500"
             />
           </div>
           <span className="text-sm font-semibold text-gray-900">
@@ -90,32 +94,69 @@ const UserRow = ({ client, setEditClient, setIsEditClientOpen }) => {
       <td className="px-6 py-4 relative">
         <button
           type="button"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={(e) => {
+            if (isOpen) {
+              setIsOpen(false);
+            } else {
+              const buttonRect = e.currentTarget.getBoundingClientRect();
+              const dropdownWidth = 140; // min-w-[140px]
+              const dropdownHeight = 48; // Approximate height for 1 item
+              
+              // Calculate initial position
+              let top = buttonRect.bottom + 8;
+              let left = buttonRect.right - dropdownWidth;
+              
+              // Boundary checking
+              const viewportWidth = window.innerWidth;
+              const viewportHeight = window.innerHeight;
+              
+              // Adjust if dropdown goes off right edge
+              if (left < 8) {
+                left = buttonRect.left; // Align left edges instead
+              }
+              
+              // Adjust if dropdown goes off bottom edge
+              if (top + dropdownHeight > viewportHeight) {
+                top = buttonRect.top - dropdownHeight - 8; // Show above button
+              }
+              
+              setDropdownPosition({ top, left });
+              setIsOpen(true);
+            }
+          }}
           className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
         >
           <FiMoreVertical className="w-4 h-4" />
         </button>
-        {isOpen && (
-          <div
-            ref={dropdownRef}
-            className="absolute right-5 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50 min-w-[140px]"
-            style={{ zIndex: 9999 }}
-          >
-            <button
-              type="button"
-              className="block w-full text-sm px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200 text-left"
-              onClick={() => {
-                setEditClient(client);
-                setIsEditClientOpen(true);
-                setIsOpen(false);
-              }}
-            >
-              Edit Client
-            </button>
-          </div>
-        )}
+
       </td>
-    </tr>
+      </tr>
+      
+      {/* Portal Dropdown - rendered outside table structure */}
+      {isOpen && createPortal(
+        <div
+          ref={dropdownRef}
+          className="fixed bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-[9999] min-w-[140px]"
+          style={{
+            top: `${dropdownPosition.top}px`,
+            left: `${dropdownPosition.left}px`,
+          }}
+        >
+          <button
+            onClick={() => {
+              setEditClient(client);
+              setIsEditClientOpen(true);
+              setIsOpen(false);
+            }}
+            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+          >
+            Edit Client
+          </button>
+        </div>,
+        document.body
+      )}
+    </>
   );
 };
+
 export default UserRow;

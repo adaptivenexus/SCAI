@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { FiMoreVertical } from "react-icons/fi";
+import { createPortal } from "react-dom";
 import { extractFilenameFromUrl, formatDate } from "@/utils";
 import DocumentPreview from "./DocumentPreview";
 import { toast } from "react-toastify";
@@ -33,6 +34,7 @@ const DocumentRow = ({
   action,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const dropdownRef = useRef(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   // const [parsedData, setParsedData] = useState({});
@@ -145,7 +147,8 @@ const DocumentRow = ({
   }, [isOpen]);
 
   return (
-    <tr
+    <>
+      <tr
       className={`group hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 border-b border-gray-100 ${
         isDisabled && !isSelected ? "opacity-50" : ""
       } ${isSelected ? "bg-blue-50 border-blue-200" : ""}`}
@@ -296,63 +299,41 @@ const DocumentRow = ({
         <div>
           <button
             type="button"
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={(e) => {
+              if (isOpen) {
+                setIsOpen(false);
+              } else {
+                const buttonRect = e.currentTarget.getBoundingClientRect();
+                const dropdownWidth = 192; // w-48 = 192px
+                const dropdownHeight = 96; // Approximate height for 2 items
+                
+                // Calculate initial position
+                let top = buttonRect.bottom + 8;
+                let left = buttonRect.right - dropdownWidth;
+                
+                // Boundary checking
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                
+                // Adjust if dropdown goes off right edge
+                if (left < 8) {
+                  left = buttonRect.left; // Align left edges instead
+                }
+                
+                // Adjust if dropdown goes off bottom edge
+                if (top + dropdownHeight > viewportHeight) {
+                  top = buttonRect.top - dropdownHeight - 8; // Show above button
+                }
+                
+                setDropdownPosition({ top, left });
+                setIsOpen(true);
+              }
+            }}
             className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200 group-hover:bg-gray-200"
           >
             <FiMoreVertical className="h-4 w-4" />
           </button>
-          {isOpen && (
-            <div
-              ref={dropdownRef}
-              className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 z-10 overflow-hidden"
-            >
-              <button
-                type="button"
-                className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
-                onClick={() => {
-                  setIsOpen(false);
-                  setEditAction("edit");
-                  setEditDocument(doc);
-                  setIsManageDocumentOpen(true);
-                }}
-              >
-                <svg
-                  className="w-4 h-4 mr-3 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
-                </svg>
-                Edit Document
-              </button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                className="flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
-              >
-                <svg
-                  className="w-4 h-4 mr-3 text-red-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
-                Delete Document
-              </button>
-            </div>
-          )}
+
           {isManageDocumentOpen && (
             <>
               <ManageDocument
@@ -366,7 +347,70 @@ const DocumentRow = ({
           )}
         </div>
       </td>
-    </tr>
+      </tr>
+      
+      {/* Portal Dropdown - rendered outside table structure */}
+      {isOpen && createPortal(
+        <div
+          ref={dropdownRef}
+          className="fixed w-48 bg-white rounded-xl shadow-lg border border-gray-200 z-[9999] overflow-hidden"
+          style={{
+            top: `${dropdownPosition.top}px`,
+            left: `${dropdownPosition.left}px`,
+          }}
+        >
+          <button
+            type="button"
+            className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+            onClick={() => {
+              setIsOpen(false);
+              setEditAction("edit");
+              setEditDocument(doc);
+              setIsManageDocumentOpen(true);
+            }}
+          >
+            <svg
+              className="w-4 h-4 mr-3 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              />
+            </svg>
+            Edit Document
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              handleDelete();
+              setIsOpen(false);
+            }}
+            className="flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+          >
+            <svg
+              className="w-4 h-4 mr-3 text-red-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+            Delete Document
+          </button>
+        </div>,
+        document.body
+      )}
+    </>
   );
 };
 
