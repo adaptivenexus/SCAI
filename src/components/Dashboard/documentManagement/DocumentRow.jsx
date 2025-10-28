@@ -157,12 +157,12 @@ const DocumentRow = ({
         ) {
           return;
         }
-        
+
         // Prevent row click when ManageDocument modal is open
         if (isManageDocumentOpen) {
           return;
         }
-        
+
         onRowClick && onRowClick(doc);
       }}
     >
@@ -190,7 +190,6 @@ const DocumentRow = ({
             <span className="text-sm font-semibold text-gray-900 truncate">
               {(doc?.client || "").replace(/\s*\(.*?\)\s*$/, "")}
             </span>
-            <span className="text-xs text-gray-500">Client</span>
           </div>
         </div>
       </td>
@@ -257,7 +256,6 @@ const DocumentRow = ({
           <span className="text-sm font-medium text-gray-900">
             {formatDate(doc.uploaded_at)}
           </span>
-          <span className="text-xs text-gray-500">Process Date</span>
         </div>
       </td>
       <td className="px-6 py-5">
@@ -265,7 +263,6 @@ const DocumentRow = ({
           <span className="text-sm font-medium text-gray-900">
             {formatDate(parsedData?.parsed_data?.document_date)}
           </span>
-          <span className="text-xs text-gray-500">Document Date</span>
         </div>
       </td>
       <td className="px-6 py-5">
