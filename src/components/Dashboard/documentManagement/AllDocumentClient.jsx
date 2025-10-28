@@ -556,24 +556,6 @@ const AllDocumentPage = () => {
     <div className="p-6 flex-1 min-w-0">
       <div className="flex flex-col h-full">
         <div className="mb-8">
-          {/* Filter Header */}
-          <div className="flex items-center gap-3 mb-6">
-            <div
-              className="flex items-center justify-center w-10 h-10 rounded-xl shadow-lg"
-              style={{ background: "var(--primary-gradient)" }}
-            >
-              <FiUsers className="w-5 h-5 text-background" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-foreground">
-                Filter by Client
-              </h3>
-              <p className="text-sm text-secondary-foreground">
-                Select a client to view their documents
-              </p>
-            </div>
-          </div>
-
           {/* Client Filter Cards */}
           <div className="bg-background rounded-2xl border border-accent-primary shadow-sm p-6">
             <div className="flex flex-wrap gap-3">
@@ -648,148 +630,8 @@ const AllDocumentPage = () => {
         </div>
         {/* --- END CLIENT FOLDER LIST --- */}
 
-        {/* Top buttons and search */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="heading-5">All Documents</h2>
-          {/* Show restriction/warning message here, between label and button */}
-          {isSubscriptionExpired && (
-            <div className="mb-4 px-4 py-3 rounded bg-red-100 text-red-600 font-medium w-fit mx-auto">
-              Your subscription is expired, please upgrade it to continue
-              document processing.
-            </div>
-          )}
-          {!isSubscriptionExpired && isScanLimitReached && isFreePlan && (
-            <div className="mb-4 px-4 py-3 rounded bg-yellow-100 text-red-600 font-medium w-fit mx-auto">
-              You have reached the maximum number of free scans in your plan.
-              Please upgrade to add more documents.
-            </div>
-          )}
-          {!isSubscriptionExpired &&
-            isScanLimitReached &&
-            !isFreePlan &&
-            subscription &&
-            subscriptionDetails &&
-            subscription.used_scans <
-              subscriptionDetails.allowed_smart_scan + 10 && (
-              <div className="mb-4 px-4 py-3 rounded bg-green-100 text-black font-medium w-fit mx-auto">
-                You have exhausted free scans in your current plan. Further
-                scans will be charged at <b>$0.20 per page</b>.
-              </div>
-            )}
-          <div className="flex gap-3">
-            {selectedDocuments.size > 0 && (
-              <>
-                <button
-                  className="btn-danger flex items-center gap-2 font-medium"
-                  onClick={handleDelete}
-                >
-                  <FiX className="w-4 h-4" />
-                  Delete
-                </button>
-                <button
-                  className="primary-btn flex items-center gap-2 font-medium"
-                  onClick={() => setIsShareDocumentOpen(true)}
-                >
-                  <FiUsers className="w-4 h-4" />
-                  Share
-                </button>
-                <button
-                  className="secondary-btn flex items-center gap-2 font-medium"
-                  onClick={handleExportCSV}
-                >
-                  <FiDownload className="w-4 h-4" />
-                  Export CSV
-                </button>
-                <button
-                  className="primary-outlined-btn flex items-center gap-2 font-medium"
-                  onClick={handleReset}
-                >
-                  <IoIosRefresh className="w-4 h-4" />
-                  Reset
-                </button>
-              </>
-            )}
-            <Link
-              className={`primary-btn ${
-                isSubscriptionExpired
-                  ? "opacity-50 cursor-not-allowed"
-                  : isScanLimitReached && isFreePlan
-                  ? "opacity-50 cursor-not-allowed"
-                  : ""
-              }`}
-              href={
-                isSubscriptionExpired
-                  ? "#"
-                  : isScanLimitReached && isFreePlan
-                  ? "#"
-                  : "/dashboard/document-management/add-documents"
-              }
-              onClick={(e) => {
-                if (isSubscriptionExpired) {
-                  e.preventDefault();
-                  toast.error(
-                    "Your subscription is expired, please upgrade it to continue document processing."
-                  );
-                }
-                if (
-                  !isSubscriptionExpired &&
-                  isScanLimitReached &&
-                  isFreePlan
-                ) {
-                  e.preventDefault();
-                  toast.error(
-                    "You have reached the maximum number of free scans in your plan. Please upgrade to add more documents."
-                  );
-                }
-                if (
-                  !isSubscriptionExpired &&
-                  isScanLimitReached &&
-                  !isFreePlan &&
-                  subscription &&
-                  subscriptionDetails &&
-                  subscription.used_scans <
-                    subscriptionDetails.allowed_smart_scan + 10
-                ) {
-                  toast.warn(
-                    "You have exhausted free scans in your current plan. Further scans will be charged at $0.20 per page."
-                  );
-                  // Allow navigation
-                }
-              }}
-              tabIndex={
-                isSubscriptionExpired || (isScanLimitReached && isFreePlan)
-                  ? -1
-                  : 0
-              }
-              aria-disabled={
-                isSubscriptionExpired || (isScanLimitReached && isFreePlan)
-              }
-            >
-              Add Document
-            </Link>
-          </div>
-        </div>
-
         {/* Search and filters */}
         <div className="mb-8">
-          {/* Filter Header */}
-          <div className="flex items-center gap-3 mb-6">
-            <div
-              className="flex items-center justify-center w-10 h-10 rounded-xl shadow-lg"
-              style={{ background: "var(--primary-gradient)" }}
-            >
-              <FiSearch className="w-5 h-5 text-background" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-foreground">
-                Search & Filter
-              </h3>
-              <p className="text-sm text-secondary-foreground">
-                Find and filter your documents
-              </p>
-            </div>
-          </div>
-
           {/* Search and Filter Controls */}
           <div className="bg-background rounded-2xl border border-accent-primary shadow-sm p-6">
             <div className="flex flex-wrap items-center gap-4">
@@ -926,6 +768,131 @@ const AllDocumentPage = () => {
 
               {/* --- Action Buttons --- */}
               <div className="flex gap-3 ml-auto">
+                {/* Top buttons and search */}
+                <div className="flex justify-between items-center">
+                  {/* Show restriction/warning message here, between label and button */}
+                  {isSubscriptionExpired && (
+                    <div className="mb-4 px-4 py-3 rounded bg-red-100 text-red-600 font-medium w-fit mx-auto">
+                      Your subscription is expired, please upgrade it to
+                      continue document processing.
+                    </div>
+                  )}
+                  {!isSubscriptionExpired &&
+                    isScanLimitReached &&
+                    isFreePlan && (
+                      <div className="mb-4 px-4 py-3 rounded bg-yellow-100 text-red-600 font-medium w-fit mx-auto">
+                        You have reached the maximum number of free scans in
+                        your plan. Please upgrade to add more documents.
+                      </div>
+                    )}
+                  {!isSubscriptionExpired &&
+                    isScanLimitReached &&
+                    !isFreePlan &&
+                    subscription &&
+                    subscriptionDetails &&
+                    subscription.used_scans <
+                      subscriptionDetails.allowed_smart_scan + 10 && (
+                      <div className="mb-4 px-4 py-3 rounded bg-green-100 text-black font-medium w-fit mx-auto">
+                        You have exhausted free scans in your current plan.
+                        Further scans will be charged at <b>$0.20 per page</b>.
+                      </div>
+                    )}
+                  <div className="flex gap-3">
+                    {selectedDocuments.size > 0 && (
+                      <>
+                        <button
+                          className="btn-danger flex items-center gap-2 font-medium"
+                          onClick={handleDelete}
+                        >
+                          <FiX className="w-4 h-4" />
+                          Delete
+                        </button>
+                        <button
+                          className="primary-btn flex items-center gap-2 font-medium"
+                          onClick={() => setIsShareDocumentOpen(true)}
+                        >
+                          <FiUsers className="w-4 h-4" />
+                          Share
+                        </button>
+
+                        <button
+                          className="primary-outlined-btn flex items-center gap-2 font-medium"
+                          onClick={handleReset}
+                        >
+                          <IoIosRefresh className="w-4 h-4" />
+                          Reset
+                        </button>
+                      </>
+                    )}
+                    <Link
+                      className={`primary-btn ${
+                        isSubscriptionExpired
+                          ? "opacity-50 cursor-not-allowed"
+                          : isScanLimitReached && isFreePlan
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
+                      href={
+                        isSubscriptionExpired
+                          ? "#"
+                          : isScanLimitReached && isFreePlan
+                          ? "#"
+                          : "/dashboard/document-management/add-documents"
+                      }
+                      onClick={(e) => {
+                        if (isSubscriptionExpired) {
+                          e.preventDefault();
+                          toast.error(
+                            "Your subscription is expired, please upgrade it to continue document processing."
+                          );
+                        }
+                        if (
+                          !isSubscriptionExpired &&
+                          isScanLimitReached &&
+                          isFreePlan
+                        ) {
+                          e.preventDefault();
+                          toast.error(
+                            "You have reached the maximum number of free scans in your plan. Please upgrade to add more documents."
+                          );
+                        }
+                        if (
+                          !isSubscriptionExpired &&
+                          isScanLimitReached &&
+                          !isFreePlan &&
+                          subscription &&
+                          subscriptionDetails &&
+                          subscription.used_scans <
+                            subscriptionDetails.allowed_smart_scan + 10
+                        ) {
+                          toast.warn(
+                            "You have exhausted free scans in your current plan. Further scans will be charged at $0.20 per page."
+                          );
+                          // Allow navigation
+                        }
+                      }}
+                      tabIndex={
+                        isSubscriptionExpired ||
+                        (isScanLimitReached && isFreePlan)
+                          ? -1
+                          : 0
+                      }
+                      aria-disabled={
+                        isSubscriptionExpired ||
+                        (isScanLimitReached && isFreePlan)
+                      }
+                    >
+                      Add Document
+                    </Link>
+                  </div>
+                </div>
+                <button
+                  className="secondary-btn flex items-center gap-2 font-medium"
+                  onClick={handleExportCSV}
+                >
+                  <FiDownload className="w-4 h-4" />
+                  Export CSV
+                </button>
                 <button
                   onClick={() => {
                     window.location.reload();

@@ -157,6 +157,12 @@ const DocumentRow = ({
         ) {
           return;
         }
+        
+        // Prevent row click when ManageDocument modal is open
+        if (isManageDocumentOpen) {
+          return;
+        }
+        
         onRowClick && onRowClick(doc);
       }}
     >
@@ -170,18 +176,19 @@ const DocumentRow = ({
         />
       </td>
       <td className="px-6 py-5">
-        <div className="flex items-center gap-3">
-          <div className="ring-2 ring-gray-200 group-hover:ring-blue-300 transition-all rounded-full">
+        <div className="flex items-center gap-3 min-w-0">
+          {/* Keep avatar at a fixed size and prevent shrinking */}
+          <div className="w-8 h-8 flex-shrink-0 ring-2 ring-gray-200 group-hover:ring-blue-300 transition-all rounded-full overflow-hidden">
             <Avatar
               src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8YXZhdGFyfGVufDB8fDB8fHww"
-              name={doc.client}
+              name={(doc?.client || "").replace(/\s*\(.*?\)\s*$/, "")}
               size={32}
               className=""
             />
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col min-w-0">
             <span className="text-sm font-semibold text-gray-900 truncate">
-              {doc.client}
+              {(doc?.client || "").replace(/\s*\(.*?\)\s*$/, "")}
             </span>
             <span className="text-xs text-gray-500">Client</span>
           </div>

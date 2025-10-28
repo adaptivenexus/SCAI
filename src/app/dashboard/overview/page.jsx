@@ -315,18 +315,18 @@ const DashboardPage = () => {
           <AreaChart {...commonProps}>
             <defs>
               <linearGradient id="colorDocuments" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#005cdc" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#005cdc" stopOpacity={0.1} />
+                <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="var(--primary)" stopOpacity={0.1} />
               </linearGradient>
             </defs>
-            <CartesianGrid stroke="#e0e0e0" strokeWidth={1} />
+            <CartesianGrid stroke="var(--accent-primary)" strokeWidth={1} />
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />
             <Area
               type="monotone"
               dataKey="documents"
-              stroke="#005cdc"
+              stroke="var(--primary)"
               fillOpacity={1}
               fill="url(#colorDocuments)"
               strokeWidth={3}
@@ -336,26 +336,26 @@ const DashboardPage = () => {
       case "bar":
         return (
           <BarChart {...commonProps}>
-            <CartesianGrid stroke="#e0e0e0" strokeWidth={1} />
+            <CartesianGrid stroke="var(--accent-primary)" strokeWidth={1} />
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="documents" fill="#005cdc" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="documents" fill="var(--primary)" radius={[4, 4, 0, 0]} />
           </BarChart>
         );
       default:
         return (
           <LineChart {...commonProps}>
-            <CartesianGrid stroke="#e0e0e0" strokeWidth={1} />
+            <CartesianGrid stroke="var(--accent-primary)" strokeWidth={1} />
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />
             <Line
               type="monotone"
               dataKey="documents"
-              stroke="#005cdc"
+              stroke="var(--primary)"
               strokeWidth={4}
-              dot={{ fill: "#005cdc", strokeWidth: 2, r: 6 }}
+              dot={{ fill: "var(--primary)", strokeWidth: 2, r: 6 }}
               activeDot={{ r: 8 }}
             />
           </LineChart>
@@ -493,7 +493,7 @@ const DashboardPage = () => {
                       onClick={() => setData(jantojune)}
                       className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-all ${
                         data === jantojune
-                          ? "bg-white shadow-sm text-blue-600"
+                          ? "bg-white shadow-sm text-[var(--primary)]"
                           : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
@@ -503,7 +503,7 @@ const DashboardPage = () => {
                       onClick={() => setData(jultodec)}
                       className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-all ${
                         data === jultodec
-                          ? "bg-white shadow-sm text-blue-600"
+                          ? "bg-white shadow-sm text-[var(--primary)]"
                           : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
@@ -521,7 +521,7 @@ const DashboardPage = () => {
                       onClick={() => setViewMode("monthly")}
                       className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-all ${
                         viewMode === "monthly"
-                          ? "bg-white shadow-sm text-blue-600"
+                          ? "bg-white shadow-sm text-[var(--primary)]"
                           : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
@@ -531,7 +531,7 @@ const DashboardPage = () => {
                       onClick={() => setViewMode("cumulative")}
                       className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-all ${
                         viewMode === "cumulative"
-                          ? "bg-white shadow-sm text-blue-600"
+                          ? "bg-white shadow-sm text-[var(--primary)]"
                           : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
@@ -555,7 +555,7 @@ const DashboardPage = () => {
                         onClick={() => setChartType(type.key)}
                         className={`px-2 py-1 rounded-md text-xs font-medium transition-all ${
                           chartType === type.key
-                            ? "bg-white shadow-sm text-blue-600"
+                            ? "bg-white shadow-sm text-[var(--primary)]"
                             : "text-gray-600 hover:text-gray-900"
                         }`}
                       >
@@ -702,7 +702,7 @@ const DashboardPage = () => {
             </div>
             <Link
               href={"/dashboard/document-management/all-documents"}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-105 hover:shadow-lg flex items-center gap-2"
+              className="bg-[var(--primary)] hover:bg-[var(--secondary)] text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-105 hover:shadow-lg flex items-center gap-2"
             >
               <span>View All</span>
               <svg
@@ -787,7 +787,7 @@ const DashboardPage = () => {
                       </div>
                     </td>
                     <td className="px-6 py-5">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border border-blue-200">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] text-[var(--primary)] border border-[var(--primary)]">
                         {doc?.category?.name}
                       </span>
                     </td>
@@ -820,7 +820,7 @@ const DashboardPage = () => {
                               `/dashboard/document-management/view-document/${doc.id}`
                             )
                           }
-                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-200 hover:scale-110"
+                          className="p-2 text-[var(--primary)] hover:bg-[var(--accent-primary)] rounded-lg transition-colors duration-200 hover:scale-110"
                           title="View Document"
                         >
                           <FaEye className="w-4 h-4" />
@@ -864,7 +864,7 @@ const DashboardPage = () => {
             </div>
             <Link
               href={"/dashboard/client-management/client-list"}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-105 hover:shadow-lg flex items-center gap-2"
+              className="bg-[var(--primary)] hover:bg-[var(--secondary)] text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-105 hover:shadow-lg flex items-center gap-2"
             >
               <span>View All</span>
               <svg
@@ -987,8 +987,8 @@ const DashboardPage = () => {
                     </td>
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-2">
-                        <div className="p-1 bg-blue-100 rounded">
-                          <FaFileAlt className="text-blue-600 text-xs" />
+                        <div className="p-1 bg-[var(--accent-primary)] rounded">
+                          <FaFileAlt className="text-[var(--primary)] text-xs" />
                         </div>
                         <span className="font-semibold text-gray-900">
                           {clientDocuments.length}
@@ -1003,15 +1003,15 @@ const DashboardPage = () => {
                           Verified
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-full bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 font-medium border border-orange-200">
-                          <FaExclamationTriangle className="text-orange-600 text-xs" />
+                        <span className="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-full bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] text-[var(--primary)] font-medium border border-[var(--primary)]">
+                          <FaExclamationTriangle className="text-[var(--primary)] text-xs" />
                           Pending
                         </span>
                       )}
                     </td>
                     <td className="px-8 py-5">
                       <div className="flex items-center gap-2">
-                        <button className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-200 hover:scale-110">
+                        <button className="p-2 text-[var(--primary)] hover:bg-[var(--accent-primary)] rounded-lg transition-colors duration-200 hover:scale-110">
                           <svg
                             className="w-4 h-4"
                             fill="none"
@@ -1032,7 +1032,7 @@ const DashboardPage = () => {
                             />
                           </svg>
                         </button>
-                        <button className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors duration-200 hover:scale-110">
+                        <button className="p-2 text-[var(--primary)] hover:bg-[var(--accent-primary)] rounded-lg transition-colors duration-200 hover:scale-110">
                           <svg
                             className="w-4 h-4"
                             fill="none"
@@ -1070,7 +1070,7 @@ const DashboardPage = () => {
       {/* Floating Action Button */}
       <div className="fixed bottom-8 right-8 z-50">
         <div className="relative group">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 animate-bounce">
+          <button className="bg-[var(--primary)] hover:bg-[var(--secondary)] text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 animate-bounce">
             <svg
               className="w-6 h-6"
               fill="none"
@@ -1092,16 +1092,16 @@ const DashboardPage = () => {
               onClick={() =>
                 router.push("/dashboard/document-management/add-documents")
               }
-              className="w-full text-left px-4 py-2 text-sm hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-2"
+              className="w-full text-left px-4 py-2 text-sm hover:bg-[var(--accent-primary)] rounded-lg transition-colors flex items-center gap-2"
             >
-              <FaFileAlt className="text-blue-600" />
+              <FaFileAlt className="text-[var(--primary)]" />
               Upload Document
             </button>
             <button
               onClick={() => setIsAddClientOpen(true)}
-              className="w-full text-left px-4 py-2 text-sm hover:bg-green-50 rounded-lg transition-colors flex items-center gap-2"
+              className="w-full text-left px-4 py-2 text-sm hover:bg-[var(--accent-primary)] rounded-lg transition-colors flex items-center gap-2"
             >
-              <FaUserFriends className="text-green-600" />
+              <FaUserFriends className="text-[var(--primary)]" />
               Add Client
             </button>
           </div>
@@ -1111,18 +1111,18 @@ const DashboardPage = () => {
       {/* Custom Styles */}
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
+          width: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-          background: #f1f5f9;
-          border-radius: 2px;
+          background: var(--accent-primary);
+          border-radius: 3px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #3b82f6;
-          border-radius: 2px;
+          background: var(--primary);
+          border-radius: 3px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #2563eb;
+          background: var(--secondary);
         }
 
         @keyframes fadeInUp {
