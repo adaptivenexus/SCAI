@@ -336,7 +336,8 @@ const AllDocumentPage = () => {
           .includes(searchQuery.toLowerCase()) ||
         (doc.parsed_data?.summary || doc.parsed_data?.parsed_data?.summary || "")
           .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||s        (doc.parsed_data?.document_type || doc.parsed_data?.parsed_data?.document_type || "")
+          .includes(searchQuery.toLowerCase()) ||
+        (doc.parsed_data?.document_type || doc.parsed_data?.parsed_data?.document_type || "")
           .toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
         (doc.parsed_data?.masked_text || doc.parsed_data?.parsed_data?.masked_text || "")
