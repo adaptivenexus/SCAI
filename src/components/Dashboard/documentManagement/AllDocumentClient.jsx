@@ -11,7 +11,7 @@ import { BiLoaderAlt } from "react-icons/bi";
 import DocumentShareModal from "@/components/Dashboard/documentManagement/DocumentShareModal";
 import { toast } from "react-toastify";
 
-import { useAuth } from "@/context/AuthContext"; 
+import { useAuth } from "@/context/AuthContext";
 
 // Internal: try to parse common numeric date formats when native parsing fails
 const parseFlexibleDate = (raw) => {
@@ -35,7 +35,9 @@ const parseFlexibleDate = (raw) => {
   if (sepMatch) {
     const a = Number(sepMatch[1]);
     const b = Number(sepMatch[2]);
-    const y = Number(sepMatch[3].length === 2 ? `20${sepMatch[3]}` : sepMatch[3]);
+    const y = Number(
+      sepMatch[3].length === 2 ? `20${sepMatch[3]}` : sepMatch[3]
+    );
 
     // Try DMY (a=d, b=m)
     if (b >= 1 && b <= 12 && a >= 1 && a <= 31) {
@@ -84,38 +86,69 @@ const doesDateMatch = (dateString, query) => {
   const dayNum = date.getDate();
   const day = dayNum.toString().padStart(2, "0");
   const dayNoPad = dayNum.toString();
-  const monthLong = date.toLocaleString("en-US", { month: "long" }).toLowerCase();
-  const monthShort = date.toLocaleString("en-US", { month: "short" }).toLowerCase();
+  const monthLong = date
+    .toLocaleString("en-US", { month: "long" })
+    .toLowerCase();
+  const monthShort = date
+    .toLocaleString("en-US", { month: "short" })
+    .toLowerCase();
 
   // Extract YYYY-MM-DD from ISO strings if present
-  const isoDate = rawLower.match(/\d{4}-\d{2}-\d{2}/)?.[0] || `${year}-${monthNum}-${day}`;
+  const isoDate =
+    rawLower.match(/\d{4}-\d{2}-\d{2}/)?.[0] || `${year}-${monthNum}-${day}`;
   const compactYMD = `${year}${monthNum}${day}`;
   const compactDMY = `${day}${monthNum}${year}`;
 
   const candidates = [
     // Year-only / partials
-    year, yy,
-    `${monthLong} ${year}`, `${monthShort} ${year}`, `${monthNum}/${year}`, `${monthNumNoPad}/${year}`,
-    `${year} ${monthLong}`, `${year} ${monthShort}`, `${year}/${monthNum}`, `${year}/${monthNumNoPad}`,
+    year,
+    yy,
+    `${monthLong} ${year}`,
+    `${monthShort} ${year}`,
+    `${monthNum}/${year}`,
+    `${monthNumNoPad}/${year}`,
+    `${year} ${monthLong}`,
+    `${year} ${monthShort}`,
+    `${year}/${monthNum}`,
+    `${year}/${monthNumNoPad}`,
     // Month + Day (names)
-    `${day} ${monthLong}`, `${monthLong} ${day}`, `${day} ${monthShort}`, `${monthShort} ${day}`,
-    `${monthLong} ${day}, ${year}`, `${day} ${monthLong}, ${year}`,
-    `${monthShort} ${day}, ${year}`, `${day} ${monthShort}, ${year}`,
+    `${day} ${monthLong}`,
+    `${monthLong} ${day}`,
+    `${day} ${monthShort}`,
+    `${monthShort} ${day}`,
+    `${monthLong} ${day}, ${year}`,
+    `${day} ${monthLong}, ${year}`,
+    `${monthShort} ${day}, ${year}`,
+    `${day} ${monthShort}, ${year}`,
     // Numeric with separators
-    `${day}/${monthNum}/${year}`, `${monthNum}/${day}/${year}`, `${dayNoPad}/${monthNumNoPad}/${year}`, `${monthNumNoPad}/${dayNoPad}/${year}`,
-    `${year}-${monthNum}-${day}`, `${day}-${monthNum}-${year}`, `${monthNum}-${day}-${year}`,
-    `${year}/${monthNum}/${day}`, `${day}-${monthNum}-${year}`, `${monthNum}-${day}-${year}`,
-    `${day}.${monthNum}.${year}`, `${monthNum}.${day}.${year}`,
+    `${day}/${monthNum}/${year}`,
+    `${monthNum}/${day}/${year}`,
+    `${dayNoPad}/${monthNumNoPad}/${year}`,
+    `${monthNumNoPad}/${dayNoPad}/${year}`,
+    `${year}-${monthNum}-${day}`,
+    `${day}-${monthNum}-${year}`,
+    `${monthNum}-${day}-${year}`,
+    `${year}/${monthNum}/${day}`,
+    `${day}-${monthNum}-${year}`,
+    `${monthNum}-${day}-${year}`,
+    `${day}.${monthNum}.${year}`,
+    `${monthNum}.${day}.${year}`,
     // No separators
-    compactYMD, compactDMY,
+    compactYMD,
+    compactDMY,
     // ISO substring
     isoDate,
     // Raw again (trimmed variants)
-    rawLower.replace(/,/g, ""), rawLower.replace(/[ ,]/g, ""),
+    rawLower.replace(/,/g, ""),
+    rawLower.replace(/[ ,]/g, ""),
   ];
 
   // Compare with sanitized version as well to tolerate punctuation differences
-  const candidatesSanitized = candidates.map((c) => String(c).toLowerCase().replace(/[^a-z0-9]/g, ""));
+  const candidatesSanitized = candidates.map((c) =>
+    String(c)
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "")
+  );
 
   return (
     candidates.some((c) => String(c).toLowerCase().includes(queryLower)) ||
@@ -137,13 +170,13 @@ const AllDocumentPage = () => {
   // Open verify modal if navigated from notification
   useEffect(() => {
     if (hasOpenedFromQuery.current) return;
-    const verify = searchParams.get('verify');
-    const id = searchParams.get('id');
-    if (verify === '1' && id && documents && documents.length > 0) {
-      const docToEdit = documents.find(d => String(d.id) === String(id));
+    const verify = searchParams.get("verify");
+    const id = searchParams.get("id");
+    if (verify === "1" && id && documents && documents.length > 0) {
+      const docToEdit = documents.find((d) => String(d.id) === String(id));
       if (docToEdit) {
         setEditDocument(docToEdit);
-        setEditAction('edit');
+        setEditAction("edit");
         setIsManageDocumentOpen(true);
         hasOpenedFromQuery.current = true;
       }
@@ -152,7 +185,7 @@ const AllDocumentPage = () => {
   }, [searchParams, documents]);
   const filteredDocuments = useMemo(() => {
     if (!selectedClientId) return documents;
-    return documents.filter(doc => doc.client_id === selectedClientId);
+    return documents.filter((doc) => doc.client_id === selectedClientId);
   }, [documents, selectedClientId]);
   // --- END LINT FIX ---
   const [searchQuery, setSearchQuery] = useState("");
@@ -174,7 +207,7 @@ const AllDocumentPage = () => {
   const { subscription, subscriptionDetails } = useAuth();
 
   // Check if subscription is expired
-    const isSubscriptionExpired = !!(
+  const isSubscriptionExpired = !!(
     subscription &&
     subscription.expires_on &&
     !isNaN(Date.parse(subscription.expires_on)) &&
@@ -327,26 +360,28 @@ const AllDocumentPage = () => {
   const filteredAndSortedItems = sortedDocuments.filter(
     (doc) =>
       ((doc.client || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (doc.file || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (doc.parsed_data?.suggested_title || doc.parsed_data?.parsed_data?.suggested_title || "")
+        (
+          doc.parsed_data?.suggested_title ||
+          doc.parsed_data?.parsed_data?.suggested_title ||
+          ""
+        )
           .toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
         (doc.category?.name || "")
           .toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
-        (doc.parsed_data?.summary || doc.parsed_data?.parsed_data?.summary || "")
+        (
+          doc.parsed_data?.document_type ||
+          doc.parsed_data?.parsed_data?.document_type ||
+          ""
+        )
           .toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
-        (doc.parsed_data?.document_type || doc.parsed_data?.parsed_data?.document_type || "")
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        (doc.parsed_data?.masked_text || doc.parsed_data?.parsed_data?.masked_text || "")
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        (doc.parsed_data?.job_status || doc.parsed_data?.parsed_data?.job_status || "")
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        (doc.parsed_data?.analysis_provider || doc.parsed_data?.parsed_data?.analysis_provider || "")
+        (
+          doc.parsed_data?.job_status ||
+          doc.parsed_data?.parsed_data?.job_status ||
+          ""
+        )
           .toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
         doesDateMatch(doc.uploaded_at, searchQuery) ||
@@ -429,14 +464,23 @@ const AllDocumentPage = () => {
         <div className="mb-8">
           <div className="flex flex-wrap gap-4 items-center">
             {clients && clients.length > 0 ? (
-              clients.map(client => (
+              clients.map((client) => (
                 <button
                   key={client.id}
-                  className={`flex flex-col items-center px-4 py-3 rounded-lg border border-gray-200 shadow-sm hover:bg-accent-primary/10 transition-all ${selectedClientId === client.id ? 'bg-accent-primary text-white border-accent-primary' : 'bg-white text-foreground'}`}
+                  className={`flex flex-col items-center px-4 py-3 rounded-lg border border-gray-200 shadow-sm hover:bg-accent-primary/10 transition-all ${
+                    selectedClientId === client.id
+                      ? "bg-accent-primary text-white border-accent-primary"
+                      : "bg-white text-foreground"
+                  }`}
                   onClick={() => setSelectedClientId(client.id)}
                 >
                   <span className="text-3xl mb-1">📁</span>
-                  <span className="font-medium text-sm truncate max-w-[120px]">{client.business_name || client.firstName || client.lastName || client.email}</span>
+                  <span className="font-medium text-sm truncate max-w-[120px]">
+                    {client.business_name ||
+                      client.firstName ||
+                      client.lastName ||
+                      client.email}
+                  </span>
                 </button>
               ))
             ) : (
@@ -460,12 +504,14 @@ const AllDocumentPage = () => {
           {/* Show restriction/warning message here, between label and button */}
           {isSubscriptionExpired && (
             <div className="mb-4 px-4 py-3 rounded bg-red-100 text-red-600 font-medium w-fit mx-auto">
-              Your subscription is expired, please upgrade it to continue document processing.
+              Your subscription is expired, please upgrade it to continue
+              document processing.
             </div>
           )}
           {!isSubscriptionExpired && isScanLimitReached && isFreePlan && (
             <div className="mb-4 px-4 py-3 rounded bg-yellow-100 text-red-600 font-medium w-fit mx-auto">
-              You have reached the maximum number of free scans in your plan. Please upgrade to add more documents.
+              You have reached the maximum number of free scans in your plan.
+              Please upgrade to add more documents.
             </div>
           )}
           {!isSubscriptionExpired &&
@@ -473,11 +519,13 @@ const AllDocumentPage = () => {
             !isFreePlan &&
             subscription &&
             subscriptionDetails &&
-            subscription.used_scans < subscriptionDetails.allowed_smart_scan + 10 && (
+            subscription.used_scans <
+              subscriptionDetails.allowed_smart_scan + 10 && (
               <div className="mb-4 px-4 py-3 rounded bg-green-100 text-black font-medium w-fit mx-auto">
-                You have exhausted free scans in your current plan. Further scans will be charged at <b>$0.20 per page</b>.
+                You have exhausted free scans in your current plan. Further
+                scans will be charged at <b>$0.20 per page</b>.
               </div>
-          )}
+            )}
           <div className="flex gap-2">
             {selectedDocuments.size > 0 && (
               <>
@@ -513,28 +561,46 @@ const AllDocumentPage = () => {
                   ? "#"
                   : "/dashboard/document-management/add-documents"
               }
-              onClick={e => {
+              onClick={(e) => {
                 if (isSubscriptionExpired) {
                   e.preventDefault();
                   toast.error(
                     "Your subscription is expired, please upgrade it to continue document processing."
                   );
                 }
-                if (!isSubscriptionExpired && isScanLimitReached && isFreePlan) {
+                if (
+                  !isSubscriptionExpired &&
+                  isScanLimitReached &&
+                  isFreePlan
+                ) {
                   e.preventDefault();
                   toast.error(
                     "You have reached the maximum number of free scans in your plan. Please upgrade to add more documents."
                   );
                 }
-                if (!isSubscriptionExpired && isScanLimitReached && !isFreePlan && subscription && subscriptionDetails && subscription.used_scans < subscriptionDetails.allowed_smart_scan + 10) {
+                if (
+                  !isSubscriptionExpired &&
+                  isScanLimitReached &&
+                  !isFreePlan &&
+                  subscription &&
+                  subscriptionDetails &&
+                  subscription.used_scans <
+                    subscriptionDetails.allowed_smart_scan + 10
+                ) {
                   toast.warn(
                     "You have exhausted free scans in your current plan. Further scans will be charged at $0.20 per page."
                   );
                   // Allow navigation
                 }
               }}
-              tabIndex={isSubscriptionExpired || (isScanLimitReached && isFreePlan) ? -1 : 0}
-              aria-disabled={isSubscriptionExpired || (isScanLimitReached && isFreePlan)}
+              tabIndex={
+                isSubscriptionExpired || (isScanLimitReached && isFreePlan)
+                  ? -1
+                  : 0
+              }
+              aria-disabled={
+                isSubscriptionExpired || (isScanLimitReached && isFreePlan)
+              }
             >
               Add Document
             </Link>
@@ -549,14 +615,23 @@ const AllDocumentPage = () => {
               <select
                 className="w-full pl-3 pr-8 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-blue-500 bg-white"
                 value={selectedClientId || ""}
-                onChange={e => setSelectedClientId(e.target.value ? Number(e.target.value) : null)}
+                onChange={(e) =>
+                  setSelectedClientId(
+                    e.target.value ? Number(e.target.value) : null
+                  )
+                }
               >
                 <option value="">All Clients</option>
-                {clients && clients.length > 0 && clients.map(client => (
-                  <option key={client.id} value={client.id}>
-                    {client.business_name || client.firstName || client.lastName || client.email}
-                  </option>
-                ))}
+                {clients &&
+                  clients.length > 0 &&
+                  clients.map((client) => (
+                    <option key={client.id} value={client.id}>
+                      {client.business_name ||
+                        client.firstName ||
+                        client.lastName ||
+                        client.email}
+                    </option>
+                  ))}
               </select>
               <span className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400">
                 ▼
@@ -792,8 +867,16 @@ const AllDocumentPage = () => {
                     fetchDocuments={fetchDocuments}
                     isDisabled={isRowDisabled(doc.client)}
                     parsedData={doc.parsed_data}
-                    onRowClick={() => router.push(`/dashboard/document-management/view-document/${doc.id}`)}
-                    isManageDocumentOpen={isManageDocumentOpen && editDocument && editDocument.id === doc.id}
+                    onRowClick={() =>
+                      router.push(
+                        `/dashboard/document-management/view-document/${doc.id}`
+                      )
+                    }
+                    isManageDocumentOpen={
+                      isManageDocumentOpen &&
+                      editDocument &&
+                      editDocument.id === doc.id
+                    }
                     setIsManageDocumentOpen={setIsManageDocumentOpen}
                     setEditDocument={setEditDocument}
                     setEditAction={setEditAction}
