@@ -12,6 +12,7 @@ import DocumentShareModal from "@/components/Dashboard/documentManagement/Docume
 import { toast } from "react-toastify";
 
 import { useAuth } from "@/context/AuthContext";
+import { formatDate } from "@/utils";
 
 // Internal: try to parse common numeric date formats when native parsing fails
 const parseFlexibleDate = (raw) => {
