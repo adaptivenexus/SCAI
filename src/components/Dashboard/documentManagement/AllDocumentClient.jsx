@@ -384,7 +384,7 @@ const AllDocumentPage = () => {
         )
           .toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
-        doesDateMatch(doc.uploaded_at, searchQuery) ||
+        doesDateMatch(formatDate(doc.uploaded_at), searchQuery) ||
         doesDateMatch(
           doc.parsed_data?.document_date ||
             doc.parsed_data?.parsed_data?.document_date,
