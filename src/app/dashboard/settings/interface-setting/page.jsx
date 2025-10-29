@@ -132,14 +132,6 @@ const InterfaceSettingsPage = () => {
           </select>
         </div>
       </div>
-      <div className="space-x-4">
-        <button type="submit" className="primary-btn px-8">
-          Save Changes
-        </button>
-        <button type="button" className="secondary-btn px-8">
-          Cancel
-        </button>
-      </div>
     </div>
   );
 };

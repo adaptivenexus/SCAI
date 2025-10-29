@@ -16,6 +16,120 @@ const GlobalDashboardProvider = ({ children }) => {
   // Global search state
   const [globalSearchQuery, setGlobalSearchQuery] = useState("");
 
+  // --- Date matching helpers for global search ---
+  // Parse common numeric date formats when native parsing fails
+  const parseFlexibleDate = (raw) => {
+    if (!raw) return null;
+    const s = String(raw).trim();
+
+    // ISO-like first (YYYY-MM-DD with different separators)
+    const isoMatch = s.match(/^(\d{4})[\/.\-](\d{1,2})[\/.\-](\d{1,2})/);
+    if (isoMatch) {
+      const y = Number(isoMatch[1]);
+      const m = Number(isoMatch[2]);
+      const d = Number(isoMatch[3]);
+      if (m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+        const dt = new Date(y, m - 1, d);
+        if (!isNaN(dt.getTime())) return dt;
+      }
+    }
+
+    // DMY or MDY with separators
+    const sepMatch = s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})$/);
+    if (sepMatch) {
+      const a = Number(sepMatch[1]);
+      const b = Number(sepMatch[2]);
+      const y = Number(sepMatch[3].length === 2 ? `20${sepMatch[3]}` : sepMatch[3]);
+
+      // Try DMY (a=d, b=m)
+      if (b >= 1 && b <= 12 && a >= 1 && a <= 31) {
+        const dtDMY = new Date(y, b - 1, a);
+        if (!isNaN(dtDMY.getTime())) return dtDMY;
+      }
+      // Try MDY (a=m, b=d)
+      if (a >= 1 && a <= 12 && b >= 1 && b <= 31) {
+        const dtMDY = new Date(y, a - 1, b);
+        if (!isNaN(dtMDY.getTime())) return dtMDY;
+      }
+    }
+
+    // As a last resort, native Date
+    const native = new Date(s);
+    if (!isNaN(native.getTime())) return native;
+    return null;
+  };
+
+  // Robust date matching across many common formats
+  const doesDateMatch = (dateString, query) => {
+    if (!dateString || !query) return false;
+
+    const queryLower = String(query).toLowerCase().trim();
+    // Normalize ordinals and quotes in query (e.g., "12th Jul '24")
+    const queryNormalized = queryLower
+      .replace(/\b(\d{1,2})(st|nd|rd|th)\b/g, "$1")
+      .replace(/'(?=\d{2}\b)/g, "")
+      .replace(/\s+/g, " ");
+    const querySanitized = queryNormalized.replace(/[^a-z0-9]/g, "");
+
+    // Quick raw string checks (works even if parsing fails)
+    const rawLower = String(dateString).toLowerCase();
+    const rawSanitized = rawLower.replace(/[^a-z0-9]/g, "");
+    if (rawLower.includes(queryNormalized) || rawSanitized.includes(querySanitized)) {
+      return true;
+    }
+
+    // Try parsing dateString using flexible parser
+    const date = parseFlexibleDate(dateString);
+    if (!date) {
+      // If parsing fails, we've already checked raw string above
+      return false;
+    }
+
+    const year = date.getFullYear().toString();
+    const yy = year.slice(-2);
+    const monthIndex = date.getMonth() + 1;
+    const monthNum = monthIndex.toString().padStart(2, "0");
+    const monthNumNoPad = monthIndex.toString();
+    const dayNum = date.getDate();
+    const day = dayNum.toString().padStart(2, "0");
+    const dayNoPad = dayNum.toString();
+    const monthLong = date.toLocaleString("en-US", { month: "long" }).toLowerCase();
+    const monthShort = date.toLocaleString("en-US", { month: "short" }).toLowerCase();
+
+    // Extract YYYY-MM-DD from ISO strings if present
+    const isoDate = rawLower.match(/\d{4}-\d{2}-\d{2}/)?.[0] || `${year}-${monthNum}-${day}`;
+    const compactYMD = `${year}${monthNum}${day}`;
+    const compactDMY = `${day}${monthNum}${year}`;
+    const ordinalDay = `${dayNoPad}${[1,21,31].includes(dayNum)?'st':[2,22].includes(dayNum)?'nd':[3,23].includes(dayNum)?'rd':'th'}`;
+
+    const candidates = [
+      year, yy,
+      `'${yy}`,
+      `${monthLong} ${year}`, `${monthShort} ${year}`, `${monthNum}/${year}`, `${monthNumNoPad}/${year}`,
+      `${year} ${monthLong}`, `${year} ${monthShort}`, `${year}/${monthNum}`, `${year}/${monthNumNoPad}`,
+      `${day} ${monthLong}`, `${monthLong} ${day}`, `${day} ${monthShort}`, `${monthShort} ${day}`,
+      `${ordinalDay} ${monthLong}`, `${ordinalDay} ${monthShort}`, `${monthLong} ${ordinalDay}`, `${monthShort} ${ordinalDay}`,
+      `${monthLong} ${day}, ${year}`, `${day} ${monthLong}, ${year}`,
+      `${monthShort} ${day}, ${year}`, `${day} ${monthShort}, ${year}`,
+      `${day}/${monthNum}/${year}`, `${monthNum}/${day}/${year}`, `${dayNoPad}/${monthNumNoPad}/${year}`, `${monthNumNoPad}/${dayNoPad}/${year}`,
+      `${year}-${monthNum}-${day}`, `${day}-${monthNum}-${year}`, `${monthNum}-${day}-${year}`,
+      `${year}/${monthNum}/${day}`, `${day}-${monthNum}-${year}`, `${monthNum}-${day}-${year}`,
+      `${day}.${monthNum}.${year}`, `${monthNum}.${day}.${year}`, `${year}.${monthNum}.${day}`,
+      `${year} ${monthNum} ${day}`, `${day} ${monthNum} ${year}`, `${monthNum} ${day} ${year}`,
+      `${year}${monthNum}${day}`, `${day}${monthNum}${yy}`, `${monthNum}${day}${year}`,
+      compactYMD, compactDMY,
+      isoDate,
+      rawLower.replace(/,/g, ""), rawLower.replace(/[ ,]/g, ""),
+    ];
+
+    const candidatesSanitized = candidates.map((c) => String(c).toLowerCase().replace(/[^a-z0-9]/g, ""));
+
+    return (
+      candidates.some((c) => String(c).toLowerCase().includes(queryNormalized)) ||
+      candidatesSanitized.some((c) => c.includes(querySanitized))
+    );
+  };
+
   const fetchClients = async () => {
     try {
       // Ensure localStorage is accessed only on the client side
@@ -136,7 +250,8 @@ const GlobalDashboardProvider = ({ children }) => {
       if (!item) continue;
 
       if (typeof item === "string" || typeof item === "number" || typeof item === "boolean") {
-        if (String(item).toLowerCase().includes(q)) return true;
+        const s = String(item);
+        if (s.toLowerCase().includes(q) || doesDateMatch(s, query)) return true;
         continue;
       }
 
@@ -152,7 +267,10 @@ const GlobalDashboardProvider = ({ children }) => {
           const val = item[key];
           if (val == null) continue;
           if (typeof val === "object") stack.push(val);
-          else if (String(val).toLowerCase().includes(q)) return true;
+          else {
+            const vs = String(val);
+            if (vs.toLowerCase().includes(q) || doesDateMatch(vs, query)) return true;
+          }
         }
       }
     }

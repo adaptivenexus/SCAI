@@ -5,7 +5,18 @@ import AddOrManageClient from "@/components/Dashboard/common/AddOrManageClient";
 import { GlobalContext } from "@/context/GlobalProvider";
 import { useState, useMemo, useContext, useRef, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { FiSearch, FiDownload } from "react-icons/fi";
+import {
+  FiSearch,
+  FiDownload,
+  FiChevronUp,
+  FiChevronDown,
+  FiChevronsLeft,
+  FiChevronLeft,
+  FiChevronRight,
+  FiChevronsRight,
+  FiUsers,
+} from "react-icons/fi";
+import { toast } from "react-toastify";
 
 // Helper function to check if a date matches the search query or filter in various formats
 const doesDateMatch = (dateString, query) => {
@@ -65,13 +76,29 @@ const ClientListPage = () => {
 
   const [isEditClientOpen, setIsEditClientOpen] = useState(false);
   const [editClient, setEditClient] = useState(null);
+  const [selectedClients, setSelectedClients] = useState(new Set());
+  const [showExportModal, setShowExportModal] = useState(false);
 
   // Open verify modal if navigated from notification
   useEffect(() => {
-    const verify = searchParams.get('verify');
-    const id = searchParams.get('id');
-    if (verify === '1' && id && clients && clients.length > 0) {
-      const clientToEdit = clients.find(c => String(c.id) === String(id));
+    const verify = searchParams.get("verify");
+    const id = searchParams.get("id");
+    if (verify === "1" && id && clients && clients.length > 0) {
+      const clientToEdit = clients.find((c) => String(c.id) === String(id));
+      if (clientToEdit) {
+        setEditClient(clientToEdit);
+        setIsEditClientOpen(true);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, clients]);
+
+  // Open edit modal if navigated with edit intent from global search
+  useEffect(() => {
+    const edit = searchParams.get("edit");
+    const id = searchParams.get("id");
+    if (edit === "1" && id && clients && clients.length > 0) {
+      const clientToEdit = clients.find((c) => String(c.id) === String(id));
       if (clientToEdit) {
         setEditClient(clientToEdit);
         setIsEditClientOpen(true);
@@ -237,278 +264,510 @@ const ClientListPage = () => {
     return rangeWithDots;
   };
 
-  const handlePageChange = (page) => {
-    if (page < 1 || page > totalPages) return;
-    setCurrentPage(page);
+  // Select all functionality
+  const handleSelectAll = () => {
+    if (selectedClients.size === currentItems.length && currentItems.length > 0) {
+      // If all current page items are selected, deselect all
+      setSelectedClients(new Set());
+    } else {
+      // Select all current page items
+      const allCurrentIds = new Set(currentItems.map(client => client.id));
+      setSelectedClients(allCurrentIds);
+    }
+  };
+
+  const handleSelectClient = (clientId) => {
+    setSelectedClients(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(clientId)) {
+        newSet.delete(clientId);
+      } else {
+        newSet.add(clientId);
+      }
+      return newSet;
+    });
+  };
+
+  // CSV Export functionality
+  const handleExportCSV = () => {
+    // Get selected clients data or all filtered clients if none selected
+    const clientsToExport = selectedClients.size > 0 
+      ? filteredClients.filter(client => selectedClients.has(client.id))
+      : filteredClients;
+
+    if (clientsToExport.length === 0) {
+      toast.warning("No clients to export");
+      return;
+    }
+
+    setShowExportModal(true);
+  };
+
+  const confirmExportCSV = () => {
+    try {
+      // Get selected clients data or all filtered clients if none selected
+      const clientsToExport = selectedClients.size > 0 
+        ? filteredClients.filter(client => selectedClients.has(client.id))
+        : filteredClients;
+
+      // Format data for CSV with only necessary fields
+      const csvData = clientsToExport.map(client => ({
+        id: client.id,
+        business_name: client.business_name || '',
+        business_type: client.business_type || '',
+        email: client.email || '',
+        mobile_number: client.mobile_number || '',
+        telephone_number: client.telephone_number || '',
+        tin: client.tin || '',
+        business_address: client.business_address || '',
+        status: client.status || '',
+        created_at: client.created_at || '',
+        updated_at: client.updated_at || ''
+      }));
+
+      // Create CSV headers
+      const headers = [
+        'ID',
+        'Business Name',
+        'Business Type', 
+        'Email',
+        'Mobile Number',
+        'Telephone Number',
+        'TIN',
+        'Business Address',
+        'Status',
+        'Created At',
+        'Updated At'
+      ];
+
+      // Convert to CSV format
+      const csvContent = [
+        headers.join(','),
+        ...csvData.map(row => 
+          Object.values(row).map(value => {
+            // Escape quotes and wrap in quotes if contains comma, quote, or newline
+            const escapedValue = String(value).replace(/"/g, '""');
+            return /[",\n\r]/.test(escapedValue) ? `"${escapedValue}"` : escapedValue;
+          }).join(',')
+        )
+      ].join('\n');
+
+      // Create and download file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `clients_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success(`Successfully exported ${clientsToExport.length} clients to CSV`);
+      setShowExportModal(false);
+    } catch (error) {
+      console.error('Error exporting CSV:', error);
+      toast.error('Failed to export CSV file');
+      setShowExportModal(false);
+    }
   };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-800">Client List</h1>
-        <button
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg"
-          onClick={() => setIsAddClientOpen(true)}
-        >
-          Add Client
-        </button>
-      </div>
+    <div className="p-6 flex-1 min-w-0">
+      <div className="flex flex-col h-full">
+        {/* Header Section */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="heading-4 text-foreground">Client Management</h1>
+            <button
+              className="primary-btn flex items-center gap-2"
+              onClick={() => setIsAddClientOpen(true)}
+            >
+              Add Client
+            </button>
+          </div>
 
-      <div className="flex justify-between items-center mb-6 gap-4">
-        {/* Search Bar */}
-        <div className="relative flex-1">
-          <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search by client name, email, phone, documents, creation date, or status"
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-blue-500"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-
-        {/* Export Button */}
-        <button className="px-4 py-2 rounded-lg border border-gray-200 flex items-center gap-2">
-          <FiDownload />
-          Export
-        </button>
-      </div>
-
-      {/* Client Table */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-auto">
-        <div className="min-w-[1200px]">
-          <table className="w-full">
-            <thead className="bg-accent-primary">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                  <input type="checkbox" className="rounded" />
-                </th>
-                <th
-                  className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
-                  onClick={() => handleSort("business_name")}
-                >
-                  Client Name
-                  {sortConfig.key === "business_name" && (
-                    <span className="ml-1">
-                      {sortConfig.direction === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </th>
-                <th
-                  className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
-                  onClick={() => handleSort("email")}
-                >
-                  Email
-                  {sortConfig.key === "email" && (
-                    <span className="ml-1">
-                      {sortConfig.direction === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </th>
-                <th
-                  className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
-                  onClick={() => handleSort("phone")}
-                >
-                  Phone
-                  {sortConfig.key === "phone" && (
-                    <span className="ml-1">
-                      {sortConfig.direction === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </th>
-                <th
-                  className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider cursor-pointer hover:bg-black/10"
-                  onClick={() => handleSort("DOCUMENTS")}
-                >
-                  Documents
-                  {sortConfig.key === "DOCUMENTS" && (
-                    <span className="ml-1">
-                      {sortConfig.direction === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                  <div className="relative" ref={creationDateRef}>
-                    <div
-                      className="flex items-center gap-2 cursor-pointer"
-                      onClick={() =>
-                        setShowCreationDatePicker(!showCreationDatePicker)
-                      }
-                    >
-                      <span>Creation Date</span>
-                      <svg
-                        className={`w-4 h-4 transition-transform ${
-                          showCreationDatePicker ? "rotate-180" : ""
-                        }`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </div>
-                    {showCreationDatePicker && (
-                      <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
-                        <input
-                          type="date"
-                          className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
-                          value={creationDateFilter}
-                          onChange={(e) =>
-                            setCreationDateFilter(e.target.value)
-                          }
-                        />
-                        {creationDateFilter && (
-                          <button
-                            onClick={() => setCreationDateFilter("")}
-                            className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
-                          >
-                            Clear
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                  <div className="relative" ref={statusRef}>
-                    <div
-                      className="flex items-center gap-2 cursor-pointer"
-                      onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-                    >
-                      <span>Status</span>
-                      <svg
-                        className={`w-4 h-4 transition-transform ${
-                          showStatusDropdown ? "rotate-180" : ""
-                        }`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </div>
-                    {showStatusDropdown && (
-                      <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
-                        <select
-                          className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
-                          value={filterStatus}
-                          onChange={(e) => {
-                            setFilterStatus(e.target.value);
-                            setShowStatusDropdown(false);
-                          }}
-                        >
-                          <option value="">All</option>
-                          <option value="verified">Verified</option>
-                          <option value="verify_now">Verify Now</option>
-                        </select>
-                        {filterStatus && (
-                          <button
-                            onClick={() => {
-                              setFilterStatus("");
-                              setShowStatusDropdown(false);
-                            }}
-                            className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
-                          >
-                            Clear
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {currentItems.map((client) => (
-                <UserRow
-                  key={client.id}
-                  client={client}
-                  setEditClient={setEditClient}
-                  setIsEditClientOpen={setIsEditClientOpen}
+          {/* Search and Filter Section */}
+          <div className="bg-background rounded-2xl border border-accent-primary shadow-sm p-6">
+            <div className="flex justify-between items-center gap-4">
+              {/* Search Bar */}
+              <div className="relative flex-1">
+                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search by client name, email, phone, documents, creation date, or status"
+                  className="w-full max-w-[650px] pl-10 pr-4 py-3 rounded-xl border border-accent-primary bg-background text-foreground placeholder-secondary-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      {/* Pagination - moved outside scrollable container */}
-      <div className="flex justify-between items-center p-4 border-t border-gray-200 bg-white rounded-b-lg">
-        <div className="flex gap-2">
-          <button
-            onClick={() => setCurrentPage(1)}
-            disabled={currentPage === 1}
-            className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
-          >
-            &lt;&lt;
-          </button>
-          <button
-            onClick={() => setCurrentPage(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
-          >
-            &lt;
-          </button>
-          {getVisiblePageNumbers().map((pageNum, index) =>
-            typeof pageNum === "number" ? (
-              <button
-                key={index}
-                onClick={() => setCurrentPage(pageNum)}
-                className={`px-3 py-1 rounded border ${
-                  currentPage === pageNum
-                    ? "bg-blue-500 text-white"
-                    : "border-gray-200 hover:bg-gray-50"
-                }`}
+              </div>
+
+              {/* Export Button */}
+              <button 
+                className="secondary-btn flex items-center gap-2"
+                onClick={handleExportCSV}
               >
-                {pageNum}
+                <FiDownload className="w-4 h-4" />
+                Export CSV
               </button>
-            ) : (
-              <span key={index} className="px-3 py-1">
-                ...
-              </span>
-            )
-          )}
-          <button
-            onClick={() => setCurrentPage(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
-          >
-            &gt;
-          </button>
-          <button
-            onClick={() => setCurrentPage(totalPages)}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 rounded border border-gray-200 disabled:opacity-50"
-          >
-            &gt;&gt;
-          </button>
+            </div>
+          </div>
         </div>
-        <div className="text-sm text-foreground">
-          Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-          {Math.min(currentPage * itemsPerPage, filteredClients.length)} of{" "}
-          {filteredClients.length} entries
+
+        {/* Client Table */}
+        <div className="bg-white shadow-lg rounded-2xl overflow-hidden border border-gray-100">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-gray-100">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <FiUsers className="text-blue-600 text-lg" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800">
+                  Client Management
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Manage and organize your clients
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="overflow-x-auto overflow-y-visible">
+            <div className="min-w-[1200px] relative">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-200">
+                    <th className="text-left px-8 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                        checked={currentItems.length > 0 && selectedClients.size === currentItems.length}
+                        onChange={handleSelectAll}
+                      />
+                    </th>
+                    <th
+                      className="text-left px-8 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => handleSort("business_name")}
+                    >
+                      Client Name
+                      {sortConfig.key === "business_name" && (
+                        <span className="ml-1">
+                          {sortConfig.direction === "asc" ? (
+                            <FiChevronUp className="w-4 h-4 inline" />
+                          ) : (
+                            <FiChevronDown className="w-4 h-4 inline" />
+                          )}
+                        </span>
+                      )}
+                    </th>
+                    <th
+                      className="text-left px-6 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => handleSort("email")}
+                    >
+                      Email
+                      {sortConfig.key === "email" && (
+                        <span className="ml-1">
+                          {sortConfig.direction === "asc" ? (
+                            <FiChevronUp className="w-4 h-4 inline" />
+                          ) : (
+                            <FiChevronDown className="w-4 h-4 inline" />
+                          )}
+                        </span>
+                      )}
+                    </th>
+                    <th
+                      className="text-left px-6 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => handleSort("phone")}
+                    >
+                      Phone
+                      {sortConfig.key === "phone" && (
+                        <span className="ml-1">
+                          {sortConfig.direction === "asc" ? (
+                            <FiChevronUp className="w-4 h-4 inline" />
+                          ) : (
+                            <FiChevronDown className="w-4 h-4 inline" />
+                          )}
+                        </span>
+                      )}
+                    </th>
+                    <th
+                      className="text-left px-6 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => handleSort("DOCUMENTS")}
+                    >
+                      Documents
+                      {sortConfig.key === "DOCUMENTS" && (
+                        <span className="ml-1">
+                          {sortConfig.direction === "asc" ? (
+                            <FiChevronUp className="w-4 h-4 inline" />
+                          ) : (
+                            <FiChevronDown className="w-4 h-4 inline" />
+                          )}
+                        </span>
+                      )}
+                    </th>
+                    <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                      <div className="relative" ref={creationDateRef}>
+                        <div
+                          className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 transition-colors rounded px-2 py-1"
+                          onClick={() =>
+                            setShowCreationDatePicker(!showCreationDatePicker)
+                          }
+                        >
+                          <span>Creation Date</span>
+                          <svg
+                            className={`w-4 h-4 transition-transform ${
+                              showCreationDatePicker ? "rotate-180" : ""
+                            }`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        </div>
+                        {showCreationDatePicker && (
+                          <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
+                            <input
+                              type="date"
+                              className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
+                              value={creationDateFilter}
+                              onChange={(e) =>
+                                setCreationDateFilter(e.target.value)
+                              }
+                            />
+                            {creationDateFilter && (
+                              <button
+                                onClick={() => setCreationDateFilter("")}
+                                className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
+                              >
+                                Clear
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </th>
+                    <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                      <div className="relative" ref={statusRef}>
+                        <div
+                          className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 transition-colors rounded px-2 py-1"
+                          onClick={() =>
+                            setShowStatusDropdown(!showStatusDropdown)
+                          }
+                        >
+                          <span>Status</span>
+                          <svg
+                            className={`w-4 h-4 transition-transform ${
+                              showStatusDropdown ? "rotate-180" : ""
+                            }`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        </div>
+                        {showStatusDropdown && (
+                          <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-gray-200 p-2">
+                            <select
+                              className="w-full text-sm rounded border border-gray-300 focus:outline-none focus:border-blue-500 p-1"
+                              value={filterStatus}
+                              onChange={(e) => {
+                                setFilterStatus(e.target.value);
+                                setShowStatusDropdown(false);
+                              }}
+                            >
+                              <option value="">All</option>
+                              <option value="verified">Verified</option>
+                              <option value="verify_now">Verify Now</option>
+                            </select>
+                            {filterStatus && (
+                              <button
+                                onClick={() => {
+                                  setFilterStatus("");
+                                  setShowStatusDropdown(false);
+                                }}
+                                className="w-full mt-1 text-xs text-gray-600 hover:text-gray-800"
+                              >
+                                Clear
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </th>
+                    <th className="text-left px-8 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-100">
+                  {currentItems.map((client) => (
+                    <UserRow
+                      key={client.id}
+                      client={client}
+                      setEditClient={setEditClient}
+                      setIsEditClientOpen={setIsEditClientOpen}
+                      isSelected={selectedClients.has(client.id)}
+                      onSelect={handleSelectClient}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
+        {/* Pagination - moved outside scrollable container */}
+        <div className="flex justify-between items-center px-6 py-4 border-t border-gray-200 bg-white rounded-b-xl">
+          <div className="flex gap-1">
+            <button
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <FiChevronsLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <FiChevronLeft className="w-4 h-4" />
+            </button>
+            {getVisiblePageNumbers().map((pageNum, index) =>
+              typeof pageNum === "number" ? (
+                <button
+                  key={index}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`px-3 py-2 text-sm font-medium border rounded-md transition-colors ${
+                    currentPage === pageNum
+                      ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                      : "text-gray-700 bg-white border-gray-300 hover:bg-gray-50"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              ) : (
+                <span key={index} className="px-3 py-2 text-sm text-gray-500">
+                  ...
+                </span>
+              )
+            )}
+            <button
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <FiChevronRight className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <FiChevronsRight className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="text-sm text-gray-700">
+            Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+            {Math.min(currentPage * itemsPerPage, filteredClients.length)} of{" "}
+            {filteredClients.length} entries
+          </div>
+        </div>
+        {isEditClientOpen && (
+          <AddOrManageClient
+            oldClient={editClient}
+            isNew={false}
+            setIsAddClientOpen={setIsEditClientOpen}
+            setEditClient={setEditClient}
+          />
+        )}
+
+        {/* CSV Export Modal */}
+        {showExportModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden max-w-md w-full mx-4">
+              {/* Modal Header */}
+              <div className="bg-gradient-to-r from-primary to-secondary p-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white/20 rounded-lg">
+                    <FiDownload className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">Export to CSV</h3>
+                    <p className="text-white/90 text-sm">Download client data</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6">
+                <div className="space-y-4">
+                  <div className="bg-gradient-to-r from-accent-primary to-accent-secondary rounded-xl p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                        <FiUsers className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-foreground">
+                          {selectedClients.size > 0 
+                            ? `${selectedClients.size} selected clients` 
+                            : `${filteredClients.length} clients`}
+                        </p>
+                        <p className="text-sm text-secondary-foreground">
+                          {selectedClients.size > 0 
+                            ? "Export selected clients only" 
+                            : "Export all filtered clients"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <h4 className="font-semibold text-foreground mb-2">Included Fields:</h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm text-secondary-foreground">
+                      <span>• Business Name</span>
+                      <span>• Business Type</span>
+                      <span>• Email Address</span>
+                      <span>• Phone Numbers</span>
+                      <span>• TIN Number</span>
+                      <span>• Address</span>
+                      <span>• Status</span>
+                      <span>• Dates</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Modal Actions */}
+                <div className="flex gap-3 mt-6">
+                  <button
+                    onClick={() => setShowExportModal(false)}
+                    className="flex-1 px-4 py-3 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors duration-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={confirmExportCSV}
+                    className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-primary to-secondary text-white font-medium hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    <FiDownload className="w-4 h-4" />
+                    Export CSV
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-      {isEditClientOpen && (
-        <AddOrManageClient
-          oldClient={editClient}
-          isNew={false}
-          setIsAddClientOpen={setIsEditClientOpen}
-          setEditClient={setEditClient}
-        />
-      )}
     </div>
   );
 };

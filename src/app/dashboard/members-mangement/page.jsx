@@ -1,6 +1,20 @@
 "use client";
 import { HiOutlineEllipsisVertical } from "react-icons/hi2";
 import { IoFilterSharp } from "react-icons/io5";
+import {
+  FiUsers,
+  FiUserPlus,
+  FiSearch,
+  FiEdit3,
+  FiTrash2,
+  FiMail,
+  FiPhone,
+  FiCalendar,
+  FiShield,
+  FiEye,
+  FiX,
+  FiCheck,
+} from "react-icons/fi";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { authFetch } from "@/utils/auth";
@@ -29,6 +43,7 @@ const MembersManagementPage = () => {
   });
   // State for actions dropdown and search
   const [actionsIndex, setActionsIndex] = useState(null);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const actionsDropdownRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [message, setMessage] = useState({ type: "", text: "" });
@@ -198,210 +213,344 @@ const MembersManagementPage = () => {
   };
 
   // Toggle actions dropdown
-  const toggleActionsDropdown = (index) => {
-    setActionsIndex(actionsIndex === index ? null : index);
+  const toggleActionsDropdown = (index, event) => {
+    if (actionsIndex === index) {
+      setActionsIndex(null);
+    } else {
+      const buttonRect = event.currentTarget.getBoundingClientRect();
+      const dropdownWidth = 192; // w-48 = 192px
+      const dropdownHeight = 96; // Approximate height for 2 items
+
+      // Calculate initial position
+      let top = buttonRect.bottom + 8;
+      let left = buttonRect.right - dropdownWidth;
+
+      // Boundary checking
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+
+      // Adjust if dropdown goes off right edge
+      if (left < 8) {
+        left = buttonRect.left; // Align left edges instead
+      }
+
+      // Adjust if dropdown goes off bottom edge
+      if (top + dropdownHeight > viewportHeight) {
+        top = buttonRect.top - dropdownHeight - 8; // Show above button
+      }
+
+      setDropdownPosition({ top, left });
+      setActionsIndex(index);
+    }
   };
 
   return (
-    <div className="p-6">
-      {/* Header Section */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-800">
-          Members Management
-        </h1>
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-background via-accent-primary/20 to-accent-secondary/30 p-6">
       {/* Main Container */}
-      <div className="w-full p-6 bg-white shadow-lg space-y-6 rounded-xl border">
-        <div className="space-y-2 flex justify-between gap-3">
-          <div className="space-y-2">
-            <h4 className="heading-4">Agency members</h4>
-            <p className="subtitle-text text-secondary-foreground">
-              Agency members can be given access to data in the project. Users
-              with the "Viewer" role do not consume seats.
-            </p>
-          </div>
-          <div>
-            <button
-              className="primary-btn h-max w-max bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-              onClick={() => openModal()}
-            >
-              + Add Members
-            </button>
-            <div className="flex flex-col items-end mt-4 gap-2">
-              <h2 className="heading-5 text-foreground">
-                {members.length} of 20
-              </h2>
-              <p className="body-text text-secondary-foreground">User Seats</p>
-              <h2 className="body-text text-secondary-foreground">
-                20 included in plan
-              </h2>
-              <h2 className="body-text text-primary">Get More Seats</h2>
+      <div className="bg-white/80 backdrop-blur-sm shadow-2xl rounded-3xl border border-white/20 overflow-hidden">
+        {/* Compact Header */}
+        <div className="bg-gradient-to-r from-primary to-secondary p-6">
+          <div className="flex items-center justify-between gap-6">
+            {/* Left Section - Title and Info */}
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                <FiUsers className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="heading-3 text-white">Members Management</h1>
+                <div className="flex items-center gap-4 text-white/90 mt-1">
+                  <div className="flex items-center gap-1">
+                    <FiUsers className="w-3 h-3" />
+                    <span className="label-text">
+                      {members.length} Total Members
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <FiShield className="w-3 h-3" />
+                    <span className="label-text">Role-based Access</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Section - Actions and Stats */}
+            <div className="flex items-center gap-4">
+              {/* User Seats Info - Compact */}
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2 text-center">
+                <div className="text-white font-semibold text-sm">
+                  {members.length} of 20
+                </div>
+                <div className="text-white/80 text-xs">User Seats</div>
+              </div>
+
+              {/* Add Members Button */}
+              <button
+                className="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-4 py-2 rounded-xl transition-all duration-300 font-medium border border-white/30"
+                onClick={() => openModal()}
+              >
+                <FiUserPlus className="w-4 h-4" />
+                Add Members
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Success/Error Messages */}
-        {message.text && (
-          <div
-            className={`mb-4 p-3 rounded-lg flex items-center gap-2 ${
-              message.type === "success"
-                ? "bg-green-100 text-green-800"
-                : "bg-red-100 text-red-800"
-            }`}
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d={
-                  message.type === "success"
-                    ? "M5 13l4 4L19 7"
-                    : "M6 18L18 6M6 6l12 12"
-                }
-              />
-            </svg>
-            {message.text}
+        {/* Sub-header with description */}
+        <div className="bg-gradient-to-r from-accent-primary/30 to-accent-secondary/30 px-6 py-4 border-b border-white/20">
+          <div className="flex items-center justify-between">
+            <p className="text-secondary-foreground text-sm">
+              Agency members can be given access to data in the project. Users
+              with the "Viewer" role do not consume seats.
+            </p>
+            <button className="text-primary hover:text-secondary transition-colors duration-200 font-medium text-sm">
+              Get More Seats
+            </button>
           </div>
-        )}
-
-        {/* Search Bar and Filter Button */}
-        <div className="flex items-center gap-4">
-          <input
-            type="text"
-            placeholder="Search for name or email"
-            className="px-3 py-2 border rounded-md w-full focus:outline-primary"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <button className="p-2 border rounded bg-accent-secondary">
-            <IoFilterSharp className="h-5 w-5" />
-          </button>
         </div>
 
-        {/* Members Table */}
-        <table className="w-full text-center border-separate border-spacing-y-2">
-          <thead>
-            <tr className="text-forground body-text">
-              <th className="text-start">Member</th>
-              <th className="text-center">Roles</th>
-              <th>Added</th>
-              <th>Last Active</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredMembers.length === 0 ? (
-              <tr>
-                <td colSpan="5" className="py-6 text-gray-500 text-center">
-                  No members found.
-                </td>
-              </tr>
-            ) : (
-              filteredMembers.map((member, idx) => (
-                <tr key={member.id} className="bg-white border-b">
-                  <td className="flex items-center gap-3 py-4">
-                    <Image
-                      src="/user.jpg"
-                      alt="Profile"
-                      width={40}
-                      height={40}
-                      className="rounded-full aspect-square object-cover"
-                    />
-                    <div>
-                      <div className="text-forground label-text text-start">
-                        {member.fullName}
+        {/* Container Content */}
+        <div className="p-8 space-y-6">
+          {/* Success/Error Messages */}
+          {message.text && (
+            <div
+              className={`p-4 rounded-xl flex items-center gap-3 backdrop-blur-sm border ${
+                message.type === "success"
+                  ? "bg-green-50/80 text-green-800 border-green-200"
+                  : "bg-red-50/80 text-red-800 border-red-200"
+              }`}
+            >
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                  message.type === "success" ? "bg-green-100" : "bg-red-100"
+                }`}
+              >
+                {message.type === "success" ? (
+                  <FiCheck className="w-4 h-4" />
+                ) : (
+                  <FiX className="w-4 h-4" />
+                )}
+              </div>
+              <span className="font-medium">{message.text}</span>
+            </div>
+          )}
+
+          {/* Search Bar and Filter Button */}
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <FiSearch color="#000000" className="h-5 w-5" />
+              </div>
+              <input
+                id="search-member"
+                type="text"
+                placeholder="Search for name or email"
+                className="w-full max-w-[700px] pl-12 pr-4 py-3 bg-white/60 backdrop-blur-sm border border-slate-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <button className="p-3 bg-gradient-to-r from-accent-primary to-accent-secondary border border-white/40 rounded-xl hover:shadow-lg transition-all duration-300 group">
+              <IoFilterSharp className="h-5 w-5 text-primary group-hover:text-secondary transition-colors duration-200" />
+            </button>
+          </div>
+
+          {/* Members Table */}
+          <div className="bg-white/40 backdrop-blur-sm rounded-2xl border border-white/30 overflow-visible">
+            {/* Table Header */}
+            <div className="bg-gradient-to-r from-primary/10 to-secondary/10 px-8 py-4 border-b border-white/20">
+              <div className="grid grid-cols-5 gap-4">
+                <div className="flex items-center gap-2 text-foreground font-semibold">
+                  <FiUsers className="w-4 h-4" />
+                  <span>Member</span>
+                </div>
+                <div className="flex items-center justify-center gap-2 text-foreground font-semibold">
+                  <FiShield className="w-4 h-4" />
+                  <span>Role</span>
+                </div>
+                <div className="flex items-center justify-center gap-2 text-foreground font-semibold">
+                  <FiCalendar className="w-4 h-4" />
+                  <span>Added</span>
+                </div>
+                <div className="flex items-center justify-center gap-2 text-foreground font-semibold">
+                  <FiEye className="w-4 h-4" />
+                  <span>Status</span>
+                </div>
+                <div className="text-center text-foreground font-semibold">
+                  Actions
+                </div>
+              </div>
+            </div>
+
+            {/* Table Body */}
+            <div className="divide-y divide-white/20">
+              {filteredMembers.length === 0 ? (
+                <div className="py-12 text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-accent-primary to-accent-secondary rounded-full flex items-center justify-center mx-auto mb-4">
+                    <FiUsers className="w-8 h-8 text-primary" />
+                  </div>
+                  <p className="text-secondary-foreground body-text">
+                    No members found.
+                  </p>
+                  <p className="text-secondary-foreground label-text mt-1">
+                    Try adjusting your search criteria
+                  </p>
+                </div>
+              ) : (
+                filteredMembers.map((member, idx) => (
+                  <div
+                    key={member.id}
+                    className="grid grid-cols-5 gap-4 px-8 py-6 hover:bg-gradient-to-r hover:from-accent-primary/20 hover:to-accent-secondary/20 transition-all duration-300 group"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="relative">
+                        <Image
+                          src="/user.jpg"
+                          alt="Profile"
+                          width={48}
+                          height={48}
+                          className="rounded-full aspect-square object-cover ring-2 ring-white/50"
+                        />
+                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
                       </div>
-                      <div className="text-secondary-foreground label-text">
-                        {member.email}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="text-forground label-text">{member.role}</td>
-                  <td className="text-forground label-text">{member.added}</td>
-                  <td className="text-forground label-text">
-                    {member.lastActive}
-                  </td>
-                  <td>
-                    <div className="relative flex items-center justify-center gap-1">
-                      <button
-                        className="text-primary w-5 h-5 cursor-pointer"
-                        onClick={() => toggleActionsDropdown(idx)}
-                      >
-                        <HiOutlineEllipsisVertical />
-                      </button>
-                      {actionsIndex === idx && (
-                        <div
-                          ref={actionsDropdownRef}
-                          className="absolute top-full mt-2 w-48 bg-white border rounded-md shadow-lg z-10"
-                        >
-                          <div
-                            className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => openModal(true, member)}
-                          >
-                            Edit
-                          </div>
-                          <div
-                            className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => handleRemove(member.id)}
-                          >
-                            Remove from this project
-                          </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-foreground font-semibold truncate group-hover:text-primary transition-colors duration-200">
+                          {member.fullName}
                         </div>
-                      )}
+                        <div className="flex items-center gap-1 text-secondary-foreground label-text">
+                          <FiMail className="w-3 h-3" />
+                          <span className="truncate">{member.email}</span>
+                        </div>
+                      </div>
                     </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+                    <div className="flex items-center justify-center">
+                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-primary/10 to-secondary/10 text-primary rounded-full label-text font-medium">
+                        <FiShield className="w-3 h-3" />
+                        {member.role}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-center">
+                      <div className="flex items-center gap-1 text-secondary-foreground label-text">
+                        <FiCalendar className="w-3 h-3" />
+                        <span>{member.added}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-center">
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full label-text font-medium ${
+                          member.lastActive === "Active"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        <div
+                          className={`w-2 h-2 rounded-full ${
+                            member.lastActive === "Active"
+                              ? "bg-green-500"
+                              : "bg-gray-400"
+                          }`}
+                        ></div>
+                        {member.lastActive}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-center">
+                      <div className="relative">
+                        <button
+                          className="p-2 text-secondary-foreground hover:text-primary hover:bg-white/50 rounded-lg transition-all duration-200"
+                          onClick={(e) => toggleActionsDropdown(idx, e)}
+                        >
+                          <HiOutlineEllipsisVertical className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Actions Dropdown Portal */}
+      {actionsIndex !== null && (
+        <div
+          ref={actionsDropdownRef}
+          className="fixed w-48 bg-white/95 backdrop-blur-md border border-white/40 rounded-xl shadow-2xl z-[9999] overflow-hidden"
+          style={{
+            top: `${dropdownPosition.top}px`,
+            left: `${dropdownPosition.left}px`,
+          }}
+        >
+          <div
+            className="flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-gradient-to-r hover:from-primary/10 hover:to-secondary/10 cursor-pointer transition-all duration-200"
+            onClick={() => {
+              const member = filteredMembers[actionsIndex];
+              openModal(true, member);
+              setActionsIndex(null);
+            }}
+          >
+            <FiEdit3 className="w-4 h-4" />
+            Edit Member
+          </div>
+          <div
+            className="flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 cursor-pointer transition-all duration-200"
+            onClick={() => {
+              const member = filteredMembers[actionsIndex];
+              handleRemove(member.id);
+              setActionsIndex(null);
+            }}
+          >
+            <FiTrash2 className="w-4 h-4" />
+            Remove Member
+          </div>
+        </div>
+      )}
 
       {/* Modal for Adding/Editing Members */}
       {modal.isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-semibold mb-4">
-              {modal.isEditMode ? "Edit Member" : "Add New Member"}
-            </h2>
-            {message.text && (
-              <div
-                className={`mb-4 p-3 rounded-lg flex items-center gap-2 ${
-                  message.type === "success"
-                    ? "bg-green-100 text-green-800"
-                    : "bg-red-100 text-red-800"
-                }`}
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white/95 backdrop-blur-md p-8 rounded-3xl shadow-2xl w-full max-w-lg border border-white/30 relative overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+                  {modal.isEditMode ? (
+                    <FiEdit3 className="w-5 h-5 text-white" />
+                  ) : (
+                    <FiUserPlus className="w-5 h-5 text-white" />
+                  )}
+                </div>
+                <h2 className="text-2xl font-bold text-foreground">
+                  {modal.isEditMode ? "Edit Member" : "Add New Member"}
+                </h2>
+              </div>
+              <button
+                onClick={closeModal}
+                className="p-2 text-secondary-foreground hover:text-foreground hover:bg-white/50 rounded-xl transition-all duration-200"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d={
-                      message.type === "success"
-                        ? "M5 13l4 4L19 7"
-                        : "M6 18L18 6M6 6l12 12"
-                    }
-                  />
-                </svg>
-                {message.text}
+                <FiX className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Success Message */}
+            {message.text && message.type === "success" && (
+              <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 text-green-800 rounded-xl flex items-center gap-3">
+                <FiCheck className="w-5 h-5 text-green-600" />
+                <span>{message.text}</span>
               </div>
             )}
-            <div className="space-y-4">
+
+            {/* Error Message */}
+            {message.text && message.type === "error" && (
+              <div className="mb-6 p-4 bg-gradient-to-r from-red-50 to-rose-50 border border-red-200 text-red-800 rounded-xl flex items-center gap-3">
+                <FiX className="w-5 h-5 text-red-600" />
+                <span>{message.text}</span>
+              </div>
+            )}
+
+            <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
+                  <FiUsers className="w-4 h-4" />
                   Full Name
                 </label>
                 <input
@@ -409,25 +558,27 @@ const MembersManagementPage = () => {
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded-md focus:outline-primary"
+                  className="w-full px-4 py-3 bg-white/50 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 placeholder-secondary-foreground"
                   placeholder="Enter full name"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Email
+                <label className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
+                  <FiMail className="w-4 h-4" />
+                  Email Address
                 </label>
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded-md focus:outline-primary"
-                  placeholder="Enter email"
+                  className="w-full px-4 py-3 bg-white/50 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 placeholder-secondary-foreground"
+                  placeholder="Enter email address"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
+                  <FiPhone className="w-4 h-4" />
                   Phone Number
                 </label>
                 <input
@@ -435,12 +586,13 @@ const MembersManagementPage = () => {
                   name="phoneNumber"
                   value={formData.phoneNumber}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded-md focus:outline-primary"
+                  className="w-full px-4 py-3 bg-white/50 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 placeholder-secondary-foreground"
                   placeholder="Enter phone number"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
+                  <FiShield className="w-4 h-4" />
                   {modal.isEditMode ? "Set New Password" : "Password"}
                 </label>
                 <input
@@ -448,7 +600,7 @@ const MembersManagementPage = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded-md focus:outline-primary"
+                  className="w-full px-4 py-3 bg-white/50 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 placeholder-secondary-foreground"
                   placeholder={
                     modal.isEditMode ? "Set new password" : "Enter password"
                   }
@@ -456,7 +608,8 @@ const MembersManagementPage = () => {
               </div>
               {!modal.isEditMode && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
+                    <FiShield className="w-4 h-4" />
                     Confirm Password
                   </label>
                   <input
@@ -464,20 +617,21 @@ const MembersManagementPage = () => {
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border rounded-md focus:outline-primary"
+                    className="w-full px-4 py-3 bg-white/50 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 placeholder-secondary-foreground"
                     placeholder="Confirm password"
                   />
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
+                  <FiShield className="w-4 h-4" />
                   Role
                 </label>
                 <select
                   name="role"
                   value={formData.role}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded-md focus:outline-primary"
+                  className="w-full px-4 py-3 bg-white/50 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 text-foreground"
                 >
                   {roles.map((role) => (
                     <option key={role} value={role}>
@@ -487,18 +641,18 @@ const MembersManagementPage = () => {
                 </select>
               </div>
             </div>
-            <div className="flex justify-end gap-3 mt-6">
+            <div className="flex gap-4 pt-6 mt-6">
               <button
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                className="flex-1 px-6 py-3 text-secondary-foreground bg-white/50 border border-white/30 rounded-xl hover:bg-white/70 transition-all duration-200 font-medium"
                 onClick={closeModal}
               >
                 Cancel
               </button>
               <button
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 font-medium"
                 onClick={handleSave}
               >
-                Save
+                {modal.isEditMode ? "Update Member" : "Add Member"}
               </button>
             </div>
           </div>
