@@ -65,18 +65,6 @@ const ContactUs = () => {
   return (
     <section className="min-h-screen bg-gradient-to-br from-background via-accent-primary/20 to-accent-secondary/30 py-12">
       <div className="mx-auto max-w-[1280px] 2xl:max-w-[1600px] px-6">
-        {/* Header Section */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-6">
-            <MdEmail className="w-8 h-8 text-primary" />
-          </div>
-          <h1 className="heading-2 text-foreground mb-4">Get in Touch</h1>
-          <p className="subtitle-text text-secondary-foreground max-w-2xl mx-auto">
-            Have questions or need assistance? We're here to help you succeed. 
-            Reach out to our team and we'll get back to you as soon as possible.
-          </p>
-        </div>
-
         {/* Main Content Grid */}
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Contact Form - Takes 2 columns */}
@@ -266,12 +254,6 @@ const ContactUs = () => {
                   <p className="text-secondary-foreground">
                     Your feedback matters! Let's make things even better together.
                   </p>
-                  <button 
-                    type="button" 
-                    className="w-full bg-gradient-to-r from-primary to-secondary text-white font-semibold py-3 px-6 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300"
-                  >
-                    Send Feedback
-                  </button>
                 </div>
               </div>
             </div>

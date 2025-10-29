@@ -5,11 +5,11 @@ export function formatDate(dateString) {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return "";
     
-    const day = date.getUTCDate().toString().padStart(2, '0');
     const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
-    const year = date.getUTCFullYear();
+    const day = date.getUTCDate().toString().padStart(2, '0');
+    const year = date.getUTCFullYear().toString();
 
-    return `${day}/${month}/${year}`;
+    return `${month}/${day}/${year}`;
   } catch (error) {
     console.error("Error formatting date:", error);
     return "";
@@ -17,7 +17,9 @@ export function formatDate(dateString) {
 }
 
 export function formatDate2(dateString) {
+  if (!dateString) return "";
   const date = new Date(dateString);
+  if (isNaN(date.getTime())) return "";
   const day = date.getUTCDate();
   const monthNames = [
     "January",
@@ -67,7 +69,10 @@ export function extractFilenameFromUrl(url) {
 }
 
 export function calculatePercentage(part, whole) {
-  return (part / whole) * 100;
+  const p = Number(part);
+  const w = Number(whole);
+  if (!Number.isFinite(p) || !Number.isFinite(w) || w <= 0) return 0;
+  return (p / w) * 100;
 }
 
 export function extractEmail(inputString) {

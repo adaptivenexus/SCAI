@@ -25,7 +25,7 @@ const Sidebar = () => {
 
   const sidebarVariants = {
     open: {
-      width: "280px",
+      width: "200px",
       transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
     },
     closed: {
@@ -36,6 +36,7 @@ const Sidebar = () => {
 
   return (
     <motion.div
+      suppressHydrationWarning
       className="bg-gradient-to-b from-[var(--secondary)] to-[var(--primary)] h-screen overflow-y-auto overflow-x-hidden w-[80px] lg:w-auto shadow-2xl border-r border-[var(--accent-primary)]/20 "
       initial="closed"
       animate={isOpen ? "open" : "closed"}
@@ -47,7 +48,7 @@ const Sidebar = () => {
         setIsDocumentsOpen(false);
       }}
     >
-      <div className="flex flex-col h-full bg-gradient-to-b from-[var(--secondary)] to-[var(--primary)]">
+      <div className="flex flex-col h-full">
         <div className="pt-8 px-4 pb-4 flex justify-center">
           <Link
             href={"/"}
@@ -92,7 +93,10 @@ const Sidebar = () => {
           </Link>
         </div>
         <div className="mx-4 my-6 h-px bg-gradient-to-r from-transparent via-[var(--accent-primary)]/50 to-transparent" />
-        <nav className="flex-1 px-4">
+        <nav
+          suppressHydrationWarning
+          className="flex-1 px-4 h-full flex flex-col"
+        >
           <ul className="space-y-2">
             <li>
               <Link
@@ -286,7 +290,9 @@ const Sidebar = () => {
                 </AnimatePresence>
               </Link>
             </li>
+          </ul>
 
+          <ul className="flex flex-col mt-auto space-y-2 mb-7">
             <li>
               <Link
                 href={"/dashboard/contact"}

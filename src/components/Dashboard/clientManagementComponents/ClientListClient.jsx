@@ -89,6 +89,20 @@ const ClientListPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, clients]);
 
+  // Open edit modal if navigated with edit intent from global search
+  useEffect(() => {
+    const edit = searchParams.get("edit");
+    const id = searchParams.get("id");
+    if (edit === "1" && id && clients && clients.length > 0) {
+      const clientToEdit = clients.find((c) => String(c.id) === String(id));
+      if (clientToEdit) {
+        setEditClient(clientToEdit);
+        setIsEditClientOpen(true);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, clients]);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: "id", direction: "asc" });
   const [currentPage, setCurrentPage] = useState(1);
@@ -244,11 +258,6 @@ const ClientListPage = () => {
     }
 
     return rangeWithDots;
-  };
-
-  const handlePageChange = (page) => {
-    if (page < 1 || page > totalPages) return;
-    setCurrentPage(page);
   };
 
   return (

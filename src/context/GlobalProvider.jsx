@@ -64,12 +64,17 @@ const GlobalDashboardProvider = ({ children }) => {
     if (!dateString || !query) return false;
 
     const queryLower = String(query).toLowerCase().trim();
-    const querySanitized = queryLower.replace(/[^a-z0-9]/g, "");
+    // Normalize ordinals and quotes in query (e.g., "12th Jul '24")
+    const queryNormalized = queryLower
+      .replace(/\b(\d{1,2})(st|nd|rd|th)\b/g, "$1")
+      .replace(/'(?=\d{2}\b)/g, "")
+      .replace(/\s+/g, " ");
+    const querySanitized = queryNormalized.replace(/[^a-z0-9]/g, "");
 
     // Quick raw string checks (works even if parsing fails)
     const rawLower = String(dateString).toLowerCase();
     const rawSanitized = rawLower.replace(/[^a-z0-9]/g, "");
-    if (rawLower.includes(queryLower) || rawSanitized.includes(querySanitized)) {
+    if (rawLower.includes(queryNormalized) || rawSanitized.includes(querySanitized)) {
       return true;
     }
 
@@ -95,18 +100,23 @@ const GlobalDashboardProvider = ({ children }) => {
     const isoDate = rawLower.match(/\d{4}-\d{2}-\d{2}/)?.[0] || `${year}-${monthNum}-${day}`;
     const compactYMD = `${year}${monthNum}${day}`;
     const compactDMY = `${day}${monthNum}${year}`;
+    const ordinalDay = `${dayNoPad}${[1,21,31].includes(dayNum)?'st':[2,22].includes(dayNum)?'nd':[3,23].includes(dayNum)?'rd':'th'}`;
 
     const candidates = [
       year, yy,
+      `'${yy}`,
       `${monthLong} ${year}`, `${monthShort} ${year}`, `${monthNum}/${year}`, `${monthNumNoPad}/${year}`,
       `${year} ${monthLong}`, `${year} ${monthShort}`, `${year}/${monthNum}`, `${year}/${monthNumNoPad}`,
       `${day} ${monthLong}`, `${monthLong} ${day}`, `${day} ${monthShort}`, `${monthShort} ${day}`,
+      `${ordinalDay} ${monthLong}`, `${ordinalDay} ${monthShort}`, `${monthLong} ${ordinalDay}`, `${monthShort} ${ordinalDay}`,
       `${monthLong} ${day}, ${year}`, `${day} ${monthLong}, ${year}`,
       `${monthShort} ${day}, ${year}`, `${day} ${monthShort}, ${year}`,
       `${day}/${monthNum}/${year}`, `${monthNum}/${day}/${year}`, `${dayNoPad}/${monthNumNoPad}/${year}`, `${monthNumNoPad}/${dayNoPad}/${year}`,
       `${year}-${monthNum}-${day}`, `${day}-${monthNum}-${year}`, `${monthNum}-${day}-${year}`,
       `${year}/${monthNum}/${day}`, `${day}-${monthNum}-${year}`, `${monthNum}-${day}-${year}`,
-      `${day}.${monthNum}.${year}`, `${monthNum}.${day}.${year}`,
+      `${day}.${monthNum}.${year}`, `${monthNum}.${day}.${year}`, `${year}.${monthNum}.${day}`,
+      `${year} ${monthNum} ${day}`, `${day} ${monthNum} ${year}`, `${monthNum} ${day} ${year}`,
+      `${year}${monthNum}${day}`, `${day}${monthNum}${yy}`, `${monthNum}${day}${year}`,
       compactYMD, compactDMY,
       isoDate,
       rawLower.replace(/,/g, ""), rawLower.replace(/[ ,]/g, ""),
@@ -115,7 +125,7 @@ const GlobalDashboardProvider = ({ children }) => {
     const candidatesSanitized = candidates.map((c) => String(c).toLowerCase().replace(/[^a-z0-9]/g, ""));
 
     return (
-      candidates.some((c) => String(c).toLowerCase().includes(queryLower)) ||
+      candidates.some((c) => String(c).toLowerCase().includes(queryNormalized)) ||
       candidatesSanitized.some((c) => c.includes(querySanitized))
     );
   };

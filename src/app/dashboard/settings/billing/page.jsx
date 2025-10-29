@@ -17,6 +17,12 @@ const BillingPage = () => {
   const [isOpenManagePlan, setIsOpenManagePlan] = useState(false);
   const router = useRouter();
 
+  // Ensure numeric values are safe to render
+  const safeNumber = (v) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  };
+
   // Helper to compare only date part
   const getDateOnly = (dateStr) => {
     const d = new Date(dateStr);
@@ -43,10 +49,10 @@ const BillingPage = () => {
   useEffect(() => {
     if (subscriptionDetails) {
       const percentage = calculatePercentage(
-        subscription.used_scans,
-        subscriptionDetails.allowed_smart_scan
+        safeNumber(subscription?.used_scans),
+        safeNumber(subscriptionDetails?.allowed_smart_scan)
       );
-      setScanPercentage(percentage);
+      setScanPercentage(Number.isFinite(percentage) ? percentage : 0);
     }
   }, [subscription]);
   const dropdownRef = useRef(null);
@@ -66,10 +72,19 @@ const BillingPage = () => {
     };
   }, [isOpenManagePlan]);
 
-  if (!isMounted) {
+  // Show loader until essential billing data is ready
+  const isDataReady =
+    isMounted &&
+    subscription && Object.keys(subscription).length > 0 &&
+    subscriptionDetails && Object.keys(subscriptionDetails).length > 0;
+
+  if (!isDataReady) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-lg">Loading...</p>
+      <div className="min-h-screen grid place-items-center">
+        <div className="flex items-center gap-3 text-gray-600">
+          <span className="inline-block w-6 h-6 border-2 border-gray-300 border-t-primary rounded-full animate-spin" />
+          <p className="text-sm">Loading billing data...</p>
+        </div>
       </div>
     );
   }
@@ -245,16 +260,22 @@ const BillingPage = () => {
               <p className="subtitle-text text-secondary-foreground">
                 Overall Usage:{" "}
                 {Math.min(
-                  subscription.used_scans,
-                  subscriptionDetails.allowed_smart_scan
+                  safeNumber(subscription?.used_scans),
+                  safeNumber(subscriptionDetails?.allowed_smart_scan)
                 )}{" "}
-                pages used out of {subscriptionDetails.allowed_smart_scan}.
+                pages used out of {safeNumber(subscriptionDetails?.allowed_smart_scan)}.
               </p>
               <div className="w-full h-6 rounded-lg border overflow-hidden">
                 <div
                   className={`h-full bg-primary-gradient`}
                   style={{
-                    width: `${scanPercentage > 100 ? 100 : scanPercentage}%`,
+                    width: `${Number.isFinite(scanPercentage)
+                      ? scanPercentage > 100
+                        ? 100
+                        : scanPercentage < 0
+                        ? 0
+                        : scanPercentage
+                      : 0}%`,
                   }}
                 ></div>
               </div>
@@ -262,8 +283,8 @@ const BillingPage = () => {
                 Remaining:{" "}
                 {Math.max(
                   0,
-                  subscriptionDetails.allowed_smart_scan -
-                    subscription.used_scans
+                  safeNumber(subscriptionDetails?.allowed_smart_scan) -
+                    safeNumber(subscription?.used_scans)
                 )}{" "}
                 Credits left.
               </p>
@@ -294,8 +315,8 @@ const BillingPage = () => {
                 <b>
                   {Math.max(
                     0,
-                    subscription.used_scans -
-                      subscriptionDetails.allowed_smart_scan
+                    safeNumber(subscription?.used_scans) -
+                      safeNumber(subscriptionDetails?.allowed_smart_scan)
                   )}
                 </b>
               </p>
@@ -303,13 +324,18 @@ const BillingPage = () => {
                 Estimated extra cost:{" "}
                 <b>
                   $
-                  {(
-                    Math.max(
+                  {(() => {
+                    const extraPages = Math.max(
                       0,
-                      subscription.used_scans -
-                        subscriptionDetails.allowed_smart_scan
-                    ) * subscriptionDetails.exceeds_page_limit_cost
-                  ).toFixed(2)}
+                      safeNumber(subscription?.used_scans) -
+                        safeNumber(subscriptionDetails?.allowed_smart_scan)
+                    );
+                    const costPerPage = safeNumber(
+                      subscriptionDetails?.exceeds_page_limit_cost
+                    );
+                    const total = extraPages * costPerPage;
+                    return Number.isFinite(total) ? total.toFixed(2) : "0.00";
+                  })()}
                 </b>
               </p>
             </div>
