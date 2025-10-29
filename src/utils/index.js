@@ -5,9 +5,10 @@ export function formatDate(dateString) {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return "";
     
-    const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
-    const day = date.getUTCDate().toString().padStart(2, '0');
-    const year = date.getUTCFullYear().toString();
+    // Use local date parts to avoid timezone shifting that can cause off-by-one day issues
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const year = date.getFullYear().toString();
 
     return `${month}/${day}/${year}`;
   } catch (error) {

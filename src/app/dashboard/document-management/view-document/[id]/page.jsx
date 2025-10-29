@@ -125,13 +125,13 @@ const DocumentViewPage = () => {
       <DocumentTopSection
         clientName={document.client}
         documentName={
-          parsedData?.parsed_data?.suggested_title ||
+          document?.parsed_data?.suggested_title ||
           extractFilenameFromUrl(document.file)
         }
         category={
           document.category?.name || parsedData?.parsed_data?.document_type
         }
-        documentDate={parsedData?.document_date}
+        documentDate={formatDate(parsedData?.document_date)}
         processDate={formatDate(document.uploaded_at)}
         documentId={document.id}
       />

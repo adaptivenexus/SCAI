@@ -792,7 +792,8 @@ const DashboardPage = () => {
                         </div>
                         <div>
                           <p className="font-medium text-gray-900 truncate max-w-48">
-                            {extractFilenameFromUrl(doc.file)}
+                            {doc?.parsed_data?.parsed_data?.suggested_title ||
+                              extractFilenameFromUrl(doc.file)}
                           </p>
                           <p className="text-sm text-gray-500">Document</p>
                         </div>
