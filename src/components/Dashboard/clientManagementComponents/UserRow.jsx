@@ -8,7 +8,7 @@ import { GlobalContext } from "@/context/GlobalProvider";
 import Avatar from "../Avatar";
 import { createPortal } from "react-dom";
 
-const UserRow = ({ client, setEditClient, setIsEditClientOpen }) => {
+const UserRow = ({ client, setEditClient, setIsEditClientOpen, isSelected, onSelect }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const dropdownRef = useRef(null);
@@ -40,13 +40,15 @@ const UserRow = ({ client, setEditClient, setIsEditClientOpen }) => {
     <>
       {/* Table Row */}
       <tr className="hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100">
-      <td className="px-6 py-4">
+      <td className="px-8 py-4">
         <input
           type="checkbox"
           className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          checked={isSelected || false}
+          onChange={() => onSelect && onSelect(client.id)}
         />
       </td>
-      <td className="px-6 py-4">
+      <td className="px-8 py-4">
         <div className="flex items-center gap-3">
           <div className="relative">
             {/* Avatar */}
@@ -91,7 +93,7 @@ const UserRow = ({ client, setEditClient, setIsEditClientOpen }) => {
           </button>
         )}
       </td>
-      <td className="px-6 py-4 relative">
+      <td className="px-8 py-4 relative">
         <button
           type="button"
           onClick={(e) => {

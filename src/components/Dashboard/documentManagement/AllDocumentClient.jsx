@@ -156,6 +156,7 @@ const AllDocumentPage = () => {
   const statusRef = useRef(null); // Ref for status dropdown
   const clientDropdownRef = useRef(null); // Ref for client dropdown
   const [isMounted, setIsMounted] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
 
   // Get subscription info (adjust according to your context/provider)
   const { subscription, subscriptionDetails } = useAuth();
@@ -328,19 +329,28 @@ const AllDocumentPage = () => {
   };
 
   const handleExportCSV = () => {
-    try {
-      // Get selected documents data
-      const selectedDocsData = documents.filter((doc) =>
-        selectedDocuments.has(doc.id)
-      );
+    // Get selected documents data or all filtered documents if none selected
+    const documentsToExport = selectedDocuments.size > 0 
+      ? documents.filter((doc) => selectedDocuments.has(doc.id))
+      : filteredAndSortedItems;
 
-      if (selectedDocsData.length === 0) {
-        toast.warning("No documents selected for export");
-        return;
-      }
+    if (documentsToExport.length === 0) {
+      toast.warning("No documents to export");
+      return;
+    }
+
+    setShowExportModal(true);
+  };
+
+  const confirmExportCSV = () => {
+    try {
+      // Get selected documents data or all filtered documents if none selected
+      const documentsToExport = selectedDocuments.size > 0 
+        ? documents.filter((doc) => selectedDocuments.has(doc.id))
+        : filteredAndSortedItems;
 
       // Format data for CSV - correctly access the document structure
-      const csvData = selectedDocsData.map((doc) => {
+      const csvData = documentsToExport.map((doc) => {
         // Extract client name and email from the client string
         // Format is usually "Business Name (email@example.com)" or just "Business Name"
         let clientName = "Unknown Client";
@@ -453,7 +463,7 @@ const AllDocumentPage = () => {
       link.setAttribute("href", url);
       link.setAttribute(
         "download",
-        `selected_documents_${new Date().toISOString().split("T")[0]}.csv`
+        `documents_${new Date().toISOString().split("T")[0]}.csv`
       );
       link.style.visibility = "hidden";
       document.body.appendChild(link);
@@ -461,11 +471,13 @@ const AllDocumentPage = () => {
       document.body.removeChild(link);
 
       toast.success(
-        `Successfully exported ${selectedDocsData.length} documents to CSV`
+        `Successfully exported ${documentsToExport.length} documents to CSV`
       );
+      setShowExportModal(false);
     } catch (error) {
       console.error("Error exporting CSV:", error);
       toast.error("Failed to export CSV file");
+      setShowExportModal(false);
     }
   };
 
@@ -930,7 +942,7 @@ const AllDocumentPage = () => {
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-gray-100">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg">
-                <FiSearch className="text-blue-600 text-lg" />
+                <FiFolder className="text-blue-600 text-lg" />
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-800">
@@ -1221,6 +1233,84 @@ const AllDocumentPage = () => {
             docs={selectedDocs}
             handleReset={handleReset}
           />
+        )}
+
+        {/* CSV Export Modal */}
+        {showExportModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden max-w-md w-full mx-4">
+              {/* Modal Header */}
+              <div className="bg-gradient-to-r from-primary to-secondary p-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white/20 rounded-lg">
+                    <FiDownload className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">Export to CSV</h3>
+                    <p className="text-white/90 text-sm">Download document data</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6">
+                <div className="space-y-4">
+                  <div className="bg-gradient-to-r from-accent-primary to-accent-secondary rounded-xl p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                        <FiFolder className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-foreground">
+                          {selectedDocuments.size > 0 
+                            ? `${selectedDocuments.size} selected documents` 
+                            : `${filteredAndSortedItems.length} documents`}
+                        </p>
+                        <p className="text-sm text-secondary-foreground">
+                          {selectedDocuments.size > 0 
+                            ? "Export selected documents only" 
+                            : "Export all filtered documents"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <h4 className="font-semibold text-foreground mb-2">Included Fields:</h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm text-secondary-foreground">
+                      <span>• Document Title</span>
+                      <span>• Client Name</span>
+                      <span>• Client Email</span>
+                      <span>• Category</span>
+                      <span>• Status</span>
+                      <span>• Upload Date</span>
+                      <span>• Document Date</span>
+                      <span>• Summary</span>
+                      <span>• Page Count</span>
+                      <span>• File URL</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Modal Actions */}
+                <div className="flex gap-3 mt-6">
+                  <button
+                    onClick={() => setShowExportModal(false)}
+                    className="flex-1 px-4 py-3 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors duration-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={confirmExportCSV}
+                    className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-primary to-secondary text-white font-medium hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    <FiDownload className="w-4 h-4" />
+                    Export CSV
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
         {/* Only use the ManageDocument modal from DocumentRow now. */}
       </div>

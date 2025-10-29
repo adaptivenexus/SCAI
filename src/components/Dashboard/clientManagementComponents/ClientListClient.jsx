@@ -14,7 +14,9 @@ import {
   FiChevronLeft,
   FiChevronRight,
   FiChevronsRight,
+  FiUsers,
 } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 // Helper function to check if a date matches the search query or filter in various formats
 const doesDateMatch = (dateString, query) => {
@@ -74,6 +76,8 @@ const ClientListPage = () => {
 
   const [isEditClientOpen, setIsEditClientOpen] = useState(false);
   const [editClient, setEditClient] = useState(null);
+  const [selectedClients, setSelectedClients] = useState(new Set());
+  const [showExportModal, setShowExportModal] = useState(false);
 
   // Open verify modal if navigated from notification
   useEffect(() => {
@@ -260,6 +264,114 @@ const ClientListPage = () => {
     return rangeWithDots;
   };
 
+  // Select all functionality
+  const handleSelectAll = () => {
+    if (selectedClients.size === currentItems.length && currentItems.length > 0) {
+      // If all current page items are selected, deselect all
+      setSelectedClients(new Set());
+    } else {
+      // Select all current page items
+      const allCurrentIds = new Set(currentItems.map(client => client.id));
+      setSelectedClients(allCurrentIds);
+    }
+  };
+
+  const handleSelectClient = (clientId) => {
+    setSelectedClients(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(clientId)) {
+        newSet.delete(clientId);
+      } else {
+        newSet.add(clientId);
+      }
+      return newSet;
+    });
+  };
+
+  // CSV Export functionality
+  const handleExportCSV = () => {
+    // Get selected clients data or all filtered clients if none selected
+    const clientsToExport = selectedClients.size > 0 
+      ? filteredClients.filter(client => selectedClients.has(client.id))
+      : filteredClients;
+
+    if (clientsToExport.length === 0) {
+      toast.warning("No clients to export");
+      return;
+    }
+
+    setShowExportModal(true);
+  };
+
+  const confirmExportCSV = () => {
+    try {
+      // Get selected clients data or all filtered clients if none selected
+      const clientsToExport = selectedClients.size > 0 
+        ? filteredClients.filter(client => selectedClients.has(client.id))
+        : filteredClients;
+
+      // Format data for CSV with only necessary fields
+      const csvData = clientsToExport.map(client => ({
+        id: client.id,
+        business_name: client.business_name || '',
+        business_type: client.business_type || '',
+        email: client.email || '',
+        mobile_number: client.mobile_number || '',
+        telephone_number: client.telephone_number || '',
+        tin: client.tin || '',
+        business_address: client.business_address || '',
+        status: client.status || '',
+        created_at: client.created_at || '',
+        updated_at: client.updated_at || ''
+      }));
+
+      // Create CSV headers
+      const headers = [
+        'ID',
+        'Business Name',
+        'Business Type', 
+        'Email',
+        'Mobile Number',
+        'Telephone Number',
+        'TIN',
+        'Business Address',
+        'Status',
+        'Created At',
+        'Updated At'
+      ];
+
+      // Convert to CSV format
+      const csvContent = [
+        headers.join(','),
+        ...csvData.map(row => 
+          Object.values(row).map(value => {
+            // Escape quotes and wrap in quotes if contains comma, quote, or newline
+            const escapedValue = String(value).replace(/"/g, '""');
+            return /[",\n\r]/.test(escapedValue) ? `"${escapedValue}"` : escapedValue;
+          }).join(',')
+        )
+      ].join('\n');
+
+      // Create and download file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `clients_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success(`Successfully exported ${clientsToExport.length} clients to CSV`);
+      setShowExportModal(false);
+    } catch (error) {
+      console.error('Error exporting CSV:', error);
+      toast.error('Failed to export CSV file');
+      setShowExportModal(false);
+    }
+  };
+
   return (
     <div className="p-6 flex-1 min-w-0">
       <div className="flex flex-col h-full">
@@ -291,9 +403,12 @@ const ClientListPage = () => {
               </div>
 
               {/* Export Button */}
-              <button className="secondary-btn flex items-center gap-2">
+              <button 
+                className="secondary-btn flex items-center gap-2"
+                onClick={handleExportCSV}
+              >
                 <FiDownload className="w-4 h-4" />
-                Export
+                Export CSV
               </button>
             </div>
           </div>
@@ -304,7 +419,7 @@ const ClientListPage = () => {
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-gray-100">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg">
-                <FiSearch className="text-blue-600 text-lg" />
+                <FiUsers className="text-blue-600 text-lg" />
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-800">
@@ -325,6 +440,8 @@ const ClientListPage = () => {
                       <input
                         type="checkbox"
                         className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                        checked={currentItems.length > 0 && selectedClients.size === currentItems.length}
+                        onChange={handleSelectAll}
                       />
                     </th>
                     <th
@@ -500,6 +617,8 @@ const ClientListPage = () => {
                       client={client}
                       setEditClient={setEditClient}
                       setIsEditClientOpen={setIsEditClientOpen}
+                      isSelected={selectedClients.has(client.id)}
+                      onSelect={handleSelectClient}
                     />
                   ))}
                 </tbody>
@@ -571,6 +690,82 @@ const ClientListPage = () => {
             setIsAddClientOpen={setIsEditClientOpen}
             setEditClient={setEditClient}
           />
+        )}
+
+        {/* CSV Export Modal */}
+        {showExportModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden max-w-md w-full mx-4">
+              {/* Modal Header */}
+              <div className="bg-gradient-to-r from-primary to-secondary p-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white/20 rounded-lg">
+                    <FiDownload className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">Export to CSV</h3>
+                    <p className="text-white/90 text-sm">Download client data</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6">
+                <div className="space-y-4">
+                  <div className="bg-gradient-to-r from-accent-primary to-accent-secondary rounded-xl p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                        <FiUsers className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-foreground">
+                          {selectedClients.size > 0 
+                            ? `${selectedClients.size} selected clients` 
+                            : `${filteredClients.length} clients`}
+                        </p>
+                        <p className="text-sm text-secondary-foreground">
+                          {selectedClients.size > 0 
+                            ? "Export selected clients only" 
+                            : "Export all filtered clients"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <h4 className="font-semibold text-foreground mb-2">Included Fields:</h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm text-secondary-foreground">
+                      <span>• Business Name</span>
+                      <span>• Business Type</span>
+                      <span>• Email Address</span>
+                      <span>• Phone Numbers</span>
+                      <span>• TIN Number</span>
+                      <span>• Address</span>
+                      <span>• Status</span>
+                      <span>• Dates</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Modal Actions */}
+                <div className="flex gap-3 mt-6">
+                  <button
+                    onClick={() => setShowExportModal(false)}
+                    className="flex-1 px-4 py-3 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors duration-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={confirmExportCSV}
+                    className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-primary to-secondary text-white font-medium hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    <FiDownload className="w-4 h-4" />
+                    Export CSV
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>
