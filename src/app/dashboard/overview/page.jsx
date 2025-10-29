@@ -376,82 +376,105 @@ const DashboardPage = () => {
   };
 
   return (
-    <div className="p-8 w-full flex flex-col gap-6">
-      {/* Enhanced KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpiCards.map((card) => {
+    <div className="p-6 w-full flex flex-col gap-6 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
+      {/* Modern KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {kpiCards.map((card, index) => {
           const IconComponent = card.icon;
           return (
             <div
               key={card.id}
-              className={`group relative overflow-hidden flex items-center p-6 gap-4 rounded-xl bg-white/90 backdrop-blur-sm border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-[1.01]`}
+              className="group relative overflow-hidden p-6 rounded-2xl bg-white/80 backdrop-blur-xl shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer hover:scale-[1.02] hover:-translate-y-1 animate-fadeInUp"
+              style={{
+                animationDelay: `${index * 100}ms`,
+                background: `linear-gradient(135deg, rgba(255,255,255,0.9) 0%, ${card.color}15 100%)`,
+              }}
               role="button"
               aria-label={`Select KPI ${card.title}`}
               tabIndex={0}
               title={card.title}
             >
-              {/* Decorative hover tint */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none mix-blend-multiply bg-gradient-to-r from-transparent to-blue-50"></div>
-              {/* Accent edge */}
-              <div
-                className={`w-2 h-full rounded-full transition-all duration-300 group-hover:w-3`}
-                style={{ backgroundColor: card.color }}
-              ></div>
+              {/* Animated background gradient */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/20 to-white/40"></div>
+              </div>
+
+              {/* Floating particles effect */}
+              <div className="absolute inset-0 overflow-hidden">
+                <div
+                  className="absolute -top-2 -right-2 w-20 h-20 rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-700"
+                  style={{
+                    background: `radial-gradient(circle, ${card.color}40 0%, transparent 70%)`,
+                  }}
+                ></div>
+              </div>
+
               {/* Content */}
-              <div className="space-y-2 flex-1">
-                <p className="text-lg font-semibold text-secondary-foreground">
-                  {card.title}
-                </p>
-                <div className="flex items-center gap-2">
-                  <p className="text-2xl font-bold text-foreground">
-                    {card.value}
-                  </p>
-                  {card.trend && (
-                    <span
-                      className={`text-xs font-medium flex items-center gap-1 px-2 py-0.5 rounded-full ${
-                        card.trendUp
-                          ? "text-green-700 bg-green-50"
-                          : "text-gray-600 bg-gray-100"
-                      }`}
+              <div className="relative z-10 space-y-4">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">
+                      {card.title}
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <p className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                        {card.value}
+                      </p>
+                      {card.trend && (
+                        <span
+                          className={`text-xs font-semibold flex items-center gap-1 px-2.5 py-1 rounded-full backdrop-blur-sm border ${
+                            card.trendUp
+                              ? "text-green-700 bg-green-100/80 border-green-200/50"
+                              : "text-gray-700 bg-gray-100/80 border-gray-200/50"
+                          }`}
+                        >
+                          {card.trendUp && <MdTrendingUp size={12} />}
+                          {!card.trendUp && (
+                            <MdTrendingUp size={12} className="rotate-180" />
+                          )}
+                          {card.trend}
+                        </span>
+                      )}
+                    </div>
+                    {card.subtitle && (
+                      <p className="text-xs text-gray-500 font-medium">
+                        {card.subtitle}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Modern Icon */}
+                  <div className="relative">
+                    <div
+                      className="relative p-3 rounded-2xl bg-gradient-to-br from-white to-gray-50 shadow-lg border border-white/50"
+                      style={{ boxShadow: `0 8px 32px ${card.color}20` }}
                     >
-                      {card.trendUp && <MdTrendingUp size={12} />}
-                      {card.trend}
-                    </span>
-                  )}
+                      <IconComponent size={28} color={card.color} />
+                    </div>
+                  </div>
                 </div>
-                {card.subtitle && (
-                  <p className="text-sm" style={{ color: card.color }}>
-                    {card.subtitle}
-                  </p>
-                )}
+
+                {/* Progress Bar */}
                 {typeof card.progress === "number" && (
-                  <div className="mt-3">
-                    <div className="h-2 w-full rounded-full bg-gray-100">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs text-gray-600">
+                      <span>Progress</span>
+                      <span className="font-semibold">{card.progress}%</span>
+                    </div>
+                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div
-                        className="h-2 rounded-full transition-all duration-500"
+                        className="h-2 rounded-full transition-all duration-1000 ease-out"
                         style={{
                           width: `${Math.max(
                             0,
                             Math.min(card.progress, 100)
                           )}%`,
-                          backgroundColor: card.color,
+                          background: `linear-gradient(90deg, ${card.color}, ${card.color}80)`,
                         }}
                       ></div>
                     </div>
-                    <p className="text-xs mt-1 text-gray-500">
-                      {card.progress}%
-                    </p>
                   </div>
                 )}
-              </div>
-              {/* Icon */}
-              <div className="ml-auto transition-transform duration-300 group-hover:scale-110 relative z-10">
-                <div
-                  className="p-3 rounded-full bg-gray-50 ring-1"
-                  style={{ borderColor: card.color }}
-                >
-                  <IconComponent size={38} color={card.color} />
-                </div>
               </div>
             </div>
           );
