@@ -12,6 +12,11 @@ import {
   FiUsers,
   FiX,
   FiChevronDown,
+  FiShoppingCart,
+  FiPackage,
+  FiSettings,
+  FiTool,
+  FiMoreHorizontal,
 } from "react-icons/fi";
 import { IoIosRefresh } from "react-icons/io";
 import { BiLoaderAlt } from "react-icons/bi";
@@ -67,6 +72,19 @@ const doesDateMatch = (dateString, query) => {
     console.error("Error in doesDateMatch:", dateString, query, error);
     return false;
   }
+};
+
+// Helper function to get business type icon
+const getBusinessTypeIcon = (businessType) => {
+  const iconMap = {
+    'Retail': FiShoppingCart,
+    'Wholesale': FiPackage,
+    'Manufacturing': FiSettings,
+    'Service': FiTool,
+    'Other': FiMoreHorizontal,
+  };
+  
+  return iconMap[businessType] || FiFolder;
 };
 
 const AllDocumentPage = () => {
@@ -583,13 +601,18 @@ const AllDocumentPage = () => {
                           : "bg-accent-secondary"
                       }`}
                     >
-                      <FiFolder
-                        className={`w-4 h-4 ${
-                          selectedClientId === client.id
-                            ? "text-background"
-                            : "text-primary"
-                        }`}
-                      />
+                      {(() => {
+                        const IconComponent = getBusinessTypeIcon(client.business_type);
+                        return (
+                          <IconComponent
+                            className={`w-4 h-4 ${
+                              selectedClientId === client.id
+                                ? "text-background"
+                                : "text-primary"
+                            }`}
+                          />
+                        );
+                      })()}
                     </div>
 
                     {/* Client Name */}
@@ -636,8 +659,7 @@ const AllDocumentPage = () => {
           <div className="bg-background rounded-2xl border border-accent-primary shadow-sm p-6">
             <div className="flex flex-wrap items-center gap-4">
               {/* --- Custom Client Filter Dropdown --- */}
-              <div className="relative min-w-[220px]" ref={clientDropdownRef}>
-                {/* Dropdown Trigger */}
+              {/* <div className="relative min-w-[220px]" ref={clientDropdownRef}>
                 <button
                   type="button"
                   className="w-full pl-4 pr-4 py-3 rounded-xl border border-accent-primary bg-background text-foreground focus:outline-none focus:border-primary hover:border-secondary transition-all duration-200 text-sm font-medium text-left flex items-center justify-between"
@@ -650,11 +672,9 @@ const AllDocumentPage = () => {
                     }`}
                   />
                 </button>
-
-                {/* Dropdown Menu */}
+                  
                 {showClientDropdown && (
                   <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-accent-primary rounded-xl shadow-lg z-50 max-h-80 overflow-hidden">
-                    {/* Search Input */}
                     <div className="p-3 border-b border-accent-primary">
                       <div className="relative">
                         <input
@@ -669,9 +689,7 @@ const AllDocumentPage = () => {
                       </div>
                     </div>
 
-                    {/* Options List */}
                     <div className="max-h-60 overflow-y-auto">
-                      {/* All Clients Option */}
                       <button
                         type="button"
                         className={`w-full px-4 py-3 text-left text-sm hover:bg-accent-secondary transition-colors duration-150 flex items-center gap-3 ${
@@ -688,7 +706,6 @@ const AllDocumentPage = () => {
                         )}
                       </button>
 
-                      {/* Client Options */}
                       {filteredClients.length > 0 ? (
                         filteredClients.map((client) => (
                           <button
@@ -752,7 +769,7 @@ const AllDocumentPage = () => {
                     </div>
                   </div>
                 )}
-              </div>
+              </div> */}
 
               {/* --- Search Input --- */}
               <div className="relative max-w-md">
