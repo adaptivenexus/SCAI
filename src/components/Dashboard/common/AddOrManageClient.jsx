@@ -64,22 +64,22 @@ const AddOrManageClient = ({
           );
           if (!response.ok) {
             const result = await response.json();
-            console.log(await result);
-
-            if (!response.ok) {
-              for (const key in result) {
-                if (Array.isArray(result[key])) {
-                  setMessage({ type: "error", text: result[key] });
-                  return;
-                }
+            // Show first validation error array if present, else generic
+            for (const key in result) {
+              if (Array.isArray(result[key])) {
+                toast.error(result[key]);
+                setMessage({ type: "error", text: result[key] });
+                return;
               }
             }
             toast.error("Something went wrong or check your fields");
             return;
           }
-          toast.success("Client added successfully");
-          fetchClients();
           setIsAddClientOpen(false);
+          // Ensure edit state cleared defensively
+          !isNew && setEditClient(null);
+          fetchClients();
+          toast.success("Client added successfully");
         } catch (error) {
           console.error("Error adding client:", error);
           toast.error("Something went wrong");
@@ -104,15 +104,17 @@ const AddOrManageClient = ({
             }
           );
           if (!response.ok) {
-            console.log(await response.json());
             const errorData = await response.json();
-            setMessage({ type: "error", text: errorData.error });
-            //toast.error("Something went wrong or check your fields");
+            console.log(errorData);
+            const msg = errorData.error || errorData.message || "Something went wrong or check your fields";
+            setMessage({ type: "error", text: msg });
+            toast.error(msg);
             return;
           }
-          toast.success("Client updated successfully");
-          fetchClients();
           setIsAddClientOpen(false);
+          !isNew && setEditClient(null);
+          fetchClients();
+          toast.success("Client updated successfully");
         } catch (error) {
           console.error("Error updating client:", error);
           toast.error("Something went wrong");
@@ -380,14 +382,14 @@ const AddOrManageClient = ({
             </div>
             <div className="flex flex-col flex-1 gap-1">
               <label htmlFor="tin">
-                Tax Identifier Number/Employer Id Number <span className="text-red-500">*</span>
+                TIN/EIN <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 name="tin"
                 id="tin"
                 className="border rounded-lg p-3 placeholder:text-secondary placeholder:font-medium outline-none"
-                placeholder="Enter Tax Identifier Number/Employer Id Number"
+                placeholder="Enter TIN/EIN"
                 value={client.tin}
                 onChange={handleChange}
               />

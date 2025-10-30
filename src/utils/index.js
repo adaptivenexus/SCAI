@@ -1,8 +1,31 @@
 export function formatDate(dateString) {
   if (!dateString) return "";
-  
+
   try {
-    const date = new Date(dateString);
+    const s = String(dateString).trim();
+
+    // Prefer extracting date components directly to avoid timezone shifts
+    // Pattern: YYYY-MM-DD (allowing / . - separators)
+    const isoMatch = s.match(/^(\d{4})[\/.\-](\d{1,2})[\/.\-](\d{1,2})/);
+    if (isoMatch) {
+      const y = isoMatch[1];
+      const m = isoMatch[2].padStart(2, "0");
+      const d = isoMatch[3].padStart(2, "0");
+      return `${d}/${m}/${y}`;
+    }
+
+    // Pattern: DMY or MDY with separators (default to DMY for display)
+    const sepMatch = s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})$/);
+    if (sepMatch) {
+      const a = sepMatch[1].padStart(2, "0");
+      const b = sepMatch[2].padStart(2, "0");
+      const y = sepMatch[3].length === 2 ? `20${sepMatch[3]}` : sepMatch[3];
+      // Assume DMY for display (common in en-GB contexts)
+      return `${a}/${b}/${y}`;
+    }
+
+    // Fallback: native Date parsing, but use local date parts to avoid UTC off-by-one
+    const date = new Date(s);
     if (isNaN(date.getTime())) return "";
     
     // Use local date parts to avoid timezone shifting that can cause off-by-one day issues

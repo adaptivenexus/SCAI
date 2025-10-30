@@ -212,7 +212,7 @@ const ManageDocument = ({
 
   return (
     <div
-      className="flex fixed top-0 inset-0 bg-black bg-opacity-50 !m-0 items-center justify-center z-40"
+      className="flex fixed top-0 inset-0 bg-black bg-opacity-50 !m-0 items-center justify-center z-30"
       onClick={() => setIsManageDocumentOpen(false)}
     >
       <div
