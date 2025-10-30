@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { authFetch } from "@/utils/auth";
 import { toast } from "react-toastify";
+import { FiEdit3, FiSave, FiX, FiLock, FiUser, FiMail, FiPhone, FiMapPin, FiHome } from "react-icons/fi";
 
 const AccountDetails = () => {
   const { user, refreshTokenFn } = useAuth();
@@ -116,54 +117,74 @@ const AccountDetails = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white rounded-xl shadow-xl overflow-hidden space-y-6">
-        <div className="bg-primary-gradient h-20 flex items-center justify-between px-6">
-          {/* Left Side: Account Details Label */}
-          <h4 className="heading-4 text-white font-bold drop-shadow-md">
-            Account Details
-          </h4>
-          {/* Right Side: Short Description and Buttons */}
-          <div className="flex items-center space-x-4">
-            <p className="text-gray-100 text-sm max-w-xs">
-              Manage your personal info like name, email, and contact
-              preferences.
+    <div className="p-8 space-y-8">
+      {/* Header Section */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+            <FiUser className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h2 className="heading-4 text-foreground">Account Details</h2>
+            <p className="body-text text-secondary-foreground">
+              Manage your personal information and contact preferences
             </p>
           </div>
         </div>
-        <div className="flex space-x-2 justify-end px-4">
+        
+        {/* Action Buttons */}
+        <div className="flex items-center gap-3">
           <Link
-            href={"/dashboard/settings/security-privacy"}
-            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition duration-200"
+            href="/dashboard/settings/security-privacy"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-accent-primary to-accent-secondary text-primary hover:shadow-lg transition-all duration-300 hover:scale-105"
           >
-            Change Password
+            <FiLock className="w-4 h-4" />
+            <span className="label-text font-medium">Change Password</span>
           </Link>
-          <button
-            onClick={handleEditToggle}
-            disabled={user?.role === "member"}
-            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition duration-200"
-          >
-            {isEditing ? "Cancel" : "Edit"}
-          </button>
-          {isEditing && (
-            <button
-              onClick={handleSave}
-              className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg font-medium hover:from-green-600 hover:to-green-700 transition duration-200"
-            >
-              Save
-            </button>
+          
+          {user?.role !== "member" && (
+            <>
+              {!isEditing ? (
+                <button
+                  onClick={handleEditToggle}
+                  className="flex items-center gap-2 px-6 py-2 rounded-xl bg-gradient-to-r from-primary to-secondary text-white hover:shadow-lg transition-all duration-300 hover:scale-105"
+                >
+                  <FiEdit3 className="w-4 h-4" />
+                  <span className="label-text font-medium">Edit</span>
+                </button>
+              ) : (
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleEditToggle}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-red-500 text-red-500 hover:bg-red-50 transition-all duration-300"
+                  >
+                    <FiX className="w-4 h-4" />
+                    <span className="label-text font-medium">Cancel</span>
+                  </button>
+                  <button
+                    onClick={handleSave}
+                    className="flex items-center gap-2 px-6 py-2 rounded-xl bg-gradient-to-r from-green-500 to-green-600 text-white hover:shadow-lg transition-all duration-300 hover:scale-105"
+                  >
+                    <FiSave className="w-4 h-4" />
+                    <span className="label-text font-medium">Save</span>
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
-        <div className="p-8 space-y-6">
-          <form className="grid grid-cols-2 gap-6">
-            {/* Agency Name */}
-            <div className="space-y-2">
-              <label
-                htmlFor="name"
-                className="block text-sm uppercase font-semibold text-gray-700"
-              >
-                Agency Name
-              </label>
+      </div>
+
+      {/* Form Section */}
+      <div className="bg-white/60 backdrop-blur-sm border border-accent-primary/30 rounded-3xl p-8 shadow-lg">
+        <form className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Agency Name */}
+          <div className="space-y-3">
+            <label htmlFor="name" className="flex items-center gap-2 label-text font-semibold text-foreground">
+              <FiUser className="w-4 h-4 text-primary" />
+              Agency Name
+            </label>
+            <div className="relative">
               <input
                 type="text"
                 id="name"
@@ -171,83 +192,148 @@ const AccountDetails = () => {
                 value={formData.name}
                 onChange={handleInputChange}
                 disabled={!isEditing}
-                className="py-3 px-4 rounded-xl bg-slate-100 w-full outline-none border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                className={`w-full py-4 px-4 rounded-2xl border-2 transition-all duration-300 outline-none ${
+                  isEditing
+                    ? "border-accent-primary/50 bg-white focus:border-primary focus:shadow-lg"
+                    : "border-accent-primary/30 bg-accent-primary/20 text-secondary-foreground"
+                }`}
+                placeholder="Enter your agency name"
               />
+              {isEditing && (
+                <div className="absolute inset-y-0 right-0 flex items-center pr-4">
+                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                </div>
+              )}
             </div>
-            {/* Email */}
-            <div className="space-y-2">
-              <label
-                htmlFor="email"
-                className="block text-sm uppercase font-semibold text-gray-700"
-              >
-                Email
-              </label>
+          </div>
+
+          {/* Email */}
+          <div className="space-y-3">
+            <label htmlFor="email" className="flex items-center gap-2 label-text font-semibold text-foreground">
+              <FiMail className="w-4 h-4 text-primary" />
+              Email Address
+            </label>
+            <div className="relative">
               <input
-                type="text"
-                name="email"
+                type="email"
                 id="email"
+                name="email"
                 value={formData.email}
-                onChange={handleInputChange}
                 disabled={true}
-                className="py-3 px-4 rounded-xl bg-slate-100 w-full outline-none border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                className="w-full py-4 px-4 rounded-2xl border-2 border-accent-primary/30 bg-accent-primary/20 text-secondary-foreground outline-none"
+                placeholder="Your email address"
               />
+              <div className="absolute inset-y-0 right-0 flex items-center pr-4">
+                <FiLock className="w-4 h-4 text-secondary-foreground" />
+              </div>
             </div>
-            {/* Phone Number */}
-            <div className="space-y-2">
-              <label
-                htmlFor="phoneNumber"
-                className="block text-sm uppercase font-semibold text-gray-700"
-              >
-                Phone Number
-              </label>
+            <p className="text-xs text-secondary-foreground">Email cannot be changed for security reasons</p>
+          </div>
+
+          {/* Phone Number */}
+          <div className="space-y-3">
+            <label htmlFor="phoneNumber" className="flex items-center gap-2 label-text font-semibold text-foreground">
+              <FiPhone className="w-4 h-4 text-primary" />
+              Phone Number
+            </label>
+            <div className="relative">
               <input
-                type="text"
-                name="phoneNumber"
+                type="tel"
                 id="phoneNumber"
+                name="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={handleInputChange}
                 disabled={!isEditing}
-                className="py-3 px-4 rounded-xl bg-slate-100 w-full outline-none border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                className={`w-full py-4 px-4 rounded-2xl border-2 transition-all duration-300 outline-none ${
+                  isEditing
+                    ? "border-accent-primary/50 bg-white focus:border-primary focus:shadow-lg"
+                    : "border-accent-primary/30 bg-accent-primary/20 text-secondary-foreground"
+                }`}
+                placeholder="Enter your phone number"
               />
+              {isEditing && (
+                <div className="absolute inset-y-0 right-0 flex items-center pr-4">
+                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                </div>
+              )}
             </div>
-            {/* City */}
-            <div className="space-y-2">
-              <label
-                htmlFor="city"
-                className="block text-sm uppercase font-semibold text-gray-700"
-              >
-                City
-              </label>
+          </div>
+
+          {/* City */}
+          <div className="space-y-3">
+            <label htmlFor="city" className="flex items-center gap-2 label-text font-semibold text-foreground">
+              <FiMapPin className="w-4 h-4 text-primary" />
+              City
+            </label>
+            <div className="relative">
               <input
                 type="text"
-                name="city"
                 id="city"
+                name="city"
                 value={formData.city}
                 onChange={handleInputChange}
                 disabled={!isEditing}
-                className="py-3 px-4 rounded-xl bg-slate-100 w-full outline-none border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                className={`w-full py-4 px-4 rounded-2xl border-2 transition-all duration-300 outline-none ${
+                  isEditing
+                    ? "border-accent-primary/50 bg-white focus:border-primary focus:shadow-lg"
+                    : "border-accent-primary/30 bg-accent-primary/20 text-secondary-foreground"
+                }`}
+                placeholder="Enter your city"
               />
+              {isEditing && (
+                <div className="absolute inset-y-0 right-0 flex items-center pr-4">
+                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                </div>
+              )}
             </div>
-            {/* Address */}
-            <div className="space-y-2 col-span-2">
-              <label
-                htmlFor="address"
-                className="block text-sm uppercase font-semibold text-gray-700"
-              >
-                Address
-              </label>
+          </div>
+
+          {/* Address */}
+          <div className="space-y-3 lg:col-span-2">
+            <label htmlFor="address" className="flex items-center gap-2 label-text font-semibold text-foreground">
+              <FiHome className="w-4 h-4 text-primary" />
+              Address
+            </label>
+            <div className="relative">
               <input
                 type="text"
-                name="address"
                 id="address"
+                name="address"
                 value={formData.address}
                 onChange={handleInputChange}
                 disabled={!isEditing}
-                className="py-3 px-4 rounded-xl bg-slate-100 w-full outline-none border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                className={`w-full py-4 px-4 rounded-2xl border-2 transition-all duration-300 outline-none ${
+                  isEditing
+                    ? "border-accent-primary/50 bg-white focus:border-primary focus:shadow-lg"
+                    : "border-accent-primary/30 bg-accent-primary/20 text-secondary-foreground"
+                }`}
+                placeholder="Enter your full address"
               />
+              {isEditing && (
+                <div className="absolute inset-y-0 right-0 flex items-center pr-4">
+                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                </div>
+              )}
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
+
+        {/* Info Section */}
+        {user?.role === "member" && (
+          <div className="mt-8 p-6 rounded-2xl bg-gradient-to-r from-accent-primary to-accent-secondary border border-primary/20">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center">
+                <FiLock className="w-4 h-4 text-primary" />
+              </div>
+              <div>
+                <h4 className="label-text font-semibold text-foreground">Member Account</h4>
+                <p className="text-sm text-secondary-foreground">
+                  Contact your administrator to update account details
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

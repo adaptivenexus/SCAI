@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { FiBell, FiMail, FiShield, FiActivity, FiSave, FiX, FiCheck } from "react-icons/fi";
 
 const NotificationSettingsPage = () => {
   const [isToggled, setIsToggled] = useState(false);
@@ -87,190 +88,269 @@ const NotificationSettingsPage = () => {
   };
 
   return (
-    <div className="space-y-6 ">
-      <div className="space-y-2 flex items-center justify-between">
-        <div>
-          <h4 className="heading-4">Notification Settings</h4>
-          <p className="subtitle-text text-secondary-foreground">
-            Stay updated with important alerts and updates. You can manage your
-            preferences below.
-          </p>
+    <div className="p-8 space-y-8">
+      {/* Header Section */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+            <FiBell className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h2 className="heading-4 text-foreground">Notification Settings</h2>
+            <p className="body-text text-secondary-foreground">
+              Stay updated with important alerts and manage your preferences
+            </p>
+          </div>
         </div>
+        
+        {/* Action Buttons */}
         <div className="flex gap-3">
-          <button className="primary-btn">Save</button>
-          <button className="secondary-btn">Cancel</button>
+          <button className="flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-red-500 text-red-500 hover:bg-red-50 transition-all duration-300">
+            <FiX className="w-4 h-4" />
+            <span className="label-text font-medium">Cancel</span>
+          </button>
+          <button className="flex items-center gap-2 px-6 py-2 rounded-xl bg-gradient-to-r from-primary to-secondary text-white hover:shadow-lg transition-all duration-300 hover:scale-105">
+            <FiSave className="w-4 h-4" />
+            <span className="label-text font-medium">Save Changes</span>
+          </button>
         </div>
       </div>
 
-      {/* Email notification */}
-      <div className="w-full p-6 bg-white shadow-lg space-y-6 rounded-xl border">
-        <div>
-          <div className="flex justify-between  ">
-            <div className=" w-[30%] space-y-2">
-              <h2 className="heading-5 text-foreground ">
-                Notification Settings
-              </h2>
-              <p className="body-text text-scondary-foreground">
-                Receive important updates and alerts via email for activities
-                related to your personal account, team collaboration, and system
-                notifications.
+      {/* Email Notifications Section */}
+      <div className="bg-white/60 backdrop-blur-sm border border-accent-primary/30 rounded-3xl p-8 shadow-lg">
+        <div className="flex items-start justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+              <FiMail className="w-5 h-5 text-white" />
+            </div>
+            <div className="max-w-md">
+              <h3 className="heading-5 text-foreground">Email Notifications</h3>
+              <p className="text-sm text-secondary-foreground mt-1">
+                Receive important updates and alerts via email for activities related to your account
               </p>
             </div>
+          </div>
 
-            <div className=" space-y-4 w-[50%]">
-              <button
-                onClick={() => setIsToggled(!isToggled)}
-                className={`w-14 h-7 flex items-center rounded-full p-1 duration-300 ${
-                  isToggled ? "bg-primary" : "bg-secondary-foreground"
+          {/* Master Toggle */}
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-secondary-foreground">
+              {isToggled ? "Enabled" : "Disabled"}
+            </span>
+            <button
+              onClick={() => setIsToggled(!isToggled)}
+              className={`relative w-16 h-8 rounded-full p-1 transition-all duration-300 ${
+                isToggled 
+                  ? "bg-gradient-to-r from-primary to-secondary shadow-lg" 
+                  : "bg-gray-300"
+              }`}
+            >
+              <div
+                className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-all duration-300 flex items-center justify-center ${
+                  isToggled ? "translate-x-8" : "translate-x-0"
                 }`}
               >
-                <div
-                  className={`bg-white w-5 h-5 rounded-full shadow-md transform duration-300 ${
-                    isToggled ? "translate-x-7" : ""
-                  }`}
-                />
-              </button>
+                {isToggled && <FiCheck className="w-3 h-3 text-primary" />}
+              </div>
+            </button>
+          </div>
+        </div>
 
-              {/* notification checkboxes and lists */}
-
-              <div className="space-y-6">
-                {emailNotifications.map(({ key, title, description }) => (
-                  <div key={key} className="flex items-start space-x-3">
-                    <input
-                      type="checkbox"
-                      id={key}
-                      checked={checkboxes[key]}
-                      onChange={() => handleCheckboxChange(key)}
-                      className="mt-1 h-5 w-5 "
-                    />
-                    <div>
-                      <label
-                        htmlFor={key}
-                        className="text-lg font-semibold text-foreground"
-                      >
-                        {title}
-                      </label>
-                      <p className="text-sm text-secondary-foreground">
-                        {description}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+        {/* Email Notification Options */}
+        <div className="space-y-4">
+          {emailNotifications.map(({ key, title, description }) => (
+            <div key={key} className="p-4 rounded-2xl border border-accent-primary/30 bg-white/50 hover:bg-white/80 transition-all duration-300">
+              <div className="flex items-start gap-4">
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    id={key}
+                    checked={checkboxes[key]}
+                    onChange={() => handleCheckboxChange(key)}
+                    className="sr-only"
+                  />
+                  <label
+                    htmlFor={key}
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-all duration-300 ${
+                      checkboxes[key]
+                        ? "bg-primary border-primary"
+                        : "border-gray-300 hover:border-primary"
+                    }`}
+                  >
+                    {checkboxes[key] && <FiCheck className="w-3 h-3 text-white" />}
+                  </label>
+                </div>
+                <div className="flex-1">
+                  <label
+                    htmlFor={key}
+                    className="label-text font-semibold text-foreground cursor-pointer"
+                  >
+                    {title}
+                  </label>
+                  <p className="text-sm text-secondary-foreground mt-1">
+                    {description}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          ))}
         </div>
-        <div className=" border-b-2 border-gray-300 my-4"></div>
-        {/* security notifications */}
-
-        <div className="space-y-2 flex items-center justify-between">
-          <div className=" w-[30%] space-y-2">
-            <h2 className="heading-5 text-foreground ">
-              Security Notifications
-            </h2>
-            <p className="body-text text-scondary-foreground">
-              Receive important updates and alerts via email for activities
-              related to your personal account, team collaboration, and system
-              notifications.
-            </p>
+      </div>
+      {/* Security Notifications Section */}
+      <div className="bg-white/60 backdrop-blur-sm border border-accent-primary/30 rounded-3xl p-8 shadow-lg">
+        <div className="flex items-start justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+              <FiShield className="w-5 h-5 text-white" />
+            </div>
+            <div className="max-w-md">
+              <h3 className="heading-5 text-foreground">Security Notifications</h3>
+              <p className="text-sm text-secondary-foreground mt-1">
+                Get alerts about security events and account protection activities
+              </p>
+            </div>
           </div>
 
-          <div className=" space-y-4 w-[50%]">
+          {/* Master Toggle */}
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-secondary-foreground">
+              {isToggled2 ? "Enabled" : "Disabled"}
+            </span>
             <button
               onClick={() => setIsToggled2(!isToggled2)}
-              className={`w-14 h-7 flex items-center rounded-full p-1 duration-300 ${
-                isToggled2 ? "bg-primary" : "bg-secondary-foreground"
+              className={`relative w-16 h-8 rounded-full p-1 transition-all duration-300 ${
+                isToggled2 
+                  ? "bg-gradient-to-r from-primary to-secondary shadow-lg" 
+                  : "bg-gray-300"
               }`}
             >
               <div
-                className={`bg-white w-5 h-5 rounded-full shadow-md transform duration-300 ${
-                  isToggled2 ? "translate-x-7" : ""
+                className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-all duration-300 flex items-center justify-center ${
+                  isToggled2 ? "translate-x-8" : "translate-x-0"
                 }`}
-              />
+              >
+                {isToggled2 && <FiCheck className="w-3 h-3 text-primary" />}
+              </div>
             </button>
-
-            {/* security notifications checkboxes and lists */}
-            <div className="space-y-6">
-              {SecurityNotifications.map(({ key, title, description }) => (
-                <div key={key} className="flex items-start space-x-3">
-                  <input
-                    type="checkbox"
-                    id={key}
-                    checked={checkboxes[key]}
-                    onChange={() => handleCheckboxChange(key)}
-                    className="mt-1 h-5 w-5 "
-                  />
-                  <div>
-                    <label
-                      htmlFor={key}
-                      className="text-lg font-semibold text-foreground"
-                    >
-                      {title}
-                    </label>
-                    <p className="text-sm text-secondary-foreground">
-                      {description}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
-        <div className=" border-b-2 border-gray-300 my-4"></div>
-        {/* activity notifications */}
 
-        <div className="space-y-2 flex items-center justify-between">
-          <div className=" w-[30%] space-y-2">
-            <h2 className="heading-5 text-foreground ">
-              Activity Notifications
-            </h2>
-            <p className="body-text text-scondary-foreground">
-              Receive important updates and alerts via email for activities
-              related to your personal account, team collaboration, and system
-              notifications.
-            </p>
-          </div>
-
-          <div className=" space-y-4 w-[50%]">
-            <button
-              onClick={() => setIsToggled3(!isToggled3)}
-              className={`w-14 h-7 flex items-center rounded-full p-1 duration-300 ${
-                isToggled3 ? "bg-primary" : "bg-secondary-foreground"
-              }`}
-            >
-              <div
-                className={`bg-white w-5 h-5 rounded-full shadow-md transform duration-300 ${
-                  isToggled3 ? "translate-x-7" : ""
-                }`}
-              />
-            </button>
-
-            {/* activity notifications checkboxes and lists */}
-            <div className="space-y-6">
-              {ActivityNotifications.slice(0, 2).map(({ key, title, description }) => (
-                <div key={key} className="flex items-start space-x-3">
+        {/* Security Notification Options */}
+        <div className="space-y-4">
+          {SecurityNotifications.map(({ key, title, description }) => (
+            <div key={key} className="p-4 rounded-2xl border border-accent-primary/30 bg-white/50 hover:bg-white/80 transition-all duration-300">
+              <div className="flex items-start gap-4">
+                <div className="relative">
                   <input
                     type="checkbox"
                     id={key}
                     checked={checkboxes[key]}
                     onChange={() => handleCheckboxChange(key)}
-                    className="mt-1 h-5 w-5 "
+                    className="sr-only"
                   />
-                  <div>
-                    <label
-                      htmlFor={key}
-                      className="text-lg font-semibold text-foreground"
-                    >
-                      {title}
-                    </label>
-                    <p className="text-sm text-secondary-foreground">
-                      {description}
-                    </p>
-                  </div>
+                  <label
+                    htmlFor={key}
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-all duration-300 ${
+                      checkboxes[key]
+                        ? "bg-primary border-primary"
+                        : "border-gray-300 hover:border-primary"
+                    }`}
+                  >
+                    {checkboxes[key] && <FiCheck className="w-3 h-3 text-white" />}
+                  </label>
                 </div>
-              ))}
+                <div className="flex-1">
+                  <label
+                    htmlFor={key}
+                    className="label-text font-semibold text-foreground cursor-pointer"
+                  >
+                    {title}
+                  </label>
+                  <p className="text-sm text-secondary-foreground mt-1">
+                    {description}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Activity Notifications Section */}
+      <div className="bg-white/60 backdrop-blur-sm border border-accent-primary/30 rounded-3xl p-8 shadow-lg">
+        <div className="flex items-start justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+              <FiActivity className="w-5 h-5 text-white" />
+            </div>
+            <div className="max-w-md">
+              <h3 className="heading-5 text-foreground">Activity Notifications</h3>
+              <p className="text-sm text-secondary-foreground mt-1">
+                Stay informed about team activities and collaboration updates
+              </p>
             </div>
           </div>
+
+          {/* Master Toggle */}
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-secondary-foreground">
+              {isToggled3 ? "Enabled" : "Disabled"}
+            </span>
+            <button
+              onClick={() => setIsToggled3(!isToggled3)}
+              className={`relative w-16 h-8 rounded-full p-1 transition-all duration-300 ${
+                isToggled3 
+                  ? "bg-gradient-to-r from-primary to-secondary shadow-lg" 
+                  : "bg-gray-300"
+              }`}
+            >
+              <div
+                className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-all duration-300 flex items-center justify-center ${
+                  isToggled3 ? "translate-x-8" : "translate-x-0"
+                }`}
+              >
+                {isToggled3 && <FiCheck className="w-3 h-3 text-primary" />}
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* Activity Notification Options */}
+        <div className="space-y-4">
+          {ActivityNotifications.slice(0, 2).map(({ key, title, description }) => (
+            <div key={key} className="p-4 rounded-2xl border border-accent-primary/30 bg-white/50 hover:bg-white/80 transition-all duration-300">
+              <div className="flex items-start gap-4">
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    id={key}
+                    checked={checkboxes[key]}
+                    onChange={() => handleCheckboxChange(key)}
+                    className="sr-only"
+                  />
+                  <label
+                    htmlFor={key}
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-all duration-300 ${
+                      checkboxes[key]
+                        ? "bg-primary border-primary"
+                        : "border-gray-300 hover:border-primary"
+                    }`}
+                  >
+                    {checkboxes[key] && <FiCheck className="w-3 h-3 text-white" />}
+                  </label>
+                </div>
+                <div className="flex-1">
+                  <label
+                    htmlFor={key}
+                    className="label-text font-semibold text-foreground cursor-pointer"
+                  >
+                    {title}
+                  </label>
+                  <p className="text-sm text-secondary-foreground mt-1">
+                    {description}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
