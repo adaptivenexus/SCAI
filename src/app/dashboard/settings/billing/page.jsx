@@ -3,10 +3,26 @@
 import { useAuth } from "@/context/AuthContext";
 import { calculatePercentage, formatDate } from "@/utils";
 import { useEffect, useRef, useState } from "react";
+import FloatingMenu from "@/components/Dashboard/Overlay/FloatingMenu";
 import { RiVisaLine } from "react-icons/ri";
 import { useRouter } from "nextjs-toploader/app";
 import BillingHistoryRow from "@/components/Dashboard/settingsComponents/BillingHistoryRow";
 import { handleCheckout } from "@/utils/paymentGateway";
+import {
+  FiCreditCard,
+  FiCalendar,
+  FiSettings,
+  FiTrendingUp,
+  FiDollarSign,
+  FiBarChart,
+  FiClock,
+  FiAlertTriangle,
+  FiCheckCircle,
+  FiEdit3,
+  FiRefreshCw,
+  FiArrowUp,
+  FiX,
+} from "react-icons/fi";
 
 const BillingPage = () => {
   const { subscription, previousSubscriptions, subscriptionDetails } =
@@ -15,7 +31,14 @@ const BillingPage = () => {
   const [isMounted, setIsMounted] = useState(false);
   const [scanPercentage, setScanPercentage] = useState(0);
   const [isOpenManagePlan, setIsOpenManagePlan] = useState(false);
+  const manageBtnRef = useRef(null);
   const router = useRouter();
+
+  // Ensure numeric values are safe to render
+  const safeNumber = (v) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  };
 
   // Helper to compare only date part
   const getDateOnly = (dateStr) => {
@@ -43,10 +66,10 @@ const BillingPage = () => {
   useEffect(() => {
     if (subscriptionDetails) {
       const percentage = calculatePercentage(
-        subscription.used_scans,
-        subscriptionDetails.allowed_smart_scan
+        safeNumber(subscription?.used_scans),
+        safeNumber(subscriptionDetails?.allowed_smart_scan)
       );
-      setScanPercentage(percentage);
+      setScanPercentage(Number.isFinite(percentage) ? percentage : 0);
     }
   }, [subscription]);
   const dropdownRef = useRef(null);
@@ -66,288 +89,407 @@ const BillingPage = () => {
     };
   }, [isOpenManagePlan]);
 
-  if (!isMounted) {
+  // Show loader until essential billing data is ready
+  const isDataReady =
+    isMounted &&
+    subscription &&
+    Object.keys(subscription).length > 0 &&
+    subscriptionDetails &&
+    Object.keys(subscriptionDetails).length > 0;
+
+  if (!isDataReady) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-lg">Loading...</p>
+      <div className="min-h-screen grid place-items-center">
+        <div className="flex items-center gap-3 text-gray-600">
+          <span className="inline-block w-6 h-6 border-2 border-gray-300 border-t-primary rounded-full animate-spin" />
+          <p className="text-sm">Loading billing data...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <h4 className="heading-4">Billing & Subscription</h4>
-      <div className="flex gap-5 w-full">
-        <div className="flex-1 bg-white p-6 shadow-md rounded-xl flex justify-between  ">
-          <div className="flex flex-col gap-3">
-            <h5 className="heading-5">Plan Details</h5>
-            <div className="space-y-2">
-              <div className="space-y-0.5">
-                <p className="subtitle-text text-secondary-foreground">
-                  {subscriptionDetails.name}
-                  {subscriptionDetails.price === "0.00"
-                    ? ""
-                    : ` - $${subscriptionDetails.price}/Month`}
-                </p>
+    <div className="p-8 space-y-8">
+      {/* Header Section */}
+      <div className="flex items-center gap-4">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+          <FiCreditCard className="w-6 h-6 text-white" />
+        </div>
+        <div>
+          <h2 className="heading-4 text-foreground">Billing & Subscription</h2>
+          <p className="body-text text-secondary-foreground">
+            Manage your subscription, payment methods, and billing history
+          </p>
+        </div>
+      </div>
+
+      {/* Plan Details and Payment Method Cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Plan Details Card */}
+        <div className="bg-white/60 backdrop-blur-sm border border-accent-primary/30 rounded-3xl p-8 shadow-lg">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+              <FiBarChart className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="heading-5 text-foreground">Plan Details</h3>
+              <p className="text-sm text-secondary-foreground">
+                Current subscription information
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="p-6 rounded-2xl bg-gradient-to-r from-accent-primary to-accent-secondary border border-primary/20">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="label-text font-semibold text-foreground">
+                    {subscriptionDetails.name}
+                  </h4>
+                  {subscriptionDetails.price !== "0.00" && (
+                    <span className="px-3 py-1 rounded-full bg-primary text-white text-xs font-medium">
+                      ${subscriptionDetails.price}/Month
+                    </span>
+                  )}
+                </div>
                 {subscriptionDetails.price !== "0.00" && (
-                  <p className="subtitle-text text-secondary-foreground">
+                  <p className="text-sm text-secondary-foreground">
                     Billed Monthly
                   </p>
                 )}
-              </div>
-              <p className="subtitle-text text-primary">Single User Plan</p>
-            </div>
-            <div className="relative flex items-center gap-2 mt-auto">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsOpenManagePlan(!isOpenManagePlan);
-                }}
-                className="primary-btn"
-              >
-                Manage Plan
-              </button>
-
-              {isOpenManagePlan && (
-                <div
-                  ref={dropdownRef}
-                  className="absolute top-12 left-0 flex flex-col bg-white rounded-lg shadow-md"
-                >
-                  {/* Renew Plan Option */}
-                  <button
-                    onClick={() =>
-                      handleCheckout(subscriptionDetails.id, false)
-                    }
-                    type="button"
-                    disabled={
-                      subscription.plan === subscriptionDetails.id &&
-                      subscriptionDetails.id === 0
-                    }
-                    className="w-max h-max font-medium text-green-600 py-2 px-4 hover:bg-slate-100 min-w-full text-start"
-                  >
-                    Renew Existing Plan
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsOpenManagePlan(false);
-                      router.push("/dashboard/billing/upgrade-plan");
-                    }}
-                    className="w-max h-max font-medium text-primary py-2 px-4 hover:bg-slate-100 min-w-full text-start"
-                  >
-                    Upgrade Plan
-                  </button>
-                  <div className="w-full h-[1px] bg-slate-200"></div>
-                  <button
-                    type="button"
-                    className="w-max h-max font-medium py-2 px-4 hover:bg-slate-100 min-w-full text-start"
-                  >
-                    Auto Renew Turn on
-                  </button>
-                  {subscriptionDetails.name !== "Free Plan" && (
-                    <>
-                      <div className="w-full h-[1px] bg-slate-200"></div>
-                      <button
-                        type="button"
-                        className="w-max h-max font-medium text-red-500 py-2 px-4 hover:bg-slate-100 min-w-full text-start"
-                      >
-                        Cancel Subscription
-                      </button>
-                    </>
-                  )}
+                <div className="flex items-center gap-2">
+                  <FiCheckCircle className="w-4 h-4 text-green-500" />
+                  <span className="text-sm text-primary font-medium">
+                    Single User Plan
+                  </span>
                 </div>
-              )}
+              </div>
             </div>
-          </div>
-          <div className="flex flex-col justify-between text-center">
-            <div className="space-y-2">
-              <h5 className="heading-5">Next Billing Date</h5>
-              <div className="space-y-0.5">
-                <p className="subtitle-text text-secondary-foreground">
+
+            {/* Next Billing Date */}
+            <div className="p-6 rounded-2xl border border-accent-primary/30 bg-white/50">
+              <div className="flex items-center gap-3 mb-4">
+                <FiCalendar className="w-5 h-5 text-primary" />
+                <h4 className="label-text font-semibold text-foreground">
+                  Next Billing Date
+                </h4>
+              </div>
+              <div className="space-y-2">
+                <p className="body-text text-foreground">
                   {formatDate(expiryDate)}
                 </p>
-                <p className="subtitle-text text-primary">
+                <p className="text-sm text-secondary-foreground">
                   (Auto-renewal disabled)
                 </p>
+                {isPlanExpired ? (
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200">
+                    <FiAlertTriangle className="w-4 h-4 text-red-500" />
+                    <span className="text-sm font-medium text-red-600">
+                      Plan expired
+                    </span>
+                  </div>
+                ) : (
+                  (() => {
+                    if (expiryDate) {
+                      const expiry = getDateOnly(expiryDate);
+                      const diffTime = expiry - todayDateOnly;
+                      const diffDays = Math.ceil(
+                        diffTime / (1000 * 60 * 60 * 24)
+                      );
+                      if (diffDays > 0 && diffDays <= 5) {
+                        return (
+                          <div className="flex items-center gap-2 p-3 rounded-xl bg-orange-50 border border-orange-200">
+                            <FiClock className="w-4 h-4 text-orange-500" />
+                            <span className="text-sm font-medium text-orange-600">
+                              Expiring Soon: Renew before{" "}
+                              {formatDate(expiryDate)}
+                            </span>
+                          </div>
+                        );
+                      }
+                    }
+                    return null;
+                  })()
+                )}
               </div>
             </div>
-            {isPlanExpired ? (
-              <p className="label-text text-[#DF5753]">
-                <b>Plan expired</b>
-              </p>
-            ) : (
-              // Show "Expiring Soon" only if plan expires in 5 days or less
-              (() => {
-                if (expiryDate) {
-                  const expiry = getDateOnly(expiryDate);
-                  const diffTime = expiry - todayDateOnly;
-                  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                  if (diffDays > 0 && diffDays <= 5) {
-                    return (
-                      <p className="label-text text-[#DF5753]">
-                        Expiring Soon: Renew before {formatDate(expiryDate)}.
-                      </p>
-                    );
-                  }
-                }
-                return null;
-              })()
-            )}
+
+            {/* Manage Plan Button */}
+            <div className="relative">
+              <button
+                type="button"
+                ref={manageBtnRef}
+                onClick={() => setIsOpenManagePlan(!isOpenManagePlan)}
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-primary to-secondary text-white hover:shadow-lg transition-all duration-300 hover:scale-105"
+              >
+                <FiSettings className="w-4 h-4" />
+                <span className="label-text font-medium">Manage Plan</span>
+              </button>
+
+
+            </div>
           </div>
         </div>
-        <div className="flex-1 bg-white p-6 shadow-md rounded-xl space-y-3">
-          <div className="">
-            <h5 className="heading-5">Payment Method</h5>
-            <p className="subtitle-text text-secondary-foreground">
-              Change how You Pay for Your Plan
-            </p>
+
+        {/* Payment Method Card */}
+        <div className="bg-white/60 backdrop-blur-sm border border-accent-primary/30 rounded-3xl p-8 shadow-lg">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+              <FiCreditCard className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="heading-5 text-foreground">Payment Method</h3>
+              <p className="text-sm text-secondary-foreground">
+                Change how you pay for your plan
+              </p>
+            </div>
           </div>
 
-          <div className="p-4 rounded-xl border flex gap-5">
-            <div>
-              <RiVisaLine color="#1634CC" size={60} />
-            </div>
-            <div className="flex-1 flex justify-between">
-              <div className="space-y-2">
-                <div>
-                  <p className="body-text">Visa ending in 1234</p>
-                  <p className="label-text text-secondary-foreground">
+          <div className="p-6 rounded-2xl border border-accent-primary/30 bg-white/50">
+            <div className="flex items-center gap-6">
+              <div className="w-16 h-12 rounded-xl bg-gradient-to-r from-accent-primary to-accent-secondary flex items-center justify-center">
+                <RiVisaLine color="#1634CC" size={40} />
+              </div>
+              <div className="flex-1">
+                <div className="space-y-2">
+                  <h4 className="body-text font-medium text-foreground">
+                    Visa ending in 1234
+                  </h4>
+                  <p className="text-sm text-secondary-foreground">
                     Expires 03/2026
                   </p>
+                  <p className="text-sm text-secondary-foreground">
+                    billing1234@gmail.com
+                  </p>
                 </div>
-                <p className="label-text text-secondary-foreground">
-                  billing1234@gmail.com
-                </p>
               </div>
-              <button type="button" className="secondary-btn w-max h-max px-10">
-                Edit
-              </button>
             </div>
+            <button
+              type="button"
+              className="w-full mt-6 flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-accent-primary to-accent-secondary text-primary hover:shadow-lg transition-all duration-300 hover:scale-105"
+            >
+              <FiEdit3 className="w-4 h-4" />
+              <span className="label-text font-medium">
+                Edit Payment Method
+              </span>
+            </button>
           </div>
         </div>
       </div>
-      <div className="bg-white p-6 shadow-md rounded-xl space-y-5 flex gap-6">
-        {/* Usage Summary - 50% width, with border */}
-        <div className="w-1/2 flex flex-col justify-between border border-gray-200 rounded-lg p-4 bg-white">
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <div className="flex items-center gap-2">
-                <h5 className="heading-5">Usage Summary</h5>
-                {/* <button type="button" className="secondary-btn w-max h-max px-10">
-          View Usage
-        </button> */}
-              </div>
-              {/* <button type="button" className="secondary-btn w-max h-max px-10">
-        Add Add-on
-      </button> */}
+      {/* Usage Summary and Extra Cost Details */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Usage Summary Card */}
+        <div className="bg-white/60 backdrop-blur-sm border border-accent-primary/30 rounded-3xl p-8 shadow-lg">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+              <FiTrendingUp className="w-5 h-5 text-white" />
             </div>
-            <div className="space-y-3">
-              <p className="subtitle-text text-secondary-foreground">
-                Overall Usage:{" "}
-                {Math.min(
-                  subscription.used_scans,
-                  subscriptionDetails.allowed_smart_scan
-                )}{" "}
-                pages used out of {subscriptionDetails.allowed_smart_scan}.
-              </p>
-              <div className="w-full h-6 rounded-lg border overflow-hidden">
-                <div
-                  className={`h-full bg-primary-gradient`}
-                  style={{
-                    width: `${scanPercentage > 100 ? 100 : scanPercentage}%`,
-                  }}
-                ></div>
-              </div>
-              <p className="subtitle-text text-secondary-foreground">
-                Remaining:{" "}
-                {Math.max(
-                  0,
-                  subscriptionDetails.allowed_smart_scan -
-                    subscription.used_scans
-                )}{" "}
-                Credits left.
+            <div>
+              <h3 className="heading-5 text-foreground">Usage Summary</h3>
+              <p className="text-sm text-secondary-foreground">
+                Track your current usage and remaining credits
               </p>
             </div>
           </div>
-        </div>
-        {/* Extra Cost Details - 50% width, with border and aligned label */}
-        <div
-          className="w-1/2 flex flex-col justify-between border border-gray-200 rounded-lg p-4 bg-white"
-          style={{ marginTop: 0 }}
-        >
-          <div className="h-full flex flex-col justify-between">
-            <div className="flex justify-between items-center mb-2">
-              <div className="flex items-center gap-2">
-                <h5 className="heading-5">Extra Cost Details</h5>
+
+          <div className="space-y-6">
+            <div className="p-6 rounded-2xl bg-gradient-to-r from-accent-primary to-accent-secondary border border-primary/20">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-secondary-foreground">
+                    Overall Usage
+                  </span>
+                  <span className="text-sm font-medium text-foreground">
+                    {Math.min(
+                      safeNumber(subscription?.used_scans),
+                      safeNumber(subscriptionDetails?.allowed_smart_scan)
+                    )}{" "}
+                    / {safeNumber(subscriptionDetails?.allowed_smart_scan)}{" "}
+                    pages
+                  </span>
+                </div>
+
+                <div className="w-full h-3 rounded-full bg-white/50 overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-500"
+                    style={{
+                      width: `${
+                        Number.isFinite(scanPercentage)
+                          ? scanPercentage > 100
+                            ? 100
+                            : scanPercentage < 0
+                            ? 0
+                            : scanPercentage
+                          : 0
+                      }%`,
+                    }}
+                  ></div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-secondary-foreground">
+                    Remaining Credits
+                  </span>
+                  <span className="text-sm font-medium text-green-600">
+                    {Math.max(
+                      0,
+                      safeNumber(subscriptionDetails?.allowed_smart_scan) -
+                        safeNumber(subscription?.used_scans)
+                    )}{" "}
+                    left
+                  </span>
+                </div>
               </div>
-              {/* Empty div to align with Add Add-on button */}
-              <div style={{ width: "120px" }}></div>
             </div>
-            <div className="space-y-3">
-              <p className="subtitle-text text-secondary-foreground">
-                <b>After exceeding your plan's free scans,</b> each additional
-                page will be charged at{" "}
-                <b>${subscriptionDetails.exceeds_page_limit_cost}/per page</b>.
+
+            <div className="flex items-center gap-3 p-4 rounded-2xl border border-accent-primary/30 bg-white/50">
+              <FiBarChart className="w-5 h-5 text-primary" />
+              <div>
+                <p className="text-sm font-medium text-foreground">
+                  Usage Percentage
+                </p>
+                <p className="text-xs text-secondary-foreground">
+                  {Number.isFinite(scanPercentage)
+                    ? Math.round(scanPercentage)
+                    : 0}
+                  % of your plan used
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Extra Cost Details Card */}
+        <div className="bg-white/60 backdrop-blur-sm border border-accent-primary/30 rounded-3xl p-8 shadow-lg">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+              <FiDollarSign className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="heading-5 text-foreground">Extra Cost Details</h3>
+              <p className="text-sm text-secondary-foreground">
+                Overage charges and additional costs
               </p>
-              <p className="subtitle-text text-secondary-foreground">
-                Extra usage page count in this cycle:{" "}
-                <b>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="p-6 rounded-2xl border border-orange-200 bg-orange-50">
+              <div className="flex items-center gap-3 mb-4">
+                <FiAlertTriangle className="w-5 h-5 text-orange-500" />
+                <h4 className="label-text font-semibold text-orange-700">
+                  Overage Policy
+                </h4>
+              </div>
+              <p className="text-sm text-orange-600">
+                After exceeding your plan's free scans, each additional page
+                will be charged at{" "}
+                <span className="font-semibold">
+                  ${subscriptionDetails.exceeds_page_limit_cost}/per page
+                </span>
+                .
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 rounded-2xl border border-accent-primary/30 bg-white/50">
+                <span className="text-sm text-secondary-foreground">
+                  Extra pages this cycle
+                </span>
+                <span className="text-sm font-medium text-foreground">
                   {Math.max(
                     0,
-                    subscription.used_scans -
-                      subscriptionDetails.allowed_smart_scan
-                  )}
-                </b>
-              </p>
-              <p className="subtitle-text text-secondary-foreground">
-                Estimated extra cost:{" "}
-                <b>
+                    safeNumber(subscription?.used_scans) -
+                      safeNumber(subscriptionDetails?.allowed_smart_scan)
+                  )}{" "}
+                  pages
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between p-4 rounded-2xl border border-accent-primary/30 bg-white/50">
+                <span className="text-sm text-secondary-foreground">
+                  Estimated extra cost
+                </span>
+                <span className="text-lg font-semibold text-primary">
                   $
-                  {(
-                    Math.max(
+                  {(() => {
+                    const extraPages = Math.max(
                       0,
-                      subscription.used_scans -
-                        subscriptionDetails.allowed_smart_scan
-                    ) * subscriptionDetails.exceeds_page_limit_cost
-                  ).toFixed(2)}
-                </b>
-              </p>
+                      safeNumber(subscription?.used_scans) -
+                        safeNumber(subscriptionDetails?.allowed_smart_scan)
+                    );
+                    const costPerPage = safeNumber(
+                      subscriptionDetails?.exceeds_page_limit_cost
+                    );
+                    const total = extraPages * costPerPage;
+                    return Number.isFinite(total) ? total.toFixed(2) : "0.00";
+                  })()}
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-white p-6 shadow-md rounded-xl space-y-5">
-        <h5 className="heading-5">Billing history</h5>
-        <div className="rounded-xl border overflow-hidden">
+      {/* Billing History */}
+      <div className="bg-white/60 backdrop-blur-sm border border-accent-primary/30 rounded-3xl p-8 shadow-lg">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+            <FiClock className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="heading-5 text-foreground">Billing History</h3>
+            <p className="text-sm text-secondary-foreground">
+              View your past transactions and invoices
+            </p>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-accent-primary/30 overflow-hidden bg-white/50">
           <table className="w-full">
             <thead>
-              <tr>
-                <th className="py-3 bg-accent-primary text-foreground">Date</th>
-                <th className="py-3 bg-accent-primary text-foreground">Plan</th>
-                <th className="py-3 bg-accent-primary text-foreground">
+              <tr className="bg-gradient-to-r from-accent-primary to-accent-secondary">
+                <th className="py-4 px-6 text-left label-text font-semibold text-foreground">
+                  Date
+                </th>
+                <th className="py-4 px-6 text-left label-text font-semibold text-foreground">
+                  Plan
+                </th>
+                <th className="py-4 px-6 text-left label-text font-semibold text-foreground">
                   Amount
                 </th>
-                <th className="py-3 bg-accent-primary text-foreground">
+                <th className="py-4 px-6 text-left label-text font-semibold text-foreground">
                   Payment Method
                 </th>
-                <th className="py-3 bg-accent-primary text-foreground">
+                <th className="py-4 px-6 text-left label-text font-semibold text-foreground">
                   Status
                 </th>
-                <th className="py-3 bg-accent-primary text-foreground">
+                <th className="py-4 px-6 text-left label-text font-semibold text-foreground">
                   Invoice
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-accent-primary/20">
               {previousSubscriptions.length > 0 ? (
                 previousSubscriptions.map((item) => (
                   <BillingHistoryRow key={item.id} item={item} />
                 ))
               ) : (
                 <tr>
-                  <td colSpan={6} className="text-center py-4">
-                    No Subscriptions
+                  <td colSpan={6} className="text-center py-12">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-16 h-16 rounded-2xl bg-accent-primary/50 flex items-center justify-center">
+                        <FiClock className="w-8 h-8 text-secondary-foreground" />
+                      </div>
+                      <div>
+                        <h4 className="label-text font-medium text-foreground">
+                          No Billing History
+                        </h4>
+                        <p className="text-sm text-secondary-foreground">
+                          Your transaction history will appear here
+                        </p>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               )}
@@ -355,6 +497,72 @@ const BillingPage = () => {
           </table>
         </div>
       </div>
+
+      {/* Manage Plan Dropdown - anchored via portal */}
+      <FloatingMenu
+        open={isOpenManagePlan}
+        anchorRef={manageBtnRef}
+        placement="bottom-end"
+        onClose={() => setIsOpenManagePlan(false)}
+        className="w-80"
+      >
+        <button
+          onClick={() => {
+            handleCheckout(subscriptionDetails.id, false);
+            setIsOpenManagePlan(false);
+          }}
+          type="button"
+          disabled={
+            subscription.plan === subscriptionDetails.id &&
+            subscriptionDetails.id === 0
+          }
+          className="w-full flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors text-left disabled:opacity-50"
+        >
+          <FiRefreshCw className="w-4 h-4 text-green-600" />
+          <span className="label-text font-medium text-green-600">
+            Renew Existing Plan
+          </span>
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setIsOpenManagePlan(false);
+            router.push("/dashboard/billing/upgrade-plan");
+          }}
+          className="w-full flex items-center gap-3 px-6 py-4 hover:bg-blue-50 transition-colors text-left"
+        >
+          <FiArrowUp className="w-4 h-4 text-primary" />
+          <span className="label-text font-medium text-primary">
+            Upgrade Plan
+          </span>
+        </button>
+        <div className="h-px bg-accent-primary/30 mx-4"></div>
+        <button
+          type="button"
+          onClick={() => setIsOpenManagePlan(false)}
+          className="w-full flex items-center gap-3 px-6 py-4 hover:bg-accent-primary/20 transition-colors text-left"
+        >
+          <FiCheckCircle className="w-4 h-4 text-foreground" />
+          <span className="label-text font-medium text-foreground">
+            Auto Renew Turn on
+          </span>
+        </button>
+        {subscriptionDetails.name !== "Free Plan" && (
+          <>
+            <div className="h-px bg-accent-primary/30 mx-4"></div>
+            <button
+              type="button"
+              onClick={() => setIsOpenManagePlan(false)}
+              className="w-full flex items-center gap-3 px-6 py-4 hover:bg-red-50 transition-colors text-left"
+            >
+              <FiX className="w-4 h-4 text-red-500" />
+              <span className="label-text font-medium text-red-500">
+                Cancel Subscription
+              </span>
+            </button>
+          </>
+        )}
+      </FloatingMenu>
     </div>
   );
 };

@@ -2,13 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaFileAlt, FaRegUser, FaShareAlt, FaUsers } from "react-icons/fa";
-import { RiDashboardFill } from "react-icons/ri";
-import { IoIosCall, IoMdSettings } from "react-icons/io";
+import {
+  HiOutlineDocumentText,
+  HiOutlineUsers,
+  HiOutlineShare,
+  HiOutlineUser,
+  HiOutlineQuestionMarkCircle,
+  HiOutlineCog6Tooth,
+} from "react-icons/hi2";
+import { MdDashboard } from "react-icons/md";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 
-import { IoDocuments } from "react-icons/io5";
 import { useAuth } from "@/context/AuthContext";
 
 const Sidebar = () => {
@@ -20,18 +25,19 @@ const Sidebar = () => {
 
   const sidebarVariants = {
     open: {
-      width: "340px",
-      transition: { duration: 0.3, ease: "easeOut" },
+      width: "200px",
+      transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
     },
     closed: {
-      width: "90px",
-      transition: { duration: 0.3, ease: "easeIn" },
+      width: "80px",
+      transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
     },
   };
 
   return (
     <motion.div
-      className="bg-secondary h-screen overflow-y-auto overflow-x-hidden w-[90px] lg:w-auto"
+      suppressHydrationWarning
+      className="bg-gradient-to-b from-[var(--secondary)] to-[var(--primary)] h-screen overflow-y-auto overflow-x-hidden w-[80px] lg:w-auto shadow-2xl border-r border-[var(--accent-primary)]/20 "
       initial="closed"
       animate={isOpen ? "open" : "closed"}
       variants={sidebarVariants}
@@ -42,55 +48,89 @@ const Sidebar = () => {
         setIsDocumentsOpen(false);
       }}
     >
-      <div className="sticky top-0 pt-6 px-4 pb-2 min-w-[90px] bg-secondary">
-        <Link href={"/"} className="text-background text-center text-2xl block font-bold tracking-wide relative">
-          <AnimatePresence mode="wait">
-            {isOpen ? (
-              <motion.span
-                key="full"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                style={{letterSpacing: '2px'}}
-              >
-                SCANDOQ
-              </motion.span>
-            ) : (
-              <motion.span
-                key="short"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="mx-auto block"
-              >
-                SD
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </Link>
-        <hr className="my-4" />
-        <nav>
-          <ul className="space-y-4">
+      <div className="flex flex-col h-full">
+        <div className="pt-8 px-4 pb-4 flex justify-center">
+          <Link
+            href={"/"}
+            className="text-[var(--background)] text-center block font-bold tracking-wide relative group"
+          >
+            <AnimatePresence mode="wait">
+              {isOpen ? (
+                <motion.div
+                  key="full"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                  className="flex flex-col items-center"
+                >
+                  <div className="w-max px-5 h-12 bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 ">
+                    <span className="text-[var(--primary)] font-black text-xl block">
+                      SCANDOQ
+                    </span>
+                  </div>
+                  {/* <span className="heading-5 text-[var(--background)] tracking-[3px] font-black">
+                    SCANDOQ
+                  </span> */}
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="short"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                  className="flex justify-center"
+                >
+                  <div className="w-12 h-12 bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 aspect-square">
+                    <span className="text-[var(--primary)] font-black text-xl">
+                      SD
+                    </span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </Link>
+        </div>
+        <div className="mx-4 my-6 h-px bg-gradient-to-r from-transparent via-[var(--accent-primary)]/50 to-transparent" />
+        <nav
+          suppressHydrationWarning
+          className="flex-1 px-4 h-full flex flex-col"
+        >
+          <ul className="space-y-2">
             <li>
               <Link
                 href={"/dashboard/overview"}
-                className={`p-2 rounded-lg text-background flex items-center gap-4 font-semibold text-xl transition-colors duration-200 w-full
-                  hover:bg-accent-secondary/90 hover:text-primary
-                  ${pathname === "/dashboard/overview" ? "bg-accent-secondary text-primary" : ""}`}
+                className={`group relative rounded-2xl text-[var(--background)] flex items-center font-medium transition-all duration-300 w-full
+                  hover:bg-[var(--accent-secondary)]/20 hover:text-[var(--accent-primary)] hover:shadow-lg hover:scale-105
+                  ${
+                    pathname === "/dashboard/overview" && isOpen
+                      ? "bg-gradient-to-r from-[var(--accent-primary)]/20 to-transparent text-[var(--accent-primary)] shadow-lg border-l-4 border-[var(--accent-primary)]"
+                      : ""
+                  } ${isOpen ? "p-3 gap-4" : "p-3 justify-center"}`}
               >
-                <RiDashboardFill size={40} className="min-w-[40px]" />
-                <AnimatePresence mode="wait">
+                <div
+                  className={`p-2 rounded-xl transition-all duration-300 ${
+                    pathname === "/dashboard/overview"
+                      ? "bg-[var(--accent-primary)] text-[var(--primary)] shadow-lg"
+                      : "bg-[var(--accent-secondary)]/20 text-[var(--background)] group-hover:bg-[var(--accent-primary)] group-hover:text-[var(--primary)]"
+                  } ${!isOpen ? "flex-shrink-0" : ""}`}
+                >
+                  <MdDashboard size={24} />
+                </div>
+                <AnimatePresence>
                   {isOpen && (
-                    <motion.span
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.2 }}
+                    <motion.div
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: "auto" }}
+                      exit={{ opacity: 0, width: 0 }}
+                      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                      className="flex items-center flex-1 overflow-hidden"
                     >
-                      Overview
-                    </motion.span>
+                      <span className="label-text font-semibold whitespace-nowrap">
+                        Overview
+                      </span>
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </Link>
@@ -100,22 +140,37 @@ const Sidebar = () => {
               <li>
                 <Link
                   href={"/dashboard/members-mangement"}
-                  className={`w-full p-2 rounded-lg text-background flex items-center gap-4 font-semibold text-xl transition-colors duration-200
-                    hover:bg-accent-secondary/90 hover:text-primary
-                    ${pathname.startsWith("/dashboard/members-mangement") ? "bg-accent-secondary text-primary" : ""}`}
+                  className={`group relative rounded-2xl text-[var(--background)] flex items-center font-medium transition-all duration-300 w-full
+                    hover:bg-[var(--accent-secondary)]/20 hover:text-[var(--accent-primary)] hover:shadow-lg hover:scale-105
+                    ${
+                      pathname.startsWith("/dashboard/members-mangement") &&
+                      isOpen
+                        ? "bg-gradient-to-r from-[var(--accent-primary)]/20 to-transparent text-[var(--accent-primary)] shadow-lg border-l-4 border-[var(--accent-primary)]"
+                        : ""
+                    } ${isOpen ? "p-3 gap-4" : "p-3 justify-center"}`}
                 >
-                  <FaUsers size={40} className="min-w-[40px]" />
-                  <AnimatePresence mode="wait">
+                  <div
+                    className={`p-2 rounded-xl transition-all duration-300 ${
+                      pathname.startsWith("/dashboard/members-mangement")
+                        ? "bg-[var(--accent-primary)] text-[var(--primary)] shadow-lg"
+                        : "bg-[var(--accent-secondary)]/20 text-[var(--background)] group-hover:bg-[var(--accent-primary)] group-hover:text-[var(--primary)]"
+                    } ${!isOpen ? "flex-shrink-0" : ""}`}
+                  >
+                    <HiOutlineUsers size={24} />
+                  </div>
+                  <AnimatePresence>
                     {isOpen && (
-                      <motion.span
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        transition={{ duration: 0.2 }}
-                        className="overflow-hidden text-ellipsis whitespace-nowrap"
+                      <motion.div
+                        initial={{ opacity: 0, width: 0 }}
+                        animate={{ opacity: 1, width: "auto" }}
+                        exit={{ opacity: 0, width: 0 }}
+                        transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                        className="flex items-center flex-1 overflow-hidden"
                       >
-                        Members
-                      </motion.span>
+                        <span className="label-text font-semibold whitespace-nowrap">
+                          Members
+                        </span>
+                      </motion.div>
                     )}
                   </AnimatePresence>
                 </Link>
@@ -124,116 +179,193 @@ const Sidebar = () => {
             <li>
               <Link
                 href={"/dashboard/shared-doc"}
-                className={`w-full p-2 rounded-lg text-background flex items-center gap-4 font-semibold text-xl transition-colors duration-200
-                  hover:bg-accent-secondary/90 hover:text-primary
-                  ${pathname.startsWith("/dashboard/shared-doc") ? "bg-accent-secondary text-primary" : ""}`}
+                className={`group relative rounded-2xl text-[var(--background)] flex items-center font-medium transition-all duration-300 w-full
+                  hover:bg-[var(--accent-secondary)]/20 hover:text-[var(--accent-primary)] hover:shadow-lg hover:scale-105
+                  ${
+                    pathname.startsWith("/dashboard/shared-doc") && isOpen
+                      ? "bg-gradient-to-r from-[var(--accent-primary)]/20 to-transparent text-[var(--accent-primary)] shadow-lg border-l-4 border-[var(--accent-primary)]"
+                      : ""
+                  } ${isOpen ? "p-3 gap-4" : "p-3 justify-center"}`}
               >
-                <FaShareAlt size={40} className="min-w-[40px]" />
-                <AnimatePresence mode="wait">
+                <div
+                  className={`p-2 rounded-xl transition-all duration-300 ${
+                    pathname.startsWith("/dashboard/shared-doc")
+                      ? "bg-[var(--accent-primary)] text-[var(--primary)] shadow-lg"
+                      : "bg-[var(--accent-secondary)]/20 text-[var(--background)] group-hover:bg-[var(--accent-primary)] group-hover:text-[var(--primary)]"
+                  } ${!isOpen ? "flex-shrink-0" : ""}`}
+                >
+                  <HiOutlineShare size={24} />
+                </div>
+                <AnimatePresence>
                   {isOpen && (
-                    <motion.span
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden text-ellipsis whitespace-nowrap"
+                    <motion.div
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: "auto" }}
+                      exit={{ opacity: 0, width: 0 }}
+                      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                      className="flex items-center flex-1 overflow-hidden"
                     >
-                      Sharing
-                    </motion.span>
+                      <span className="label-text font-semibold whitespace-nowrap">
+                        Sharing
+                      </span>
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </Link>
             </li>
 
-            <li className="rounded-xl flex flex-col gap-2">
+            <li>
               <Link
                 href={"/dashboard/client-management/client-list"}
-                className={`w-full p-2 rounded-xl text-background flex items-center gap-4 font-semibold text-xl transition-colors duration-200
-                  hover:bg-accent-secondary/90 hover:text-primary
-                  ${pathname.startsWith("/dashboard/client-management") ? "bg-accent-secondary text-primary" : ""}`}
+                className={`group relative rounded-2xl text-[var(--background)] flex items-center font-medium transition-all duration-300 w-full
+                  hover:bg-[var(--accent-secondary)]/20 hover:text-[var(--accent-primary)] hover:shadow-lg hover:scale-105
+                  ${
+                    pathname.startsWith("/dashboard/client-management") &&
+                    isOpen
+                      ? "bg-gradient-to-r from-[var(--accent-primary)]/20 to-transparent text-[var(--accent-primary)] shadow-lg border-l-4 border-[var(--accent-primary)]"
+                      : ""
+                  } ${isOpen ? "p-3 gap-4" : "p-3 justify-center"}`}
               >
-                <FaRegUser size={40} className="min-w-[40px]" />
-                <AnimatePresence mode="wait">
+                <div
+                  className={`p-2 rounded-xl transition-all duration-300 ${
+                    pathname.startsWith("/dashboard/client-management")
+                      ? "bg-[var(--accent-primary)] text-[var(--primary)] shadow-lg"
+                      : "bg-[var(--accent-secondary)]/20 text-[var(--background)] group-hover:bg-[var(--accent-primary)] group-hover:text-[var(--primary)]"
+                  } ${!isOpen ? "flex-shrink-0" : ""}`}
+                >
+                  <HiOutlineUser size={24} />
+                </div>
+                <AnimatePresence>
                   {isOpen && (
-                    <motion.span
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="overflow-hidden text-ellipsis whitespace-nowrap"
-                      transition={{ duration: 0.2 }}
+                    <motion.div
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: "auto" }}
+                      exit={{ opacity: 0, width: 0 }}
+                      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                      className="flex items-center flex-1 overflow-hidden"
                     >
-                      Clients
-                    </motion.span>
+                      <span className="label-text font-semibold whitespace-nowrap">
+                        Clients
+                      </span>
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </Link>
             </li>
-            <li className="rounded-xl flex flex-col gap-2">
+            <li>
               <Link
                 href="/dashboard/document-management/all-documents"
-                className={`w-full p-2 rounded-xl text-background flex items-center gap-4 font-semibold text-xl transition-colors duration-200
-                  hover:bg-accent-secondary/90 hover:text-primary
-                  ${pathname.startsWith("/dashboard/document-management") ? "bg-accent-secondary text-primary" : ""}`}
+                className={`group relative rounded-2xl text-[var(--background)] flex items-center font-medium transition-all duration-300 w-full
+                  hover:bg-[var(--accent-secondary)]/20 hover:text-[var(--accent-primary)] hover:shadow-lg hover:scale-105
+                  ${
+                    pathname.startsWith("/dashboard/document-management") &&
+                    isOpen
+                      ? "bg-gradient-to-r from-[var(--accent-primary)]/20 to-transparent text-[var(--accent-primary)] shadow-lg border-l-4 border-[var(--accent-primary)]"
+                      : ""
+                  } ${isOpen ? "p-3 gap-4" : "p-3 justify-center"}`}
               >
-                <FaFileAlt size={40} className="min-w-[40px]" />
-                <AnimatePresence mode="wait">
+                <div
+                  className={`p-2 rounded-xl transition-all duration-300 ${
+                    pathname.startsWith("/dashboard/document-management")
+                      ? "bg-[var(--accent-primary)] text-[var(--primary)] shadow-lg"
+                      : "bg-[var(--accent-secondary)]/20 text-[var(--background)] group-hover:bg-[var(--accent-primary)] group-hover:text-[var(--primary)]"
+                  } ${!isOpen ? "flex-shrink-0" : ""}`}
+                >
+                  <HiOutlineDocumentText size={24} />
+                </div>
+                <AnimatePresence>
                   {isOpen && (
-                    <motion.span
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden text-ellipsis whitespace-nowrap"
+                    <motion.div
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: "auto" }}
+                      exit={{ opacity: 0, width: 0 }}
+                      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                      className="flex items-center flex-1 overflow-hidden"
                     >
-                      Documents
-                    </motion.span>
+                      <span className="label-text font-semibold whitespace-nowrap">
+                        Documents
+                      </span>
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </Link>
             </li>
+          </ul>
 
+          <ul className="flex flex-col mt-auto space-y-2 mb-7">
             <li>
               <Link
                 href={"/dashboard/contact"}
-                className={`w-full p-2 rounded-lg text-background flex items-center gap-4 font-semibold text-xl transition-colors duration-200
-                  hover:bg-accent-secondary/90 hover:text-primary
-                  ${pathname.startsWith("/dashboard/contact") ? "bg-accent-secondary text-primary" : ""}`}
+                className={`group relative rounded-2xl text-[var(--background)] flex items-center font-medium transition-all duration-300 w-full
+                  hover:bg-[var(--accent-secondary)]/20 hover:text-[var(--accent-primary)] hover:shadow-lg hover:scale-105
+                  ${
+                    pathname.startsWith("/dashboard/contact") && isOpen
+                      ? "bg-gradient-to-r from-[var(--accent-primary)]/20 to-transparent text-[var(--accent-primary)] shadow-lg border-l-4 border-[var(--accent-primary)]"
+                      : ""
+                  } ${isOpen ? "p-3 gap-4" : "p-3 justify-center"}`}
               >
-                <IoIosCall size={40} className="min-w-[40px]" />
-                <AnimatePresence mode="wait">
+                <div
+                  className={`p-2 rounded-xl transition-all duration-300 ${
+                    pathname.startsWith("/dashboard/contact")
+                      ? "bg-[var(--accent-primary)] text-[var(--primary)] shadow-lg"
+                      : "bg-[var(--accent-secondary)]/20 text-[var(--background)] group-hover:bg-[var(--accent-primary)] group-hover:text-[var(--primary)]"
+                  } ${!isOpen ? "flex-shrink-0" : ""}`}
+                >
+                  <HiOutlineQuestionMarkCircle size={24} />
+                </div>
+                <AnimatePresence>
                   {isOpen && (
-                    <motion.span
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden text-ellipsis whitespace-nowrap"
+                    <motion.div
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: "auto" }}
+                      exit={{ opacity: 0, width: 0 }}
+                      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                      className="flex items-center flex-1 overflow-hidden"
                     >
-                      Support
-                    </motion.span>
+                      <span className="label-text font-semibold whitespace-nowrap">
+                        Support
+                      </span>
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </Link>
             </li>
+
             <li>
               <Link
                 href={"/dashboard/settings/account-details"}
-                className={`w-full p-2 rounded-lg text-background flex items-center gap-4 font-semibold text-xl transition-colors duration-200
-                  hover:bg-accent-secondary/90 hover:text-primary
-                  ${pathname.startsWith("/dashboard/settings") ? "bg-accent-secondary text-primary" : ""}`}
+                className={`group relative rounded-2xl text-[var(--background)] flex items-center font-medium transition-all duration-300 w-full
+                  hover:bg-[var(--accent-secondary)]/20 hover:text-[var(--accent-primary)] hover:shadow-lg hover:scale-105
+                  ${
+                    pathname.startsWith(
+                      "/dashboard/settings/account-details"
+                    ) && isOpen
+                      ? "bg-gradient-to-r from-[var(--accent-primary)]/20 to-transparent text-[var(--accent-primary)] shadow-lg border-l-4 border-[var(--accent-primary)]"
+                      : ""
+                  } ${isOpen ? "p-3 gap-4" : "p-3 justify-center"}`}
               >
-                <IoMdSettings size={40} className="min-w-[40px]" />
-                <AnimatePresence mode="wait">
+                <div
+                  className={`p-2 rounded-xl transition-all duration-300 ${
+                    pathname.startsWith("/dashboard/settings/account-details")
+                      ? "bg-[var(--accent-primary)] text-[var(--primary)] shadow-lg"
+                      : "bg-[var(--accent-secondary)]/20 text-[var(--background)] group-hover:bg-[var(--accent-primary)] group-hover:text-[var(--primary)]"
+                  } ${!isOpen ? "flex-shrink-0" : ""}`}
+                >
+                  <HiOutlineCog6Tooth size={24} />
+                </div>
+                <AnimatePresence>
                   {isOpen && (
-                    <motion.span
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden text-ellipsis whitespace-nowrap"
+                    <motion.div
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: "auto" }}
+                      exit={{ opacity: 0, width: 0 }}
+                      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                      className="flex items-center flex-1 overflow-hidden"
                     >
-                      Settings
-                    </motion.span>
+                      <span className="label-text font-semibold whitespace-nowrap">
+                        Settings
+                      </span>
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </Link>

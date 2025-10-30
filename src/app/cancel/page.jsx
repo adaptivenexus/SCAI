@@ -10,23 +10,28 @@ export const dynamic = "force-dynamic";
 
 const TransactionCancelled = () => {
   const router = useRouter();
-
   const [countdown, setCountdown] = useState(5);
+  const [returnTo, setReturnTo] = useState(null);
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      setReturnTo(searchParams.get("return_to"));
+    }
+
     const interval = setInterval(() => {
       setCountdown((prev) => prev - 1);
     }, 1000);
 
     const timer = setTimeout(() => {
-      router.push("/dashboard/overview");
+      router.push(returnTo || "/dashboard/overview");
     }, 5000);
 
     return () => {
       clearInterval(interval);
       clearTimeout(timer);
     };
-  }, [router]);
+  }, [router, returnTo]);
 
   return (
     <Suspense

@@ -1,7 +1,8 @@
 "use client";
 import { FaRegBell, FaSearch, FaFileAlt, FaUserFriends } from "react-icons/fa";
 import Image from "next/image";
-import Sidebar from "@/components/Dashboard/Sidebar";
+import dynamic from "next/dynamic";
+const Sidebar = dynamic(() => import("@/components/Dashboard/Sidebar"), { ssr: false });
 import GlobalDashboardProvider from "@/context/GlobalProvider";
 import Link from "next/link";
 
@@ -438,7 +439,10 @@ const SearchContainer = () => {
             {filteredClients.slice(0, 5).map((client) => (
               <Link
                 key={client.id}
-                href="/dashboard/client-management/client-list"
+                href={{
+                  pathname: "/dashboard/client-management/client-list",
+                  query: { edit: "1", id: client.id },
+                }}
                 className="block p-2 hover:bg-gray-50 rounded border-l-2 border-green-500"
               >
                 <div className="text-sm font-medium text-gray-900 truncate">

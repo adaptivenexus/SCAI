@@ -2,7 +2,6 @@
 
 import { GlobalContext } from "@/context/GlobalProvider";
 import { extractFilenameFromUrl, formatDate } from "@/utils";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState, useMemo } from "react";
@@ -12,6 +11,8 @@ import {
   FaUserFriends,
   FaCheckCircle,
   FaExclamationTriangle,
+  FaEye,
+  FaDownload,
 } from "react-icons/fa";
 import { GrDocumentPerformance } from "react-icons/gr";
 import { MdHistory, MdTrendingUp } from "react-icons/md";
@@ -33,7 +34,7 @@ import {
 const DashboardPage = () => {
   const { clients, documents, setIsAddClientOpen } = useContext(GlobalContext);
   const [lastLogin, setLastLogin] = useState();
-  const [chartType, setChartType] = useState("line");
+  const [chartType, setChartType] = useState("area");
   const router = useRouter();
 
   const [jantojune, setJantojune] = useState([
@@ -191,18 +192,6 @@ const DashboardPage = () => {
     });
   }, [data, viewMode]);
 
-  const pieData = useMemo(() => {
-    if (!Array.isArray(documents) || documents.length === 0) {
-      return [];
-    }
-    const counts = documents.reduce((acc, doc) => {
-      const cat = doc?.category?.name || "Uncategorized";
-      acc[cat] = (acc[cat] || 0) + 1;
-      return acc;
-    }, {});
-    return Object.entries(counts).map(([name, value]) => ({ name, value }));
-  }, [documents]);
-
   // Calculate top clients data from global context
   const topClientsData = useMemo(() => {
     if (
@@ -224,15 +213,11 @@ const DashboardPage = () => {
           doc.client?.includes(client.email)
       ).length;
 
-      // Calculate trend (mock calculation for now - could be enhanced with historical data)
-      const trendPercentage = Math.floor(Math.random() * 20) + 1; // 1-20%
-
       return {
         id: client.id,
         name: client.business_name,
         email: client.email,
         documents: documentCount,
-        trend: `+${trendPercentage}%`,
         status: client.status,
       };
     });
@@ -247,15 +232,6 @@ const DashboardPage = () => {
         rank: index + 1,
       }));
   }, [clients, documents]);
-
-  const pieColors = [
-    "#4FBA84",
-    "#796AFF",
-    "#F17373",
-    "#F1B91E",
-    "#005cdc",
-    "#4F46E5",
-  ];
 
   // Ensure localStorage is accessed only on the client side
   useEffect(() => {
@@ -323,7 +299,6 @@ const DashboardPage = () => {
       value: lastLogin ? formatDate(lastLogin) : "No recent login",
       color: "#F1B91E",
       icon: MdHistory,
-      trend: "2h ago",
       trendUp: false,
     },
   ];
@@ -340,18 +315,26 @@ const DashboardPage = () => {
           <AreaChart {...commonProps}>
             <defs>
               <linearGradient id="colorDocuments" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#005cdc" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#005cdc" stopOpacity={0.1} />
+                <stop
+                  offset="5%"
+                  stopColor="var(--primary)"
+                  stopOpacity={0.8}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--primary)"
+                  stopOpacity={0.1}
+                />
               </linearGradient>
             </defs>
-            <CartesianGrid stroke="#e0e0e0" strokeWidth={1} />
+            <CartesianGrid stroke="var(--accent-primary)" strokeWidth={1} />
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />
             <Area
               type="monotone"
               dataKey="documents"
-              stroke="#005cdc"
+              stroke="var(--primary)"
               fillOpacity={1}
               fill="url(#colorDocuments)"
               strokeWidth={3}
@@ -361,26 +344,30 @@ const DashboardPage = () => {
       case "bar":
         return (
           <BarChart {...commonProps}>
-            <CartesianGrid stroke="#e0e0e0" strokeWidth={1} />
+            <CartesianGrid stroke="var(--accent-primary)" strokeWidth={1} />
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="documents" fill="#005cdc" radius={[4, 4, 0, 0]} />
+            <Bar
+              dataKey="documents"
+              fill="var(--primary)"
+              radius={[4, 4, 0, 0]}
+            />
           </BarChart>
         );
       default:
         return (
           <LineChart {...commonProps}>
-            <CartesianGrid stroke="#e0e0e0" strokeWidth={1} />
+            <CartesianGrid stroke="var(--accent-primary)" strokeWidth={1} />
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />
             <Line
               type="monotone"
               dataKey="documents"
-              stroke="#005cdc"
+              stroke="var(--primary)"
               strokeWidth={4}
-              dot={{ fill: "#005cdc", strokeWidth: 2, r: 6 }}
+              dot={{ fill: "var(--primary)", strokeWidth: 2, r: 6 }}
               activeDot={{ r: 8 }}
             />
           </LineChart>
@@ -389,82 +376,105 @@ const DashboardPage = () => {
   };
 
   return (
-    <div className="p-8 w-full flex flex-col gap-6">
-      {/* Enhanced KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpiCards.map((card) => {
+    <div className="p-6 w-full flex flex-col gap-6 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
+      {/* Modern KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {kpiCards.map((card, index) => {
           const IconComponent = card.icon;
           return (
             <div
               key={card.id}
-              className={`group relative overflow-hidden flex items-center p-6 gap-4 rounded-xl bg-white/90 backdrop-blur-sm border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-[1.01]`}
+              className="group relative overflow-hidden p-6 rounded-2xl bg-white/80 backdrop-blur-xl shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer hover:scale-[1.02] hover:-translate-y-1 animate-fadeInUp"
+              style={{
+                animationDelay: `${index * 100}ms`,
+                background: `linear-gradient(135deg, rgba(255,255,255,0.9) 0%, ${card.color}15 100%)`,
+              }}
               role="button"
               aria-label={`Select KPI ${card.title}`}
               tabIndex={0}
               title={card.title}
             >
-              {/* Decorative hover tint */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none mix-blend-multiply bg-gradient-to-r from-transparent to-blue-50"></div>
-              {/* Accent edge */}
-              <div
-                className={`w-2 h-full rounded-full transition-all duration-300 group-hover:w-3`}
-                style={{ backgroundColor: card.color }}
-              ></div>
+              {/* Animated background gradient */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/20 to-white/40"></div>
+              </div>
+
+              {/* Floating particles effect */}
+              <div className="absolute inset-0 overflow-hidden">
+                <div
+                  className="absolute -top-2 -right-2 w-20 h-20 rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-700"
+                  style={{
+                    background: `radial-gradient(circle, ${card.color}40 0%, transparent 70%)`,
+                  }}
+                ></div>
+              </div>
+
               {/* Content */}
-              <div className="space-y-2 flex-1">
-                <p className="text-lg font-semibold text-secondary-foreground">
-                  {card.title}
-                </p>
-                <div className="flex items-center gap-2">
-                  <p className="text-2xl font-bold text-foreground">
-                    {card.value}
-                  </p>
-                  {card.trend && (
-                    <span
-                      className={`text-xs font-medium flex items-center gap-1 px-2 py-0.5 rounded-full ${
-                        card.trendUp
-                          ? "text-green-700 bg-green-50"
-                          : "text-gray-600 bg-gray-100"
-                      }`}
+              <div className="relative z-10 space-y-4">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">
+                      {card.title}
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <p className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                        {card.value}
+                      </p>
+                      {card.trend && (
+                        <span
+                          className={`text-xs font-semibold flex items-center gap-1 px-2.5 py-1 rounded-full backdrop-blur-sm border ${
+                            card.trendUp
+                              ? "text-green-700 bg-green-100/80 border-green-200/50"
+                              : "text-gray-700 bg-gray-100/80 border-gray-200/50"
+                          }`}
+                        >
+                          {card.trendUp && <MdTrendingUp size={12} />}
+                          {!card.trendUp && (
+                            <MdTrendingUp size={12} className="rotate-180" />
+                          )}
+                          {card.trend}
+                        </span>
+                      )}
+                    </div>
+                    {card.subtitle && (
+                      <p className="text-xs text-gray-500 font-medium">
+                        {card.subtitle}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Modern Icon */}
+                  <div className="relative">
+                    <div
+                      className="relative p-3 rounded-2xl bg-gradient-to-br from-white to-gray-50 shadow-lg border border-white/50"
+                      style={{ boxShadow: `0 8px 32px ${card.color}20` }}
                     >
-                      {card.trendUp && <MdTrendingUp size={12} />}
-                      {card.trend}
-                    </span>
-                  )}
+                      <IconComponent size={28} color={card.color} />
+                    </div>
+                  </div>
                 </div>
-                {card.subtitle && (
-                  <p className="text-sm" style={{ color: card.color }}>
-                    {card.subtitle}
-                  </p>
-                )}
+
+                {/* Progress Bar */}
                 {typeof card.progress === "number" && (
-                  <div className="mt-3">
-                    <div className="h-2 w-full rounded-full bg-gray-100">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs text-gray-600">
+                      <span>Progress</span>
+                      <span className="font-semibold">{card.progress}%</span>
+                    </div>
+                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div
-                        className="h-2 rounded-full transition-all duration-500"
+                        className="h-2 rounded-full transition-all duration-1000 ease-out"
                         style={{
                           width: `${Math.max(
                             0,
                             Math.min(card.progress, 100)
                           )}%`,
-                          backgroundColor: card.color,
+                          background: `linear-gradient(90deg, ${card.color}, ${card.color}80)`,
                         }}
                       ></div>
                     </div>
-                    <p className="text-xs mt-1 text-gray-500">
-                      {card.progress}%
-                    </p>
                   </div>
                 )}
-              </div>
-              {/* Icon */}
-              <div className="ml-auto transition-transform duration-300 group-hover:scale-110 relative z-10">
-                <div
-                  className="p-3 rounded-full bg-gray-50 ring-1"
-                  style={{ borderColor: card.color }}
-                >
-                  <IconComponent size={38} color={card.color} />
-                </div>
               </div>
             </div>
           );
@@ -518,7 +528,7 @@ const DashboardPage = () => {
                       onClick={() => setData(jantojune)}
                       className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-all ${
                         data === jantojune
-                          ? "bg-white shadow-sm text-blue-600"
+                          ? "bg-white shadow-sm text-[var(--primary)]"
                           : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
@@ -528,7 +538,7 @@ const DashboardPage = () => {
                       onClick={() => setData(jultodec)}
                       className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-all ${
                         data === jultodec
-                          ? "bg-white shadow-sm text-blue-600"
+                          ? "bg-white shadow-sm text-[var(--primary)]"
                           : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
@@ -546,7 +556,7 @@ const DashboardPage = () => {
                       onClick={() => setViewMode("monthly")}
                       className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-all ${
                         viewMode === "monthly"
-                          ? "bg-white shadow-sm text-blue-600"
+                          ? "bg-white shadow-sm text-[var(--primary)]"
                           : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
@@ -556,7 +566,7 @@ const DashboardPage = () => {
                       onClick={() => setViewMode("cumulative")}
                       className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-all ${
                         viewMode === "cumulative"
-                          ? "bg-white shadow-sm text-blue-600"
+                          ? "bg-white shadow-sm text-[var(--primary)]"
                           : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
@@ -580,7 +590,7 @@ const DashboardPage = () => {
                         onClick={() => setChartType(type.key)}
                         className={`px-2 py-1 rounded-md text-xs font-medium transition-all ${
                           chartType === type.key
-                            ? "bg-white shadow-sm text-blue-600"
+                            ? "bg-white shadow-sm text-[var(--primary)]"
                             : "text-gray-600 hover:text-gray-900"
                         }`}
                       >
@@ -675,9 +685,6 @@ const DashboardPage = () => {
                           <div className="text-sm font-bold text-gray-900">
                             {client.documents}
                           </div>
-                          <div className="text-xs text-green-600 font-medium">
-                            {client.trend}
-                          </div>
                         </div>
                       </div>
                     ))
@@ -696,7 +703,12 @@ const DashboardPage = () => {
 
                 {/* View All Button */}
                 <div className="pt-4 border-t border-gray-200">
-                  <button className="w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium py-2 hover:bg-blue-50 rounded-lg transition-colors duration-200">
+                  <button
+                    onClick={() =>
+                      router.push("/dashboard/client-management/client-list")
+                    }
+                    className="w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium py-2 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                  >
                     View All Clients →
                   </button>
                 </div>
@@ -725,7 +737,7 @@ const DashboardPage = () => {
             </div>
             <Link
               href={"/dashboard/document-management/all-documents"}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-105 hover:shadow-lg flex items-center gap-2"
+              className="bg-[var(--primary)] hover:bg-[var(--secondary)] text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-105 hover:shadow-lg flex items-center gap-2"
             >
               <span>View All</span>
               <svg
@@ -803,14 +815,15 @@ const DashboardPage = () => {
                         </div>
                         <div>
                           <p className="font-medium text-gray-900 truncate max-w-48">
-                            {extractFilenameFromUrl(doc.file)}
+                            {doc?.parsed_data?.parsed_data?.suggested_title ||
+                              extractFilenameFromUrl(doc.file)}
                           </p>
                           <p className="text-sm text-gray-500">Document</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-5">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border border-blue-200">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] text-[var(--primary)] border border-[var(--primary)]">
                         {doc?.category?.name}
                       </span>
                     </td>
@@ -837,41 +850,16 @@ const DashboardPage = () => {
                     </td>
                     <td className="px-8 py-5">
                       <div className="flex items-center gap-2">
-                        <button className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-200 hover:scale-110">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                            />
-                          </svg>
-                        </button>
-                        <button className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors duration-200 hover:scale-110">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                            />
-                          </svg>
+                        <button
+                          onClick={() =>
+                            router.push(
+                              `/dashboard/document-management/view-document/${doc.id}`
+                            )
+                          }
+                          className="p-2 text-[var(--primary)] hover:bg-[var(--accent-primary)] rounded-lg transition-colors duration-200 hover:scale-110"
+                          title="View Document"
+                        >
+                          <FaEye className="w-4 h-4" />
                         </button>
                       </div>
                     </td>
@@ -911,8 +899,8 @@ const DashboardPage = () => {
               </div>
             </div>
             <Link
-              href={"/dashboard/client-management"}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-105 hover:shadow-lg flex items-center gap-2"
+              href={"/dashboard/client-management/client-list"}
+              className="bg-[var(--primary)] hover:bg-[var(--secondary)] text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-105 hover:shadow-lg flex items-center gap-2"
             >
               <span>View All</span>
               <svg
@@ -1035,8 +1023,8 @@ const DashboardPage = () => {
                     </td>
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-2">
-                        <div className="p-1 bg-blue-100 rounded">
-                          <FaFileAlt className="text-blue-600 text-xs" />
+                        <div className="p-1 bg-[var(--accent-primary)] rounded">
+                          <FaFileAlt className="text-[var(--primary)] text-xs" />
                         </div>
                         <span className="font-semibold text-gray-900">
                           {clientDocuments.length}
@@ -1051,15 +1039,15 @@ const DashboardPage = () => {
                           Verified
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-full bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 font-medium border border-orange-200">
-                          <FaExclamationTriangle className="text-orange-600 text-xs" />
+                        <span className="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-full bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] text-[var(--primary)] font-medium border border-[var(--primary)]">
+                          <FaExclamationTriangle className="text-[var(--primary)] text-xs" />
                           Pending
                         </span>
                       )}
                     </td>
                     <td className="px-8 py-5">
                       <div className="flex items-center gap-2">
-                        <button className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-200 hover:scale-110">
+                        <button className="p-2 text-[var(--primary)] hover:bg-[var(--accent-primary)] rounded-lg transition-colors duration-200 hover:scale-110">
                           <svg
                             className="w-4 h-4"
                             fill="none"
@@ -1080,7 +1068,7 @@ const DashboardPage = () => {
                             />
                           </svg>
                         </button>
-                        <button className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors duration-200 hover:scale-110">
+                        <button className="p-2 text-[var(--primary)] hover:bg-[var(--accent-primary)] rounded-lg transition-colors duration-200 hover:scale-110">
                           <svg
                             className="w-4 h-4"
                             fill="none"
@@ -1118,7 +1106,7 @@ const DashboardPage = () => {
       {/* Floating Action Button */}
       <div className="fixed bottom-8 right-8 z-50">
         <div className="relative group">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 animate-bounce">
+          <button className="bg-[var(--primary)] hover:bg-[var(--secondary)] text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 animate-bounce">
             <svg
               className="w-6 h-6"
               fill="none"
@@ -1140,16 +1128,16 @@ const DashboardPage = () => {
               onClick={() =>
                 router.push("/dashboard/document-management/add-documents")
               }
-              className="w-full text-left px-4 py-2 text-sm hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-2"
+              className="w-full text-left px-4 py-2 text-sm hover:bg-[var(--accent-primary)] rounded-lg transition-colors flex items-center gap-2"
             >
-              <FaFileAlt className="text-blue-600" />
+              <FaFileAlt className="text-[var(--primary)]" />
               Upload Document
             </button>
             <button
               onClick={() => setIsAddClientOpen(true)}
-              className="w-full text-left px-4 py-2 text-sm hover:bg-green-50 rounded-lg transition-colors flex items-center gap-2"
+              className="w-full text-left px-4 py-2 text-sm hover:bg-[var(--accent-primary)] rounded-lg transition-colors flex items-center gap-2"
             >
-              <FaUserFriends className="text-green-600" />
+              <FaUserFriends className="text-[var(--primary)]" />
               Add Client
             </button>
           </div>
@@ -1159,18 +1147,18 @@ const DashboardPage = () => {
       {/* Custom Styles */}
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
+          width: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-          background: #f1f5f9;
-          border-radius: 2px;
+          background: var(--accent-primary);
+          border-radius: 3px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #3b82f6;
-          border-radius: 2px;
+          background: var(--primary);
+          border-radius: 3px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #2563eb;
+          background: var(--secondary);
         }
 
         @keyframes fadeInUp {
