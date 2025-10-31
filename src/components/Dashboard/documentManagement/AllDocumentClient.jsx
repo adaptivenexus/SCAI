@@ -171,19 +171,16 @@ const doesDateMatch = (dateString, query) => {
   );
 };
 
-
-
-
 // Helper function to get business type icon
 const getBusinessTypeIcon = (businessType) => {
   const iconMap = {
-    'Retail': FiShoppingCart,
-    'Wholesale': FiPackage,
-    'Manufacturing': FiSettings,
-    'Service': FiTool,
-    'Other': FiMoreHorizontal,
+    Retail: FiShoppingCart,
+    Wholesale: FiPackage,
+    Manufacturing: FiSettings,
+    Service: FiTool,
+    Other: FiMoreHorizontal,
   };
-  
+
   return iconMap[businessType] || FiFolder;
 };
 
@@ -433,9 +430,10 @@ const AllDocumentPage = () => {
 
   const handleExportCSV = () => {
     // Get selected documents data or all filtered documents if none selected
-    const documentsToExport = selectedDocuments.size > 0 
-      ? documents.filter((doc) => selectedDocuments.has(doc.id))
-      : filteredAndSortedItems;
+    const documentsToExport =
+      selectedDocuments.size > 0
+        ? documents.filter((doc) => selectedDocuments.has(doc.id))
+        : filteredAndSortedItems;
 
     if (documentsToExport.length === 0) {
       toast.warning("No documents to export");
@@ -448,9 +446,10 @@ const AllDocumentPage = () => {
   const confirmExportCSV = () => {
     try {
       // Get selected documents data or all filtered documents if none selected
-      const documentsToExport = selectedDocuments.size > 0 
-        ? documents.filter((doc) => selectedDocuments.has(doc.id))
-        : filteredAndSortedItems;
+      const documentsToExport =
+        selectedDocuments.size > 0
+          ? documents.filter((doc) => selectedDocuments.has(doc.id))
+          : filteredAndSortedItems;
 
       // Format data for CSV - correctly access the document structure
       const csvData = documentsToExport.map((doc) => {
@@ -748,7 +747,9 @@ const AllDocumentPage = () => {
                       }`}
                     >
                       {(() => {
-                        const IconComponent = getBusinessTypeIcon(client.business_type);
+                        const IconComponent = getBusinessTypeIcon(
+                          client.business_type
+                        );
                         return (
                           <IconComponent
                             className={`w-4 h-4 ${
@@ -799,13 +800,8 @@ const AllDocumentPage = () => {
         </div>
         {/* --- END CLIENT FOLDER LIST --- */}
 
-        {/* Search and filters */}
-        <div className="mb-8">
-          {/* Search and Filter Controls */}
-          <div className="bg-background rounded-2xl border border-accent-primary shadow-sm p-6">
-            <div className="flex flex-wrap items-center gap-4">
-              {/* --- Custom Client Filter Dropdown --- */}
-              {/* <div className="relative min-w-[220px]" ref={clientDropdownRef}>
+        {/* Commented Search Client filter */}
+        {/* <div className="relative min-w-[220px]" ref={clientDropdownRef}>
                 <button
                   type="button"
                   className="w-full pl-4 pr-4 py-3 rounded-xl border border-accent-primary bg-background text-foreground focus:outline-none focus:border-primary hover:border-secondary transition-all duration-200 text-sm font-medium text-left flex items-center justify-between"
@@ -917,6 +913,23 @@ const AllDocumentPage = () => {
                 )}
               </div> */}
 
+        {/* Enhanced Table with modern styling */}
+        <div className="bg-white shadow-lg rounded-2xl overflow-hidden border border-gray-100">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-gray-100 flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <FiFolder className="text-blue-600 text-lg" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800">
+                  All Documents
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Manage and organize your documents
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
               {/* --- Search Input --- */}
               <div className="relative max-w-md">
                 <input
@@ -928,7 +941,6 @@ const AllDocumentPage = () => {
                 />
                 <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-foreground w-4 h-4" />
               </div>
-
               {/* --- Action Buttons --- */}
               <div className="flex gap-3 ml-auto">
                 {/* Top buttons and search */}
@@ -1065,26 +1077,6 @@ const AllDocumentPage = () => {
                   <IoIosRefresh className="w-4 h-4 group-hover:rotate-180 transition-transform duration-300" />
                   Refresh
                 </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* --- END Search and filters --- */}
-
-        {/* Enhanced Table with modern styling */}
-        <div className="bg-white shadow-lg rounded-2xl overflow-hidden border border-gray-100">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-gray-100">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <FiFolder className="text-blue-600 text-lg" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-800">
-                  All Documents
-                </h2>
-                <p className="text-sm text-gray-600">
-                  Manage and organize your documents
-                </p>
               </div>
             </div>
           </div>
@@ -1380,8 +1372,12 @@ const AllDocumentPage = () => {
                     <FiDownload className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-white">Export to CSV</h3>
-                    <p className="text-white/90 text-sm">Download document data</p>
+                    <h3 className="text-xl font-bold text-white">
+                      Export to CSV
+                    </h3>
+                    <p className="text-white/90 text-sm">
+                      Download document data
+                    </p>
                   </div>
                 </div>
               </div>
@@ -1396,13 +1392,13 @@ const AllDocumentPage = () => {
                       </div>
                       <div>
                         <p className="font-semibold text-foreground">
-                          {selectedDocuments.size > 0 
-                            ? `${selectedDocuments.size} selected documents` 
+                          {selectedDocuments.size > 0
+                            ? `${selectedDocuments.size} selected documents`
                             : `${filteredAndSortedItems.length} documents`}
                         </p>
                         <p className="text-sm text-secondary-foreground">
-                          {selectedDocuments.size > 0 
-                            ? "Export selected documents only" 
+                          {selectedDocuments.size > 0
+                            ? "Export selected documents only"
                             : "Export all filtered documents"}
                         </p>
                       </div>
@@ -1410,7 +1406,9 @@ const AllDocumentPage = () => {
                   </div>
 
                   <div className="bg-gray-50 rounded-xl p-4">
-                    <h4 className="font-semibold text-foreground mb-2">Included Fields:</h4>
+                    <h4 className="font-semibold text-foreground mb-2">
+                      Included Fields:
+                    </h4>
                     <div className="grid grid-cols-2 gap-2 text-sm text-secondary-foreground">
                       <span>• Document Title</span>
                       <span>• Client Name</span>

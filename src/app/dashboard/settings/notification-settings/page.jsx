@@ -1,6 +1,14 @@
 "use client";
 import React, { useState } from "react";
-import { FiBell, FiMail, FiShield, FiActivity, FiSave, FiX, FiCheck } from "react-icons/fi";
+import {
+  FiBell,
+  FiMail,
+  FiShield,
+  FiActivity,
+  FiSave,
+  FiX,
+  FiCheck,
+} from "react-icons/fi";
 
 const NotificationSettingsPage = () => {
   const [isToggled, setIsToggled] = useState(false);
@@ -57,8 +65,7 @@ const NotificationSettingsPage = () => {
     {
       key: "newComment",
       title: "Team Activity Alerts",
-      description:
-        "Be notified about team activities.",
+      description: "Be notified about team activities.",
     },
     {
       key: "newFollower",
@@ -102,10 +109,13 @@ const NotificationSettingsPage = () => {
             </p>
           </div>
         </div>
-        
+
         {/* Action Buttons */}
         <div className="flex gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-red-500 text-red-500 hover:bg-red-50 transition-all duration-300">
+          <button
+            type="button"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-accent-primary to-accent-secondary text-primary hover:shadow-lg transition-all duration-300 hover:scale-105"
+          >
             <FiX className="w-4 h-4" />
             <span className="label-text font-medium">Cancel</span>
           </button>
@@ -126,7 +136,8 @@ const NotificationSettingsPage = () => {
             <div className="max-w-md">
               <h3 className="heading-5 text-foreground">Email Notifications</h3>
               <p className="text-sm text-secondary-foreground mt-1">
-                Receive important updates and alerts via email for activities related to your account
+                Receive important updates and alerts via email for activities
+                related to your account
               </p>
             </div>
           </div>
@@ -139,8 +150,8 @@ const NotificationSettingsPage = () => {
             <button
               onClick={() => setIsToggled(!isToggled)}
               className={`relative w-16 h-8 rounded-full p-1 transition-all duration-300 ${
-                isToggled 
-                  ? "bg-gradient-to-r from-primary to-secondary shadow-lg" 
+                isToggled
+                  ? "bg-gradient-to-r from-primary to-secondary shadow-lg"
                   : "bg-gray-300"
               }`}
             >
@@ -158,7 +169,10 @@ const NotificationSettingsPage = () => {
         {/* Email Notification Options */}
         <div className="space-y-4">
           {emailNotifications.map(({ key, title, description }) => (
-            <div key={key} className="p-4 rounded-2xl border border-accent-primary/30 bg-white/50 hover:bg-white/80 transition-all duration-300">
+            <div
+              key={key}
+              className="p-4 rounded-2xl border border-accent-primary/30 bg-white/50 hover:bg-white/80 transition-all duration-300"
+            >
               <div className="flex items-start gap-4">
                 <div className="relative">
                   <input
@@ -176,7 +190,9 @@ const NotificationSettingsPage = () => {
                         : "border-gray-300 hover:border-primary"
                     }`}
                   >
-                    {checkboxes[key] && <FiCheck className="w-3 h-3 text-white" />}
+                    {checkboxes[key] && (
+                      <FiCheck className="w-3 h-3 text-white" />
+                    )}
                   </label>
                 </div>
                 <div className="flex-1">
@@ -203,9 +219,12 @@ const NotificationSettingsPage = () => {
               <FiShield className="w-5 h-5 text-white" />
             </div>
             <div className="max-w-md">
-              <h3 className="heading-5 text-foreground">Security Notifications</h3>
+              <h3 className="heading-5 text-foreground">
+                Security Notifications
+              </h3>
               <p className="text-sm text-secondary-foreground mt-1">
-                Get alerts about security events and account protection activities
+                Get alerts about security events and account protection
+                activities
               </p>
             </div>
           </div>
@@ -218,8 +237,8 @@ const NotificationSettingsPage = () => {
             <button
               onClick={() => setIsToggled2(!isToggled2)}
               className={`relative w-16 h-8 rounded-full p-1 transition-all duration-300 ${
-                isToggled2 
-                  ? "bg-gradient-to-r from-primary to-secondary shadow-lg" 
+                isToggled2
+                  ? "bg-gradient-to-r from-primary to-secondary shadow-lg"
                   : "bg-gray-300"
               }`}
             >
@@ -237,7 +256,10 @@ const NotificationSettingsPage = () => {
         {/* Security Notification Options */}
         <div className="space-y-4">
           {SecurityNotifications.map(({ key, title, description }) => (
-            <div key={key} className="p-4 rounded-2xl border border-accent-primary/30 bg-white/50 hover:bg-white/80 transition-all duration-300">
+            <div
+              key={key}
+              className="p-4 rounded-2xl border border-accent-primary/30 bg-white/50 hover:bg-white/80 transition-all duration-300"
+            >
               <div className="flex items-start gap-4">
                 <div className="relative">
                   <input
@@ -255,7 +277,9 @@ const NotificationSettingsPage = () => {
                         : "border-gray-300 hover:border-primary"
                     }`}
                   >
-                    {checkboxes[key] && <FiCheck className="w-3 h-3 text-white" />}
+                    {checkboxes[key] && (
+                      <FiCheck className="w-3 h-3 text-white" />
+                    )}
                   </label>
                 </div>
                 <div className="flex-1">
@@ -282,7 +306,9 @@ const NotificationSettingsPage = () => {
               <FiActivity className="w-5 h-5 text-white" />
             </div>
             <div className="max-w-md">
-              <h3 className="heading-5 text-foreground">Activity Notifications</h3>
+              <h3 className="heading-5 text-foreground">
+                Activity Notifications
+              </h3>
               <p className="text-sm text-secondary-foreground mt-1">
                 Stay informed about team activities and collaboration updates
               </p>
@@ -297,8 +323,8 @@ const NotificationSettingsPage = () => {
             <button
               onClick={() => setIsToggled3(!isToggled3)}
               className={`relative w-16 h-8 rounded-full p-1 transition-all duration-300 ${
-                isToggled3 
-                  ? "bg-gradient-to-r from-primary to-secondary shadow-lg" 
+                isToggled3
+                  ? "bg-gradient-to-r from-primary to-secondary shadow-lg"
                   : "bg-gray-300"
               }`}
             >
@@ -315,42 +341,49 @@ const NotificationSettingsPage = () => {
 
         {/* Activity Notification Options */}
         <div className="space-y-4">
-          {ActivityNotifications.slice(0, 2).map(({ key, title, description }) => (
-            <div key={key} className="p-4 rounded-2xl border border-accent-primary/30 bg-white/50 hover:bg-white/80 transition-all duration-300">
-              <div className="flex items-start gap-4">
-                <div className="relative">
-                  <input
-                    type="checkbox"
-                    id={key}
-                    checked={checkboxes[key]}
-                    onChange={() => handleCheckboxChange(key)}
-                    className="sr-only"
-                  />
-                  <label
-                    htmlFor={key}
-                    className={`w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-all duration-300 ${
-                      checkboxes[key]
-                        ? "bg-primary border-primary"
-                        : "border-gray-300 hover:border-primary"
-                    }`}
-                  >
-                    {checkboxes[key] && <FiCheck className="w-3 h-3 text-white" />}
-                  </label>
-                </div>
-                <div className="flex-1">
-                  <label
-                    htmlFor={key}
-                    className="label-text font-semibold text-foreground cursor-pointer"
-                  >
-                    {title}
-                  </label>
-                  <p className="text-sm text-secondary-foreground mt-1">
-                    {description}
-                  </p>
+          {ActivityNotifications.slice(0, 2).map(
+            ({ key, title, description }) => (
+              <div
+                key={key}
+                className="p-4 rounded-2xl border border-accent-primary/30 bg-white/50 hover:bg-white/80 transition-all duration-300"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      id={key}
+                      checked={checkboxes[key]}
+                      onChange={() => handleCheckboxChange(key)}
+                      className="sr-only"
+                    />
+                    <label
+                      htmlFor={key}
+                      className={`w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-all duration-300 ${
+                        checkboxes[key]
+                          ? "bg-primary border-primary"
+                          : "border-gray-300 hover:border-primary"
+                      }`}
+                    >
+                      {checkboxes[key] && (
+                        <FiCheck className="w-3 h-3 text-white" />
+                      )}
+                    </label>
+                  </div>
+                  <div className="flex-1">
+                    <label
+                      htmlFor={key}
+                      className="label-text font-semibold text-foreground cursor-pointer"
+                    >
+                      {title}
+                    </label>
+                    <p className="text-sm text-secondary-foreground mt-1">
+                      {description}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          )}
         </div>
       </div>
     </div>
