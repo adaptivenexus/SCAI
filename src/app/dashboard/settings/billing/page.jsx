@@ -141,76 +141,91 @@ const BillingPage = () => {
 
           <div className="space-y-6">
             <div className="p-6 rounded-2xl bg-gradient-to-r from-accent-primary to-accent-secondary border border-primary/20">
-              <div className="space-y-3">
+              <div className="space-y-4">
+                {/* Plan Details Section */}
                 <div className="flex items-center justify-between">
-                  <h4 className="label-text font-semibold text-foreground">
+                  <h4 className="text-lg font-semibold text-foreground">
                     {subscriptionDetails.name}
                   </h4>
                   {subscriptionDetails.price !== "0.00" && (
-                    <span className="px-3 py-1 rounded-full bg-primary text-white text-xs font-medium">
+                    <span className="px-3 py-1 rounded-full bg-primary text-white text-lg">
                       ${subscriptionDetails.price}/Month
                     </span>
                   )}
                 </div>
-                {subscriptionDetails.price !== "0.00" && (
-                  <p className="text-sm text-secondary-foreground">
-                    Billed Monthly
-                  </p>
-                )}
-                <div className="flex items-center gap-2">
-                  <FiCheckCircle className="w-4 h-4 text-green-500" />
-                  <span className="text-sm text-primary font-medium">
-                    Single User Plan
-                  </span>
-                </div>
-              </div>
-            </div>
 
-            {/* Next Billing Date */}
-            <div className="p-6 rounded-2xl border border-accent-primary/30 bg-white/50">
-              <div className="flex items-center gap-3 mb-4">
-                <FiCalendar className="w-5 h-5 text-primary" />
-                <h4 className="label-text font-semibold text-foreground">
-                  Next Billing Date
-                </h4>
-              </div>
-              <div className="space-y-2">
-                <p className="body-text text-foreground">
-                  {formatDate(expiryDate)}
-                </p>
-                <p className="text-sm text-secondary-foreground">
-                  (Auto-renewal disabled)
-                </p>
-                {isPlanExpired ? (
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200">
-                    <FiAlertTriangle className="w-4 h-4 text-red-500" />
-                    <span className="text-sm font-medium text-red-600">
-                      Plan expired
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FiCheckCircle className="w-4 h-4 text-green-500" />
+                    <span className="text-sm text-primary font-medium">
+                      Single User Plan
                     </span>
                   </div>
-                ) : (
-                  (() => {
-                    if (expiryDate) {
-                      const expiry = getDateOnly(expiryDate);
-                      const diffTime = expiry - todayDateOnly;
-                      const diffDays = Math.ceil(
-                        diffTime / (1000 * 60 * 60 * 24)
-                      );
-                      if (diffDays > 0 && diffDays <= 5) {
+                  {subscriptionDetails.price !== "0.00" && (
+                    <p className="text-sm text-secondary-foreground">
+                      Billed Monthly
+                    </p>
+                  )}
+                </div>
+
+                {/* Divider */}
+                <div className="border-t border-white/20 my-4"></div>
+
+                {/* Next Billing Date Section */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <FiCalendar className="w-5 h-5 text-primary" />
+                    <div>
+                      <h4 className="label-text font-semibold text-foreground">
+                        Next Billing Date
+                      </h4>
+                      <p className="body-text text-foreground font-medium">
+                        {formatDate(expiryDate)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    <span className="px-3 py-1 rounded-full bg-white/20 text-primary text-xs font-medium">
+                      Auto-renewal disabled
+                    </span>
+                    {isPlanExpired ? (
+                      <div className="flex items-center gap-2">
+                        <FiAlertTriangle className="w-4 h-4 text-red-500" />
+                        <span className="text-sm font-medium text-red-600">
+                          Plan expired
+                        </span>
+                      </div>
+                    ) : (
+                      (() => {
+                        if (expiryDate) {
+                          const expiry = getDateOnly(expiryDate);
+                          const diffTime = expiry - todayDateOnly;
+                          const diffDays = Math.ceil(
+                            diffTime / (1000 * 60 * 60 * 24)
+                          );
+                          if (diffDays > 0 && diffDays <= 5) {
+                            return (
+                              <div className="flex items-center gap-2">
+                                <FiClock className="w-4 h-4 text-orange-500" />
+                                <span className="text-sm font-medium text-orange-600">
+                                  Expiring Soon
+                                </span>
+                              </div>
+                            );
+                          }
+                        }
                         return (
-                          <div className="flex items-center gap-2 p-3 rounded-xl bg-orange-50 border border-orange-200">
-                            <FiClock className="w-4 h-4 text-orange-500" />
-                            <span className="text-sm font-medium text-orange-600">
-                              Expiring Soon: Renew before{" "}
-                              {formatDate(expiryDate)}
+                          <div className="flex items-center gap-2">
+                            <FiCheckCircle className="w-4 h-4 text-green-500" />
+                            <span className="text-sm text-primary font-medium">
+                              Active Plan
                             </span>
                           </div>
                         );
-                      }
-                    }
-                    return null;
-                  })()
-                )}
+                      })()
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -225,8 +240,6 @@ const BillingPage = () => {
                 <FiSettings className="w-4 h-4" />
                 <span className="label-text font-medium">Manage Plan</span>
               </button>
-
-
             </div>
           </div>
         </div>
@@ -273,6 +286,16 @@ const BillingPage = () => {
                 Edit Payment Method
               </span>
             </button>
+          </div>
+          {/* Security Badge */}
+          <div className="mt-6 p-4 rounded-2xl border border-green-200 bg-green-50 flex items-center gap-3">
+            <FiCheckCircle className="w-5 h-5 text-green-600" />
+            <div>
+              <p className="text-sm font-semibold text-green-800">
+                Your payment info is fully secured
+              </p>
+              {/* <p className="text-xs text-green-700">256-bit SSL encryption & PCI-DSS compliant</p> */}
+            </div>
           </div>
         </div>
       </div>

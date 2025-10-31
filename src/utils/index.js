@@ -11,26 +11,26 @@ export function formatDate(dateString) {
       const y = isoMatch[1];
       const m = isoMatch[2].padStart(2, "0");
       const d = isoMatch[3].padStart(2, "0");
-      return `${d}/${m}/${y}`;
+      return `${m}/${d}/${y}`;
     }
 
-    // Pattern: DMY or MDY with separators (default to DMY for display)
+    // Pattern: DMY or MDY with separators (default to MDY for MM/DD/YYYY)
     const sepMatch = s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})$/);
     if (sepMatch) {
-      const a = sepMatch[1].padStart(2, "0");
-      const b = sepMatch[2].padStart(2, "0");
+      const first = sepMatch[1].padStart(2, "0");
+      const second = sepMatch[2].padStart(2, "0");
       const y = sepMatch[3].length === 2 ? `20${sepMatch[3]}` : sepMatch[3];
-      // Assume DMY for display (common in en-GB contexts)
-      return `${a}/${b}/${y}`;
+      // Assume MDY for MM/DD/YYYY
+      return `${first}/${second}/${y}`;
     }
 
     // Fallback: native Date parsing, but use local date parts to avoid UTC off-by-one
     const date = new Date(s);
     if (isNaN(date.getTime())) return "";
-    
+
     // Use local date parts to avoid timezone shifting that can cause off-by-one day issues
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
     const year = date.getFullYear().toString();
 
     return `${month}/${day}/${year}`;

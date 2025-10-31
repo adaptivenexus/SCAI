@@ -7,8 +7,6 @@ import {
   FiGlobe,
   FiType,
   FiDollarSign,
-  FiSave,
-  FiRefreshCw,
 } from "react-icons/fi";
 
 const InterfaceSettingsPage = () => {
@@ -247,7 +245,7 @@ const InterfaceSettingsPage = () => {
         </div>
 
         {/* Current Settings Preview */}
-        <div className="mt-8 p-6 rounded-2xl bg-gradient-to-r from-accent-primary to-accent-secondary border border-primary/20 flex-1">
+        {/* <div className="mt-8 p-6 rounded-2xl bg-gradient-to-r from-accent-primary to-accent-secondary border border-primary/20 flex-1">
           <h4 className="label-text font-semibold text-foreground mb-4">
             Current Settings Preview
           </h4>
@@ -269,7 +267,7 @@ const InterfaceSettingsPage = () => {
               <p className="font-medium text-foreground">{currency}</p>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

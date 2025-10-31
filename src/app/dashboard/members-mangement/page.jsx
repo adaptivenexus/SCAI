@@ -257,7 +257,7 @@ const MembersManagementPage = () => {
                 <FiUsers className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="heading-3 text-white">Members Management</h1>
+                <h1 className="heading-3 text-white">Members</h1>
                 <div className="flex items-center gap-4 text-white/90 mt-1">
                   <div className="flex items-center gap-1">
                     <FiUsers className="w-3 h-3" />
@@ -275,21 +275,14 @@ const MembersManagementPage = () => {
 
             {/* Right Section - Actions and Stats */}
             <div className="flex items-center gap-4">
-              {/* User Seats Info - Compact */}
-              <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2 text-center">
-                <div className="text-white font-semibold text-sm">
-                  {members.length} of 20
-                </div>
-                <div className="text-white/80 text-xs">User Seats</div>
-              </div>
-
               {/* Add Members Button */}
               <button
-                className="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-4 py-2 rounded-xl transition-all duration-300 font-medium border border-white/30"
+                type="button"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-accent-primary to-accent-secondary text-primary hover:shadow-lg transition-all duration-300 hover:scale-105"
                 onClick={() => openModal()}
               >
                 <FiUserPlus className="w-4 h-4" />
-                Add Members
+                <span className="font-medium">Add Members</span>
               </button>
             </div>
           </div>
@@ -309,7 +302,7 @@ const MembersManagementPage = () => {
         </div>
 
         {/* Container Content */}
-        <div className="p-8 space-y-6">
+        <div className="px-8 py-2 space-y-6">
           {/* Success/Error Messages */}
           {message.text && (
             <div
@@ -348,6 +341,50 @@ const MembersManagementPage = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
+            </div>
+            <div className="flex flex-col items-end gap-4">
+              <div className="flex items-center gap-4 p-3 rounded-2xl bg-gradient-to-r from-primary to-secondary border border-primary/20">
+                {/* Progress ring */}
+                <div className="relative w-16 h-16">
+                  <svg className="w-16 h-16 transform -rotate-90">
+                    <circle
+                      cx="32"
+                      cy="32"
+                      r="28"
+                      stroke="currentColor"
+                      strokeWidth="6"
+                      fill="none"
+                      className="text-white/30"
+                    />
+                    <circle
+                      cx="32"
+                      cy="32"
+                      r="28"
+                      stroke="currentColor"
+                      strokeWidth="6"
+                      fill="none"
+                      strokeDasharray={`${(members.length / 20) * 176} 176`}
+                      className="text-white transition-all duration-500"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-sm font-bold text-white">
+                      {members.length}/20
+                    </span>
+                  </div>
+                </div>
+
+                {/* Info & Action */}
+                <div className="flex-1">
+                  <p className="text-base font-semibold text-white">
+                    User Seats
+                  </p>
+                  <p className="text-sm text-white/80">20 included in plan</p>
+                </div>
+                <button className="px-3 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white text-sm font-medium transition-colors">
+                  Get More
+                </button>
+              </div>
             </div>
             <button className="p-3 bg-gradient-to-r from-accent-primary to-accent-secondary border border-white/40 rounded-xl hover:shadow-lg transition-all duration-300 group">
               <IoFilterSharp className="h-5 w-5 text-primary group-hover:text-secondary transition-colors duration-200" />

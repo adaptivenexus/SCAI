@@ -76,16 +76,16 @@ const ContactUs = () => {
           {/* Contact Form - Takes 2 columns */}
           <div className="lg:col-span-2">
             <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
-              <div className="bg-gradient-to-r from-primary to-secondary p-8">
+              <div className="bg-gradient-to-r from-primary to-secondary p-6">
                 <h3 className="heading-4 text-white mb-2">Send us a Message</h3>
                 <p className="text-white/90">Fill out the form below and we'll respond within 24 hours</p>
               </div>
               
-              <div className="p-8 lg:p-12">
-                <form className="space-y-8" onSubmit={handleSubmit}>
+              <div className="p-6 lg:p-8">
+                <form className="space-y-5" onSubmit={handleSubmit}>
                   {/* Contact Information Row */}
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-3">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
                       <label htmlFor="firstName" className="block label-text font-semibold text-foreground">
                         First Name
                       </label>
@@ -94,14 +94,14 @@ const ContactUs = () => {
                           type="text"
                           id="firstName"
                           placeholder="Enter your first name"
-                          className="w-full outline-none border-2 border-gray-200 focus:border-primary font-medium rounded-xl py-4 px-5 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50"
+                          className="w-full outline-none border-2 border-gray-200 focus:border-primary font-medium rounded-xl py-3 px-4 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50"
                           value={form.firstName}
                           onChange={handleInputChange}
                           required
                         />
                       </div>
                     </div>
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       <label htmlFor="lastName" className="block label-text font-semibold text-foreground">
                         Last Name
                       </label>
@@ -110,7 +110,7 @@ const ContactUs = () => {
                           type="text"
                           id="lastName"
                           placeholder="Enter your last name"
-                          className="w-full outline-none border-2 border-gray-200 focus:border-primary font-medium rounded-xl py-4 px-5 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50"
+                          className="w-full outline-none border-2 border-gray-200 focus:border-primary font-medium rounded-xl py-3 px-4 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50"
                           value={form.lastName}
                           onChange={handleInputChange}
                           required
@@ -120,8 +120,8 @@ const ContactUs = () => {
                   </div>
 
                   {/* Email and Phone Row */}
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-3">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
                       <label htmlFor="email" className="block label-text font-semibold text-foreground">
                         Email Address
                       </label>
@@ -130,14 +130,14 @@ const ContactUs = () => {
                           type="email"
                           id="email"
                           placeholder="Enter your email"
-                          className="w-full outline-none border-2 border-gray-200 focus:border-primary font-medium rounded-xl py-4 px-5 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50"
+                          className="w-full outline-none border-2 border-gray-200 focus:border-primary font-medium rounded-xl py-3 px-4 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50"
                           value={form.email}
                           onChange={handleInputChange}
                           required
                         />
                       </div>
                     </div>
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       <label htmlFor="phoneNumber" className="block label-text font-semibold text-foreground">
                         Phone Number
                       </label>
@@ -146,7 +146,7 @@ const ContactUs = () => {
                           type="text"
                           id="phoneNumber"
                           placeholder="+1 234-567-890"
-                          className="w-full outline-none border-2 border-gray-200 focus:border-primary font-medium rounded-xl py-4 px-5 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50"
+                          className="w-full outline-none border-2 border-gray-200 focus:border-primary font-medium rounded-xl py-3 px-4 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50"
                           value={form.phoneNumber}
                           onChange={handleInputChange}
                         />
@@ -155,7 +155,7 @@ const ContactUs = () => {
                   </div>
 
                   {/* Subject Field */}
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <label htmlFor="subject" className="block label-text font-semibold text-foreground">
                       Subject
                     </label>
@@ -163,7 +163,7 @@ const ContactUs = () => {
                       <select
                         value={subject}
                         onChange={(e) => setSubject(e.target.value)}
-                        className="w-full outline-none border-2 border-gray-200 focus:border-primary font-medium rounded-xl py-4 px-5 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 appearance-none cursor-pointer"
+                        className="w-full outline-none border-2 border-gray-200 focus:border-primary font-medium rounded-xl py-3 px-4 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 appearance-none cursor-pointer"
                       >
                         <option value="General query">General query</option>
                         <option value="Service Details">Service Details</option>
@@ -180,7 +180,7 @@ const ContactUs = () => {
                   </div>
 
                   {/* Message Field */}
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <label htmlFor="message" className="block label-text font-semibold text-foreground">
                       Message
                     </label>
@@ -189,8 +189,8 @@ const ContactUs = () => {
                         name="message"
                         id="message"
                         placeholder="Tell us how we can help you..."
-                        className="w-full outline-none border-2 border-gray-200 focus:border-primary font-medium rounded-xl py-4 px-5 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 resize-none"
-                        rows={6}
+                        className="w-full outline-none border-2 border-gray-200 focus:border-primary font-medium rounded-xl py-3 px-4 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 resize-none"
+                        rows={4}
                         value={form.message}
                         onChange={handleInputChange}
                         required
@@ -201,7 +201,7 @@ const ContactUs = () => {
                   {/* Result Message */}
                   {resultMsg && (
                     <div
-                      className={`rounded-xl p-4 text-center font-medium ${
+                      className={`rounded-xl p-3 text-center font-medium ${
                         resultMsg.includes("success")
                           ? "bg-green-50 text-green-700 border border-green-200"
                           : "bg-red-50 text-red-700 border border-red-200"
@@ -212,7 +212,7 @@ const ContactUs = () => {
                   )}
 
                   {/* Terms and Submit */}
-                  <div className="space-y-6">
+                  <div className="space-y-4">
                     <p className="text-sm text-secondary-foreground leading-relaxed">
                       By submitting your inquiry, you acknowledge and agree to our{" "}
                       <Link href={"/terms-and-conditions"} className="text-primary hover:underline font-medium">
@@ -227,7 +227,7 @@ const ContactUs = () => {
                     <div className="flex justify-end">
                       <button
                         type="submit"
-                        className="inline-flex items-center gap-3 bg-gradient-to-r from-primary to-secondary text-white font-semibold py-4 px-8 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                        className="inline-flex items-center gap-3 bg-gradient-to-r from-primary to-secondary text-white font-semibold py-3 px-6 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                         disabled={loading}
                       >
                         {loading ? (

@@ -7,20 +7,20 @@ import FloatingMenu from "@/components/Dashboard/Overlay/FloatingMenu";
 import FullscreenModal from "@/components/Dashboard/Overlay/FullscreenModal";
 import { authFetch } from "@/utils/auth";
 import { useAuth } from "@/context/AuthContext";
-import { 
-  FiUsers, 
-  FiUserPlus, 
-  FiSearch, 
-  FiEdit3, 
-  FiTrash2, 
-  FiCheck, 
-  FiX, 
+import {
+  FiUsers,
+  FiUserPlus,
+  FiSearch,
+  FiEdit3,
+  FiTrash2,
+  FiCheck,
+  FiX,
   FiSave,
   FiMail,
   FiPhone,
   FiUser,
   FiLock,
-  FiShield
+  FiShield,
 } from "react-icons/fi";
 
 // Main component for managing agency members
@@ -229,16 +229,25 @@ const MembersManagementPage = () => {
   return (
     <div className="p-8 space-y-8">
       {/* Header Section */}
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
-          <FiUsers className="w-6 h-6 text-white" />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+            <FiUsers className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h2 className="heading-4 text-foreground">Role Management</h2>
+            <p className="body-text text-secondary-foreground">
+              Manage roles and permissions for your team members
+            </p>
+          </div>
         </div>
-        <div>
-          <h2 className="heading-4 text-foreground">Role Management</h2>
-          <p className="body-text text-secondary-foreground">
-            Manage roles and permissions for your team members
-          </p>
-        </div>
+        <button
+          className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-primary to-secondary text-white hover:shadow-lg transition-all duration-300 hover:scale-105"
+          onClick={() => openModal()}
+        >
+          <FiUserPlus className="w-4 h-4" />
+          <span className="label-text font-medium">Add Member</span>
+        </button>
       </div>
 
       {/* Main Container */}
@@ -247,28 +256,51 @@ const MembersManagementPage = () => {
           <div className="flex-1">
             <h3 className="heading-5 text-foreground mb-2">Agency Members</h3>
             <p className="body-text text-secondary-foreground">
-              Manage team member access and permissions. Users with "Viewer" role do not consume seats.
+              Manage team member access and permissions. Users with "Viewer"
+              role do not consume seats.
             </p>
           </div>
-          
+
           <div className="flex flex-col items-end gap-4">
-            <button
-              className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-primary to-secondary text-white hover:shadow-lg transition-all duration-300 hover:scale-105"
-              onClick={() => openModal()}
-            >
-              <FiUserPlus className="w-4 h-4" />
-              <span className="label-text font-medium">Add Member</span>
-            </button>
-            
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-accent-primary to-accent-secondary border border-primary/20 text-center">
-              <div className="space-y-1">
-                <h4 className="heading-5 text-foreground">{members.length} of 20</h4>
-                <p className="text-sm text-secondary-foreground">User Seats</p>
-                <p className="text-xs text-secondary-foreground">20 included in plan</p>
-                <button className="text-xs text-primary font-medium hover:underline">
-                  Get More Seats
-                </button>
+            <div className="flex items-center gap-4 p-3 rounded-2xl bg-gradient-to-r from-primary to-secondary border border-primary/20">
+              {/* Progress ring */}
+              <div className="relative w-16 h-16">
+                <svg className="w-16 h-16 transform -rotate-90">
+                  <circle
+                    cx="32"
+                    cy="32"
+                    r="28"
+                    stroke="currentColor"
+                    strokeWidth="6"
+                    fill="none"
+                    className="text-white/30"
+                  />
+                  <circle
+                    cx="32"
+                    cy="32"
+                    r="28"
+                    stroke="currentColor"
+                    strokeWidth="6"
+                    fill="none"
+                    strokeDasharray={`${(members.length / 20) * 176} 176`}
+                    className="text-white transition-all duration-500"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text- font-bold text-white">
+                    {members.length}/20
+                  </span>
+                </div>
               </div>
+
+              {/* Info & Action */}
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-white">User Seats</p>
+                <p className="text-xs text-white/80">20 included in plan</p>
+              </div>
+              <button className="px-3 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white text-xs font-medium transition-colors">
+                Get More
+              </button>
             </div>
           </div>
         </div>
@@ -325,279 +357,320 @@ const MembersManagementPage = () => {
           <table className="w-full">
             <thead>
               <tr className="bg-gradient-to-r from-accent-primary to-accent-secondary">
-                <th className="py-4 px-6 text-left label-text font-semibold text-foreground">Member</th>
-                <th className="py-4 px-6 text-center label-text font-semibold text-foreground">Role</th>
-                <th className="py-4 px-6 text-center label-text font-semibold text-foreground">Added</th>
-                <th className="py-4 px-6 text-center label-text font-semibold text-foreground">Last Active</th>
-                <th className="py-4 px-6 text-center label-text font-semibold text-foreground">Actions</th>
+                <th className="py-4 px-6 text-left label-text font-semibold text-foreground">
+                  Member
+                </th>
+                <th className="py-4 px-6 text-center label-text font-semibold text-foreground">
+                  Role
+                </th>
+                <th className="py-4 px-6 text-center label-text font-semibold text-foreground">
+                  Added
+                </th>
+                <th className="py-4 px-6 text-center label-text font-semibold text-foreground">
+                  Last Active
+                </th>
+                <th className="py-4 px-6 text-center label-text font-semibold text-foreground">
+                  Actions
+                </th>
               </tr>
             </thead>
-             <tbody className="divide-y divide-accent-primary/20">
-               {filteredMembers.length === 0 ? (
-                 <tr>
-                   <td colSpan="5" className="py-12 text-center">
-                     <div className="flex flex-col items-center gap-3">
-                       <div className="w-16 h-16 rounded-2xl bg-accent-primary/50 flex items-center justify-center">
-                         <FiUsers className="w-8 h-8 text-secondary-foreground" />
-                       </div>
-                       <div>
-                         <h4 className="label-text font-medium text-foreground">No Members Found</h4>
-                         <p className="text-sm text-secondary-foreground">Add team members to get started</p>
-                       </div>
-                     </div>
-                   </td>
-                 </tr>
-               ) : (
-                 filteredMembers.map((member, idx) => (
-                   <tr key={member.id} className="hover:bg-white/80 transition-colors">
-                     <td className="py-4 px-6">
-                       <div className="flex items-center gap-4">
-                         <div className="w-12 h-12 rounded-2xl overflow-hidden bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
-                           <Image
-                             src="/user.jpg"
-                             alt="Profile"
-                             width={48}
-                             height={48}
-                             className="rounded-2xl aspect-square object-cover"
-                           />
-                         </div>
-                         <div>
-                           <div className="label-text font-semibold text-foreground">
-                             {member.fullName}
-                           </div>
-                           <div className="text-sm text-secondary-foreground">
-                             {member.email}
-                           </div>
-                         </div>
-                       </div>
-                     </td>
-                     <td className="py-4 px-6 text-center">
-                       <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
-                         {member.role}
-                       </span>
-                     </td>
-                     <td className="py-4 px-6 text-center text-sm text-foreground">{member.added}</td>
-                     <td className="py-4 px-6 text-center">
-                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                         member.lastActive === "Active" 
-                           ? "bg-green-100 text-green-700" 
-                           : "bg-gray-100 text-gray-700"
-                       }`}>
-                         {member.lastActive}
-                       </span>
-                     </td>
-                     <td className="py-4 px-6">
-                       <div className="relative flex items-center justify-center">
-                         <button
-                           className="p-2 rounded-xl hover:bg-accent-primary/20 transition-colors"
-                           onClick={(e) => toggleActionsDropdown(idx, e)}
-                         >
-                           <HiOutlineEllipsisVertical className="w-5 h-5 text-secondary-foreground" />
-                         </button>
-                         <FloatingMenu
-                           open={actionsIndex === idx}
-                           anchorEl={menuAnchorEl}
-                           placement="bottom-end"
-                           onClose={() => setActionsIndex(null)}
-                           className="w-48"
-                         >
-                           <button
-                             className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors text-left"
-                             onClick={() => openModal(true, member)}
-                           >
-                             <FiEdit3 className="w-4 h-4 text-blue-600" />
-                             <span className="text-sm font-medium text-blue-600">Edit Member</span>
-                           </button>
-                           <button
-                             className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-left"
-                             onClick={() => handleRemove(member.id)}
-                           >
-                             <FiTrash2 className="w-4 h-4 text-red-600" />
-                             <span className="text-sm font-medium text-red-600">Remove Member</span>
-                           </button>
-                         </FloatingMenu>
-                       </div>
-                     </td>
-                   </tr>
-                 ))
-               )}
-             </tbody>
-           </table>
-         </div>
+            <tbody className="divide-y divide-accent-primary/20">
+              {filteredMembers.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="py-12 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-16 h-16 rounded-2xl bg-accent-primary/50 flex items-center justify-center">
+                        <FiUsers className="w-8 h-8 text-secondary-foreground" />
+                      </div>
+                      <div>
+                        <h4 className="label-text font-medium text-foreground">
+                          No Members Found
+                        </h4>
+                        <p className="text-sm text-secondary-foreground">
+                          Add team members to get started
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredMembers.map((member, idx) => (
+                  <tr
+                    key={member.id}
+                    className="hover:bg-white/80 transition-colors"
+                  >
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl overflow-hidden bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+                          <Image
+                            src="/user.jpg"
+                            alt="Profile"
+                            width={48}
+                            height={48}
+                            className="rounded-2xl aspect-square object-cover"
+                          />
+                        </div>
+                        <div>
+                          <div className="label-text font-semibold text-foreground">
+                            {member.fullName}
+                          </div>
+                          <div className="text-sm text-secondary-foreground">
+                            {member.email}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 text-center">
+                      <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                        {member.role}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6 text-center text-sm text-foreground">
+                      {member.added}
+                    </td>
+                    <td className="py-4 px-6 text-center">
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          member.lastActive === "Active"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        {member.lastActive}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="relative flex items-center justify-center">
+                        <button
+                          className="p-2 rounded-xl hover:bg-accent-primary/20 transition-colors"
+                          onClick={(e) => toggleActionsDropdown(idx, e)}
+                        >
+                          <HiOutlineEllipsisVertical className="w-5 h-5 text-secondary-foreground" />
+                        </button>
+                        <FloatingMenu
+                          open={actionsIndex === idx}
+                          anchorEl={menuAnchorEl}
+                          placement="bottom-end"
+                          onClose={() => setActionsIndex(null)}
+                          className="w-48"
+                        >
+                          <button
+                            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors text-left"
+                            onClick={() => openModal(true, member)}
+                          >
+                            <FiEdit3 className="w-4 h-4 text-blue-600" />
+                            <span className="text-sm font-medium text-blue-600">
+                              Edit Member
+                            </span>
+                          </button>
+                          <button
+                            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-left"
+                            onClick={() => handleRemove(member.id)}
+                          >
+                            <FiTrash2 className="w-4 h-4 text-red-600" />
+                            <span className="text-sm font-medium text-red-600">
+                              Remove Member
+                            </span>
+                          </button>
+                        </FloatingMenu>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Modal for Adding/Editing Members */}
       <FullscreenModal open={modal.isOpen} onClose={closeModal} centered>
-        <div 
+        <div
           className="bg-white/95 backdrop-blur-sm border border-accent-primary/30 rounded-3xl p-8 w-full max-w-4xl shadow-2xl pointer-events-auto"
-          style={{ maxHeight: '90vh', overflowY: 'auto' }}
+          style={{ maxHeight: "90vh", overflowY: "auto" }}
         >
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
-                {modal.isEditMode ? (
-                  <FiEdit3 className="w-6 h-6 text-white" />
-                ) : (
-                  <FiUserPlus className="w-6 h-6 text-white" />
-                )}
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+              {modal.isEditMode ? (
+                <FiEdit3 className="w-6 h-6 text-white" />
+              ) : (
+                <FiUserPlus className="w-6 h-6 text-white" />
+              )}
+            </div>
+            <div>
+              <h2 className="heading-4 text-foreground">
+                {modal.isEditMode ? "Edit Member" : "Add New Member"}
+              </h2>
+              <p className="text-sm text-secondary-foreground">
+                {modal.isEditMode
+                  ? "Update member information"
+                  : "Add a new team member to your agency"}
+              </p>
+            </div>
+          </div>
+
+          {message.text && (
+            <div
+              className={`mb-6 p-4 rounded-2xl flex items-center gap-3 ${
+                message.type === "success"
+                  ? "bg-green-50 border border-green-200"
+                  : "bg-red-50 border border-red-200"
+              }`}
+            >
+              {message.type === "success" ? (
+                <FiCheck className="w-5 h-5 text-green-600" />
+              ) : (
+                <FiX className="w-5 h-5 text-red-600" />
+              )}
+              <span
+                className={`text-sm font-medium ${
+                  message.type === "success" ? "text-green-800" : "text-red-800"
+                }`}
+              >
+                {message.text}
+              </span>
+            </div>
+          )}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left Column */}
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <label className="flex items-center gap-2 label-text font-semibold text-foreground">
+                  <FiUser className="w-4 h-4 text-primary" />
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleInputChange}
+                  className="w-full py-3 px-4 rounded-2xl border-2 border-accent-primary/50 bg-white focus:border-primary focus:shadow-lg transition-all duration-300 outline-none"
+                  placeholder="Enter full name"
+                />
               </div>
-              <div>
-                <h2 className="heading-4 text-foreground">
-                  {modal.isEditMode ? "Edit Member" : "Add New Member"}
-                </h2>
-                <p className="text-sm text-secondary-foreground">
-                  {modal.isEditMode ? "Update member information" : "Add a new team member to your agency"}
-                </p>
+
+              <div className="space-y-3">
+                <label className="flex items-center gap-2 label-text font-semibold text-foreground">
+                  <FiMail className="w-4 h-4 text-primary" />
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-full py-3 px-4 rounded-2xl border-2 border-accent-primary/50 bg-white focus:border-primary focus:shadow-lg transition-all duration-300 outline-none"
+                  placeholder="Enter email address"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <label className="flex items-center gap-2 label-text font-semibold text-foreground">
+                  <FiPhone className="w-4 h-4 text-primary" />
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={handleInputChange}
+                  className="w-full py-3 px-4 rounded-2xl border-2 border-accent-primary/50 bg-white focus:border-primary focus:shadow-lg transition-all duration-300 outline-none"
+                  placeholder="Enter phone number"
+                />
               </div>
             </div>
 
-            {message.text && (
-              <div
-                className={`mb-6 p-4 rounded-2xl flex items-center gap-3 ${
-                  message.type === "success"
-                    ? "bg-green-50 border border-green-200"
-                    : "bg-red-50 border border-red-200"
-                }`}
-              >
-                {message.type === "success" ? (
-                  <FiCheck className="w-5 h-5 text-green-600" />
-                ) : (
-                  <FiX className="w-5 h-5 text-red-600" />
-                )}
-                <span className={`text-sm font-medium ${
-                  message.type === "success" ? "text-green-800" : "text-red-800"
-                }`}>
-                  {message.text}
-                </span>
-              </div>
-            )}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Left Column */}
-              <div className="space-y-6">
-                <div className="space-y-3">
-                  <label className="flex items-center gap-2 label-text font-semibold text-foreground">
-                    <FiUser className="w-4 h-4 text-primary" />
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleInputChange}
-                    className="w-full py-3 px-4 rounded-2xl border-2 border-accent-primary/50 bg-white focus:border-primary focus:shadow-lg transition-all duration-300 outline-none"
-                    placeholder="Enter full name"
-                  />
-                </div>
-
-                <div className="space-y-3">
-                  <label className="flex items-center gap-2 label-text font-semibold text-foreground">
-                    <FiMail className="w-4 h-4 text-primary" />
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full py-3 px-4 rounded-2xl border-2 border-accent-primary/50 bg-white focus:border-primary focus:shadow-lg transition-all duration-300 outline-none"
-                    placeholder="Enter email address"
-                  />
-                </div>
-
-                <div className="space-y-3">
-                  <label className="flex items-center gap-2 label-text font-semibold text-foreground">
-                    <FiPhone className="w-4 h-4 text-primary" />
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    name="phoneNumber"
-                    value={formData.phoneNumber}
-                    onChange={handleInputChange}
-                    className="w-full py-3 px-4 rounded-2xl border-2 border-accent-primary/50 bg-white focus:border-primary focus:shadow-lg transition-all duration-300 outline-none"
-                    placeholder="Enter phone number"
-                  />
-                </div>
+            {/* Right Column */}
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <label className="flex items-center gap-2 label-text font-semibold text-foreground">
+                  <FiLock className="w-4 h-4 text-primary" />
+                  {modal.isEditMode ? "Set New Password" : "Password"}
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  className="w-full py-3 px-4 rounded-2xl border-2 border-accent-primary/50 bg-white focus:border-primary focus:shadow-lg transition-all duration-300 outline-none"
+                  placeholder={
+                    modal.isEditMode ? "Set new password" : "Enter password"
+                  }
+                />
               </div>
 
-              {/* Right Column */}
-              <div className="space-y-6">
+              {!modal.isEditMode && (
                 <div className="space-y-3">
                   <label className="flex items-center gap-2 label-text font-semibold text-foreground">
                     <FiLock className="w-4 h-4 text-primary" />
-                    {modal.isEditMode ? "Set New Password" : "Password"}
+                    Confirm Password
                   </label>
                   <input
                     type="password"
-                    name="password"
-                    value={formData.password}
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
                     onChange={handleInputChange}
                     className="w-full py-3 px-4 rounded-2xl border-2 border-accent-primary/50 bg-white focus:border-primary focus:shadow-lg transition-all duration-300 outline-none"
-                    placeholder={modal.isEditMode ? "Set new password" : "Enter password"}
+                    placeholder="Confirm password"
                   />
                 </div>
+              )}
 
-                {!modal.isEditMode && (
-                  <div className="space-y-3">
-                    <label className="flex items-center gap-2 label-text font-semibold text-foreground">
-                      <FiLock className="w-4 h-4 text-primary" />
-                      Confirm Password
-                    </label>
-                    <input
-                      type="password"
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleInputChange}
-                      className="w-full py-3 px-4 rounded-2xl border-2 border-accent-primary/50 bg-white focus:border-primary focus:shadow-lg transition-all duration-300 outline-none"
-                      placeholder="Confirm password"
-                    />
-                  </div>
-                )}
-
-                <div className="space-y-3">
-                  <label className="flex items-center gap-2 label-text font-semibold text-foreground">
-                    <FiShield className="w-4 h-4 text-primary" />
-                    Role
-                  </label>
-                  <div className="relative">
-                    <select
-                      name="role"
-                      value={formData.role}
-                      onChange={handleInputChange}
-                      className="w-full py-3 px-4 rounded-2xl border-2 border-accent-primary/50 bg-white focus:border-primary focus:shadow-lg transition-all duration-300 outline-none appearance-none"
+              <div className="space-y-3">
+                <label className="flex items-center gap-2 label-text font-semibold text-foreground">
+                  <FiShield className="w-4 h-4 text-primary" />
+                  Role
+                </label>
+                <div className="relative">
+                  <select
+                    name="role"
+                    value={formData.role}
+                    onChange={handleInputChange}
+                    className="w-full py-3 px-4 rounded-2xl border-2 border-accent-primary/50 bg-white focus:border-primary focus:shadow-lg transition-all duration-300 outline-none appearance-none"
+                  >
+                    {roles.map((role) => (
+                      <option key={role} value={role}>
+                        {role}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                    <svg
+                      className="w-5 h-5 text-secondary-foreground"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      {roles.map((role) => (
-                        <option key={role} value={role}>
-                          {role}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
-                      <svg className="w-5 h-5 text-secondary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-accent-primary/30">
-              <button
-                className="flex items-center gap-2 px-6 py-3 rounded-2xl border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-300"
-                onClick={closeModal}
-              >
-                <FiX className="w-4 h-4" />
-                <span className="label-text font-medium">Cancel</span>
-              </button>
-              <button
-                className="flex items-center gap-2 px-8 py-3 rounded-2xl bg-gradient-to-r from-primary to-secondary text-white hover:shadow-lg transition-all duration-300 hover:scale-105"
-                onClick={handleSave}
-              >
-                <FiSave className="w-4 h-4" />
-                <span className="label-text font-medium">
-                  {modal.isEditMode ? "Update Member" : "Add Member"}
-                </span>
-              </button>
-            </div>
+          </div>
+          <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-accent-primary/30">
+            <button
+              className="flex items-center gap-2 px-6 py-3 rounded-2xl border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-300"
+              onClick={closeModal}
+            >
+              <FiX className="w-4 h-4" />
+              <span className="label-text font-medium">Cancel</span>
+            </button>
+            <button
+              className="flex items-center gap-2 px-8 py-3 rounded-2xl bg-gradient-to-r from-primary to-secondary text-white hover:shadow-lg transition-all duration-300 hover:scale-105"
+              onClick={handleSave}
+            >
+              <FiSave className="w-4 h-4" />
+              <span className="label-text font-medium">
+                {modal.isEditMode ? "Update Member" : "Add Member"}
+              </span>
+            </button>
+          </div>
         </div>
       </FullscreenModal>
     </div>

@@ -266,18 +266,21 @@ const ClientListPage = () => {
 
   // Select all functionality
   const handleSelectAll = () => {
-    if (selectedClients.size === currentItems.length && currentItems.length > 0) {
+    if (
+      selectedClients.size === currentItems.length &&
+      currentItems.length > 0
+    ) {
       // If all current page items are selected, deselect all
       setSelectedClients(new Set());
     } else {
       // Select all current page items
-      const allCurrentIds = new Set(currentItems.map(client => client.id));
+      const allCurrentIds = new Set(currentItems.map((client) => client.id));
       setSelectedClients(allCurrentIds);
     }
   };
 
   const handleSelectClient = (clientId) => {
-    setSelectedClients(prev => {
+    setSelectedClients((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(clientId)) {
         newSet.delete(clientId);
@@ -291,9 +294,10 @@ const ClientListPage = () => {
   // CSV Export functionality
   const handleExportCSV = () => {
     // Get selected clients data or all filtered clients if none selected
-    const clientsToExport = selectedClients.size > 0 
-      ? filteredClients.filter(client => selectedClients.has(client.id))
-      : filteredClients;
+    const clientsToExport =
+      selectedClients.size > 0
+        ? filteredClients.filter((client) => selectedClients.has(client.id))
+        : filteredClients;
 
     if (clientsToExport.length === 0) {
       toast.warning("No clients to export");
@@ -306,68 +310,78 @@ const ClientListPage = () => {
   const confirmExportCSV = () => {
     try {
       // Get selected clients data or all filtered clients if none selected
-      const clientsToExport = selectedClients.size > 0 
-        ? filteredClients.filter(client => selectedClients.has(client.id))
-        : filteredClients;
+      const clientsToExport =
+        selectedClients.size > 0
+          ? filteredClients.filter((client) => selectedClients.has(client.id))
+          : filteredClients;
 
       // Format data for CSV with only necessary fields
-      const csvData = clientsToExport.map(client => ({
+      const csvData = clientsToExport.map((client) => ({
         id: client.id,
-        business_name: client.business_name || '',
-        business_type: client.business_type || '',
-        email: client.email || '',
-        mobile_number: client.mobile_number || '',
-        telephone_number: client.telephone_number || '',
-        tin: client.tin || '',
-        business_address: client.business_address || '',
-        status: client.status || '',
-        created_at: client.created_at || '',
-        updated_at: client.updated_at || ''
+        business_name: client.business_name || "",
+        business_type: client.business_type || "",
+        email: client.email || "",
+        mobile_number: client.mobile_number || "",
+        telephone_number: client.telephone_number || "",
+        tin: client.tin || "",
+        business_address: client.business_address || "",
+        status: client.status || "",
+        created_at: client.created_at || "",
+        updated_at: client.updated_at || "",
       }));
 
       // Create CSV headers
       const headers = [
-        'ID',
-        'Business Name',
-        'Business Type', 
-        'Email',
-        'Mobile Number',
-        'Telephone Number',
-        'TIN',
-        'Business Address',
-        'Status',
-        'Created At',
-        'Updated At'
+        "ID",
+        "Business Name",
+        "Business Type",
+        "Email",
+        "Mobile Number",
+        "Telephone Number",
+        "TIN",
+        "Business Address",
+        "Status",
+        "Created At",
+        "Updated At",
       ];
 
       // Convert to CSV format
       const csvContent = [
-        headers.join(','),
-        ...csvData.map(row => 
-          Object.values(row).map(value => {
-            // Escape quotes and wrap in quotes if contains comma, quote, or newline
-            const escapedValue = String(value).replace(/"/g, '""');
-            return /[",\n\r]/.test(escapedValue) ? `"${escapedValue}"` : escapedValue;
-          }).join(',')
-        )
-      ].join('\n');
+        headers.join(","),
+        ...csvData.map((row) =>
+          Object.values(row)
+            .map((value) => {
+              // Escape quotes and wrap in quotes if contains comma, quote, or newline
+              const escapedValue = String(value).replace(/"/g, '""');
+              return /[",\n\r]/.test(escapedValue)
+                ? `"${escapedValue}"`
+                : escapedValue;
+            })
+            .join(",")
+        ),
+      ].join("\n");
 
       // Create and download file
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
       const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', `clients_${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = 'hidden';
+      link.setAttribute("href", url);
+      link.setAttribute(
+        "download",
+        `clients_${new Date().toISOString().split("T")[0]}.csv`
+      );
+      link.style.visibility = "hidden";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
-      toast.success(`Successfully exported ${clientsToExport.length} clients to CSV`);
+      toast.success(
+        `Successfully exported ${clientsToExport.length} clients to CSV`
+      );
       setShowExportModal(false);
     } catch (error) {
-      console.error('Error exporting CSV:', error);
-      toast.error('Failed to export CSV file');
+      console.error("Error exporting CSV:", error);
+      toast.error("Failed to export CSV file");
       setShowExportModal(false);
     }
   };
@@ -375,59 +389,48 @@ const ClientListPage = () => {
   return (
     <div className="p-6 flex-1 min-w-0">
       <div className="flex flex-col h-full">
-        {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="heading-4 text-foreground">Client Management</h1>
-            <button
-              className="primary-btn flex items-center gap-2"
-              onClick={() => setIsAddClientOpen(true)}
-            >
-              Add Client
-            </button>
-          </div>
-
-          {/* Search and Filter Section */}
-          <div className="bg-background rounded-2xl border border-accent-primary shadow-sm p-6">
-            <div className="flex justify-between items-center gap-4">
-              {/* Search Bar */}
-              <div className="relative flex-1">
-                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search by client name, email, phone, documents, creation date, or status"
-                  className="w-full max-w-[650px] pl-10 pr-4 py-3 rounded-xl border border-accent-primary bg-background text-foreground placeholder-secondary-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-
-              {/* Export Button */}
-              <button 
-                className="secondary-btn flex items-center gap-2"
-                onClick={handleExportCSV}
-              >
-                <FiDownload className="w-4 h-4" />
-                Export CSV
-              </button>
-            </div>
-          </div>
-        </div>
-
         {/* Client Table */}
         <div className="bg-white shadow-lg rounded-2xl overflow-hidden border border-gray-100">
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-gray-100">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <FiUsers className="text-blue-600 text-lg" />
+            {/* header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <FiUsers className="text-blue-600 text-lg" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    Client Management
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    Manage and organize your clients
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-800">
-                  Client Management
-                </h2>
-                <p className="text-sm text-gray-600">
-                  Manage and organize your clients
-                </p>
+              <div className="flex items-center gap-4">
+                <div className="relative flex-1">
+                  <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-foreground" />
+                  <input
+                    type="text"
+                    placeholder="Search by client name, email, phone, documents, creation date, or status"
+                    className="w-[600px] pl-10 pr-4 py-3 rounded-xl border border-accent-primary bg-background text-foreground placeholder-secondary-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <button
+                  className="secondary-btn flex items-center gap-2"
+                  onClick={handleExportCSV}
+                >
+                  <FiDownload className="w-4 h-4" />
+                  Export CSV
+                </button>
+                <button
+                  className="primary-btn flex items-center gap-2"
+                  onClick={() => setIsAddClientOpen(true)}
+                >
+                  Add Client
+                </button>
               </div>
             </div>
           </div>
@@ -440,7 +443,10 @@ const ClientListPage = () => {
                       <input
                         type="checkbox"
                         className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-                        checked={currentItems.length > 0 && selectedClients.size === currentItems.length}
+                        checked={
+                          currentItems.length > 0 &&
+                          selectedClients.size === currentItems.length
+                        }
                         onChange={handleSelectAll}
                       />
                     </th>
@@ -703,8 +709,12 @@ const ClientListPage = () => {
                     <FiDownload className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-white">Export to CSV</h3>
-                    <p className="text-white/90 text-sm">Download client data</p>
+                    <h3 className="text-xl font-bold text-white">
+                      Export to CSV
+                    </h3>
+                    <p className="text-white/90 text-sm">
+                      Download client data
+                    </p>
                   </div>
                 </div>
               </div>
@@ -719,13 +729,13 @@ const ClientListPage = () => {
                       </div>
                       <div>
                         <p className="font-semibold text-foreground">
-                          {selectedClients.size > 0 
-                            ? `${selectedClients.size} selected clients` 
+                          {selectedClients.size > 0
+                            ? `${selectedClients.size} selected clients`
                             : `${filteredClients.length} clients`}
                         </p>
                         <p className="text-sm text-secondary-foreground">
-                          {selectedClients.size > 0 
-                            ? "Export selected clients only" 
+                          {selectedClients.size > 0
+                            ? "Export selected clients only"
                             : "Export all filtered clients"}
                         </p>
                       </div>
@@ -733,7 +743,9 @@ const ClientListPage = () => {
                   </div>
 
                   <div className="bg-gray-50 rounded-xl p-4">
-                    <h4 className="font-semibold text-foreground mb-2">Included Fields:</h4>
+                    <h4 className="font-semibold text-foreground mb-2">
+                      Included Fields:
+                    </h4>
                     <div className="grid grid-cols-2 gap-2 text-sm text-secondary-foreground">
                       <span>• Business Name</span>
                       <span>• Business Type</span>
