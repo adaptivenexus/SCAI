@@ -287,7 +287,7 @@ const MembersManagementPage = () => {
                   />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xs font-bold text-white">
+                  <span className="text- font-bold text-white">
                     {members.length}/20
                   </span>
                 </div>

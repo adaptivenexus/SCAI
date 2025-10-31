@@ -26,7 +26,7 @@ import DocumentShareModal from "@/components/Dashboard/documentManagement/Docume
 import { toast } from "react-toastify";
 
 import { useAuth } from "@/context/AuthContext";
-import { formatDate } from "@/utils";
+import { formatDate, formatDate2 } from "@/utils";
 
 // Internal: try to parse common numeric date formats when native parsing fails
 const parseFlexibleDate = (raw) => {
@@ -479,7 +479,7 @@ const AllDocumentPage = () => {
           title: parsedData.suggested_title || "Untitled",
           category_name:
             doc.category?.name || parsedData.document_type || "Uncategorized",
-          uploaded_at: doc.uploaded_at || "",
+          uploaded_at: formatDate(doc.uploaded_at) || "",
           status: doc.status || "Pending",
         };
 
@@ -489,7 +489,7 @@ const AllDocumentPage = () => {
         }
 
         if (parsedData.document_date) {
-          rowData.document_date = parsedData.document_date;
+          rowData.document_date = formatDate(parsedData.document_date);
         }
 
         if (parsedData.number_of_pages) {
@@ -713,15 +713,14 @@ const AllDocumentPage = () => {
     );
   }
 
-  // --- CLIENT FOLDER LIST ---
-  // (UI remains the same as previous edit)
   return (
     <div className="p-6 flex-1 min-w-0">
       <div className="flex flex-col h-full">
-        <div className="mb-8">
+        {/* --- CLIENT FOLDER LIST --- */}
+        <div className="mb-4">
           {/* Client Filter Cards */}
-          <div className="bg-background rounded-2xl border border-accent-primary shadow-sm p-6">
-            <div className="flex flex-nowrap gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-accent-primary scrollbar-track-accent-secondary p-5">
+          <div className="bg-background rounded-2xl border border-accent-primary shadow-sm">
+            <div className="flex flex-nowrap gap-3 overflow-x-auto scrollbar-thin scrollbar-thumb-accent-primary scrollbar-track-accent-secondary p-5">
               {clients && clients.length > 0 ? (
                 clients.map((client) => (
                   <button
@@ -928,9 +927,6 @@ const AllDocumentPage = () => {
                   Manage and organize your documents
                 </p>
               </div>
-            </div>
-            <div className="flex items-center gap-3">
-              {/* --- Search Input --- */}
               <div className="relative max-w-md">
                 <input
                   type="text"
@@ -941,6 +937,10 @@ const AllDocumentPage = () => {
                 />
                 <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-foreground w-4 h-4" />
               </div>
+            </div>
+            <div className="flex items-center gap-3">
+              {/* --- Search Input --- */}
+
               {/* --- Action Buttons --- */}
               <div className="flex gap-3 ml-auto">
                 {/* Top buttons and search */}
@@ -1131,7 +1131,7 @@ const AllDocumentPage = () => {
                   <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wider">
                     <div className="relative" ref={processDateRef}>
                       <div
-                        className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 transition-colors rounded px-2 py-1"
+                        className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 transition-colors rounded py-1"
                         onClick={() =>
                           setShowProcessDatePicker(!showProcessDatePicker)
                         }
@@ -1178,7 +1178,7 @@ const AllDocumentPage = () => {
                   <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wider">
                     <div className="relative" ref={documentDateRef}>
                       <div
-                        className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 transition-colors rounded px-2 py-1"
+                        className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 transition-colors rounded py-1"
                         onClick={() =>
                           setShowDocumentDatePicker(!showDocumentDatePicker)
                         }
@@ -1225,7 +1225,7 @@ const AllDocumentPage = () => {
                   <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wider">
                     <div className="relative" ref={statusRef}>
                       <div
-                        className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 transition-colors rounded px-2 py-1"
+                        className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 transition-colors rounded py-1"
                         onClick={() =>
                           setShowStatusDropdown(!showStatusDropdown)
                         }

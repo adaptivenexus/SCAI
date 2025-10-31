@@ -144,11 +144,11 @@ const BillingPage = () => {
               <div className="space-y-4">
                 {/* Plan Details Section */}
                 <div className="flex items-center justify-between">
-                  <h4 className="label-text font-semibold text-foreground">
+                  <h4 className="text-lg font-semibold text-foreground">
                     {subscriptionDetails.name}
                   </h4>
                   {subscriptionDetails.price !== "0.00" && (
-                    <span className="px-3 py-1 rounded-full bg-primary text-white text-xs font-medium">
+                    <span className="px-3 py-1 rounded-full bg-primary text-white text-lg">
                       ${subscriptionDetails.price}/Month
                     </span>
                   )}
@@ -288,7 +288,7 @@ const BillingPage = () => {
             </button>
           </div>
           {/* Security Badge */}
-          <div className="mt-4 p-4 rounded-2xl border border-green-200 bg-green-50 flex items-center gap-3">
+          <div className="mt-6 p-4 rounded-2xl border border-green-200 bg-green-50 flex items-center gap-3">
             <FiCheckCircle className="w-5 h-5 text-green-600" />
             <div>
               <p className="text-sm font-semibold text-green-800">
